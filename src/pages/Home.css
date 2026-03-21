@@ -62,3 +62,29 @@
   }
   
   .callback-float button { background: var(--brand-teal); color: white; border: none; padding: 8px 15px; border-radius: 5px; margin-top: 10px; }
+
+  /* Custom Animations */
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  .reveal { animation: fadeInUp 0.8s ease-out forwards; }
+  
+  /* Amazon Style Card Hover */
+  .premium-card {
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    border: 1px solid #e2e8f0;
+  }
+  
+  .premium-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    border-color: #3b82f6;
+  }
+  
+  /* Category Circle Animation */
+  .cat-circle {
+    transition: transform 0.3s ease;
+  }
+  .cat-circle:hover { transform: scale(1.1); color: #2563eb; }
