@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import Papa from 'papaparse';
+import { useNavigate } from 'react-router-dom'; // ✅ Navigation ke liye add kiya
 import './Home.css';
-
 
 const Home = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [allTests, setAllTests] = useState([]); 
   const [displayTests, setDisplayTests] = useState([]);
   const [selectedTest, setSelectedTest] = useState(null);
+  const navigate = useNavigate(); // ✅ Initialize navigate
 
   useEffect(() => {
     const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSbxApGB2BZluOJ4nO9PXtMN2cRnibZE0dgcLQajFRQB1dkdpV1kdMild2-22tXEjEyipkdo8_dPcOx/pub?gid=0&single=true&output=csv";
@@ -24,11 +25,10 @@ const Home = () => {
     });
   }, []);
 
-  // ✅ WHATSAPP BOOKING FUNCTION
+  // ✅ FIXED BOOKING FUNCTION: Ab ye WhatsApp nahi, Order Page par bhejega
   const handleBooking = (test) => {
-    const myNumber = "919999999999"; // <-- Yahan apna 10 digit number daalein (91 ke saath)
-    const text = `Hi TestYaan! I want to book this test:%0A%0A*Test:* ${test.name}%0A*Lab:* ${test.lab}%0A*Price:* ₹${test.price}%0A%0APlease confirm my booking.`;
-    window.open(`https://wa.me/${myNumber}?text=${text}`, '_blank');
+    const query = `?test=${encodeURIComponent(test.name)}&lab=${encodeURIComponent(test.lab)}&price=${test.price}`;
+    navigate(`/order${query}`); // ✅ Ye line aapko Order Page par le jayegi
   };
 
   const handleSearch = (value) => {
@@ -71,14 +71,13 @@ const Home = () => {
         </div>
       </section>
 
-      {/* 📦 Tests Grid (With Logo Fix) */}
+      {/* 📦 Tests Grid */}
       <section style={{ maxWidth: '1200px', margin: '50px auto', padding: '0 20px' }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '25px' }}>
           {displayTests.map((test, index) => (
             <div className="test-card" key={index} style={{ background: 'white', borderRadius: '20px', padding: '25px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }}>
               
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
-                {/* ✅ LOGO FIX: Using "logoUrl" from your sheet */}
                 {test.logoUrl ? (
                   <img src={test.logoUrl} alt={test.lab} style={{ height: '30px', maxWidth: '100px', objectFit: 'contain' }} />
                 ) : (
@@ -100,7 +99,6 @@ const Home = () => {
               <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
                 <button onClick={() => setSelectedTest(test)} style={{ flex: 1, padding: '12px', background: '#f1f5f9', border: 'none', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer' }}>Details</button>
                 
-                {/* ✅ BOOKING FIX: WhatsApp Booking Call */}
                 <button 
                   onClick={() => handleBooking(test)}
                   style={{ flex: 1, padding: '12px', background: '#1e3a8a', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer' }}
@@ -113,7 +111,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* 弹出 Modal Popup */}
+      {/* Details Popup */}
       {selectedTest && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
           <div style={{ background: 'white', padding: '30px', borderRadius: '20px', maxWidth: '450px', width: '90%', position: 'relative' }}>
@@ -134,7 +132,7 @@ const Home = () => {
               onClick={() => handleBooking(selectedTest)}
               style={{ width: '100%', marginTop: '25px', padding: '15px', background: '#22c55e', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer' }}
             >
-              Confirm Booking (WhatsApp)
+              Confirm Booking
             </button>
           </div>
         </div>
