@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 
 export default function OrderPage() {
@@ -6,9 +6,51 @@ export default function OrderPage() {
   const params = new URLSearchParams(location.search);
   const today = new Date().toISOString().split("T")[0];
 
-  const handleSubmit = (e) => {
+  // States
+  const [showPopup, setShowPopup] = useState(false);
+  const [orderId, setOrderId] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    alert("🎉 Booking Request Sent Successfully!");
+    setLoading(true);
+
+    const fd = new FormData(e.target);
+    // Apps Script ke variable names se match karta hua data
+    const bookingData = {
+      pName: fd.get('pName'),
+      pMobile: fd.get('pMobile'),
+      pEmail: fd.get('pEmail') || "N/A",
+      pAddress: fd.get('pAddress'),
+      pPincode: fd.get('pPincode') || "N/A",
+      pState: fd.get('pState') || "Delhi-NCR",
+      pDate: fd.get('pDate'),
+      pTime: "Morning Slot", // Dummy time
+      testName: params.get('test') || 'Health Test',
+      labName: params.get('lab') || 'Partner Lab',
+      price: params.get('price') || '0'
+    };
+
+    try {
+      const scriptURL = "https://script.google.com/macros/s/AKfycbxbuNVIA7n4mFfWPfM4BM5qvOoicD53Sjjw2GKsaGmJWTAaFX7j2LG8hiiExVibzlLb/exec";
+      const response = await fetch(scriptURL, {
+        method: 'POST',
+        body: JSON.stringify(bookingData),
+      });
+
+      const result = await response.json();
+      if (result.result === "success") {
+        setOrderId(result.orderId);
+        setShowPopup(true);
+      } else {
+        alert("Booking failed, please try again.");
+      }
+    } catch (error) {
+      console.error("Error!", error);
+      alert("Network Error. Check console.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -18,147 +60,77 @@ export default function OrderPage() {
         {/* Left Side: Form */}
         <div className="form-section" style={{ flex: 1.5, padding: '40px' }}>
           <h2 style={{ color: '#0056b3', marginBottom: '10px' }}>Patient Details</h2>
-          <p style={{ color: '#666', marginBottom: '30px', fontSize: '14px' }}>Please fill in the details for home sample collection.</p>
-          
           <form onSubmit={handleSubmit} style={gridFormStyle}>
             <div className="input-box" style={span2}>
               <label style={labelStyle}>Full Name</label>
-              <input type="text" placeholder="Enter patient's full name" required style={inputStyle} />
-            </div>
-
-            <div className="input-box">
-              <label style={labelStyle}>Gender</label>
-              <select required style={inputStyle}>
-                <option value="">Select</option>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-              </select>
+              <input name="pName" type="text" placeholder="Enter patient's name" required style={inputStyle} />
             </div>
 
             <div className="input-box">
               <label style={labelStyle}>Mobile Number</label>
-              <input type="tel" placeholder="10-digit number" pattern="[0-9]{10}" required style={inputStyle} />
+              <input name="pMobile" type="tel" placeholder="10-digit number" pattern="[0-9]{10}" required style={inputStyle} />
             </div>
 
             <div className="input-box">
-              <label style={labelStyle}>Date of Birth</label>
-              <input type="date" required style={inputStyle} />
+              <label style={labelStyle}>Email (For Report)</label>
+              <input name="pEmail" type="email" placeholder="Optional" style={inputStyle} />
             </div>
 
             <div className="input-box">
               <label style={labelStyle}>Collection Date</label>
-              <input type="date" min={today} required style={inputStyle} />
+              <input name="pDate" type="date" min={today} required style={inputStyle} />
             </div>
 
             <div className="input-box" style={span2}>
               <label style={labelStyle}>Full Address</label>
-              <textarea placeholder="House No, Landmark, Pincode" required style={{...inputStyle, height: '80px'}}></textarea>
+              <textarea name="pAddress" placeholder="House No, Landmark, Pincode" required style={{...inputStyle, height: '80px'}}></textarea>
             </div>
 
-            <button type="submit" className="confirm-btn" style={btnStyle}>
-              Confirm Booking
+            <button type="submit" disabled={loading} style={{...btnStyle, opacity: loading ? 0.7 : 1}}>
+              {loading ? "Processing..." : "Confirm Booking"}
             </button>
           </form>
         </div>
 
-        {/* Right Side: Order Summary */}
+        {/* Right Side: Summary */}
         <div className="summary-section" style={summarySidebarStyle}>
           <h3 style={{ color: '#fff', marginBottom: '20px' }}>Order Summary</h3>
-          <div style={summaryItemStyle}>
-            <span>Test Name</span>
-            <strong>{params.get('test') || 'Health Test'}</strong>
-          </div>
-          <div style={summaryItemStyle}>
-            <span>Lab Partner</span>
-            <strong>{params.get('lab') || 'Partner Lab'}</strong>
-          </div>
+          <div style={summaryItemStyle}><span>Test</span><strong>{params.get('test')}</strong></div>
+          <div style={summaryItemStyle}><span>Lab</span><strong>{params.get('lab')}</strong></div>
           <hr style={{ border: '0.5px solid rgba(255,255,255,0.2)', margin: '20px 0' }} />
-          <div style={{ ...summaryItemStyle, fontSize: '20px' }}>
-            <span>Total Pay</span>
-            <strong>₹{params.get('price') || '0'}</strong>
-          </div>
-          <div style={badgeStyle}>✓ Home Collection Included</div>
+          <div style={{ ...summaryItemStyle, fontSize: '20px' }}><span>Total</span><strong>₹{params.get('price')}</strong></div>
         </div>
-
       </div>
+
+      {/* SUCCESS POPUP MODAL */}
+      {showPopup && (
+        <div style={overlayStyle}>
+          <div style={popupStyle}>
+            <div style={{fontSize: '50px'}}>✅</div>
+            <h2 style={{color: '#1e3a8a'}}>Booking Success!</h2>
+            <p>Your Unique Order ID:</p>
+            <div style={{fontSize: '24px', fontWeight: 'bold', background: '#f0f4f8', padding: '10px', borderRadius: '10px', margin: '15px 0', border: '2px dashed #0056b3'}}>{orderId}</div>
+            <p style={{fontSize: '13px', color: '#666'}}>A confirmation email has been sent. Our team will call you soon.</p>
+            <button onClick={() => window.location.href = "/"} style={whatsappBtnStyle}>Go to Home</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
-// --- STYLES ---
-const wrapperStyle = {
-  background: '#f0f4f8',
-  minHeight: '100vh',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  padding: '20px'
-};
+// --- Styles ---
+const overlayStyle = { position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999 };
+const popupStyle = { background: '#fff', padding: '40px', borderRadius: '20px', textAlign: 'center', maxWidth: '400px', width: '90%' };
+const whatsappBtnStyle = { width: '100%', padding: '15px', background: '#1e3a8a', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: 'bold', marginTop: '20px', cursor: 'pointer' };
 
-const cardStyle = {
-  background: '#fff',
-  width: '100%',
-  maxWidth: '1000px',
-  display: 'flex',
-  borderRadius: '20px',
-  overflow: 'hidden',
-  boxShadow: '0 20px 40px rgba(0,0,0,0.1)'
-};
-
-const summarySidebarStyle = {
-  flex: 1,
-  background: 'linear-gradient(135deg, #0056b3 0%, #003d82 100%)',
-  padding: '40px',
-  color: '#fff',
-  display: 'flex',
-  flexDirection: 'column'
-};
-
-const gridFormStyle = {
-  display: 'grid',
-  gridTemplateColumns: '1fr 1fr',
-  gap: '20px'
-};
-
-const inputStyle = {
-  width: '100%',
-  padding: '12px',
-  borderRadius: '8px',
-  border: '1px solid #ddd',
-  fontSize: '15px',
-  marginTop: '5px',
-  boxSizing: 'border-box'
-};
-
+// Aapke purane styles niche waise hi rakhein...
+const wrapperStyle = { background: '#f0f4f8', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' };
+const cardStyle = { background: '#fff', width: '100%', maxWidth: '1000px', display: 'flex', borderRadius: '20px', overflow: 'hidden', boxShadow: '0 20px 40px rgba(0,0,0,0.1)' };
+const summarySidebarStyle = { flex: 1, background: 'linear-gradient(135deg, #0056b3 0%, #003d82 100%)', padding: '40px', color: '#fff' };
+const gridFormStyle = { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' };
+const inputStyle = { width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', marginTop: '5px' };
 const labelStyle = { fontSize: '13px', fontWeight: 'bold', color: '#555' };
 const span2 = { gridColumn: 'span 2' };
-
-const btnStyle = {
-  gridColumn: 'span 2',
-  padding: '15px',
-  background: '#FF8C00',
-  color: '#fff',
-  border: 'none',
-  borderRadius: '10px',
-  fontSize: '18px',
-  fontWeight: 'bold',
-  cursor: 'pointer',
-  marginTop: '10px',
-  transition: '0.3s'
-};
-
-const summaryItemStyle = {
-  display: 'flex',
-  justifyContent: 'space-between',
-  marginBottom: '15px',
-  fontSize: '15px'
-};
-
-const badgeStyle = {
-  marginTop: 'auto',
-  background: 'rgba(255,255,255,0.2)',
-  padding: '10px',
-  borderRadius: '8px',
-  textAlign: 'center',
-  fontSize: '13px'
-};
+const btnStyle = { gridColumn: 'span 2', padding: '15px', background: '#FF8C00', color: '#fff', border: 'none', borderRadius: '10px', fontSize: '18px', fontWeight: 'bold', cursor: 'pointer' };
+const summaryItemStyle = { display: 'flex', justifyContent: 'space-between', marginBottom: '15px' };
