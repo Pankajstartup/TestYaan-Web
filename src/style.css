@@ -1,0 +1,880 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    background-color: #f4f7f9;
+}
+
+/* Header Styling */
+header {
+    display: flex;
+    justify-content: space-between;
+    padding: 15px 50px;
+    background: white;
+    align-items: center;
+}
+
+.logo { font-weight: bold; font-size: 24px; color: #0056b3; }
+.logo span { color: #f39c12; }
+
+.signup-btn {
+    background-color: #ff8c00;
+    color: white;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* Lab Tabs */
+.lab-tabs {
+    display: flex;
+    gap: 10px;
+    padding: 20px 50px;
+    background: #004a99;
+}
+
+.lab-tabs button {
+    padding: 10px 20px;
+    border: none;
+    background: #ffffff33;
+    color: white;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.lab-tabs button.active { background: white; color: #004a99; font-weight: bold; }
+
+/* Search Section */
+.search-section {
+    padding: 20px 50px;
+    display: flex;
+    gap: 10px;
+}
+
+.search-section input {
+    flex: 1;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+/* Grid Layout */
+.test-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+    padding: 50px;
+}
+
+.card {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    text-align: left;
+}
+
+.price { font-weight: bold; margin: 15px 0; }
+
+.book-btn {
+    width: 100%;
+    background-color: #ff8c00;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+/* Styling for the Lab Tag inside the card */
+.lab-tag {
+    font-size: 10px;
+    background: #eef2f7;
+    padding: 2px 8px;
+    border-radius: 10px;
+    color: #0056b3;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+/* Ensure hidden cards don't take up space */
+.card.hidden {
+    display: none;
+}
+
+/* Active tab button style */
+tab-btn.active {
+    background-color: white !important;
+    color: #004a99 !important;
+    font-weight: bold;
+    border-bottom: 3px solid #f39c12; /* Orange line niche */
+}
+
+/* Styling for the Modal (Replaces old modal styles) */
+
+/* Specific font for the form */
+#orderModal {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+}
+
+/* Modal Background */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 2000; /* Higher than any other element */
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.6); /* Slightly darker */
+    backdrop-filter: blur(5px); /* Soft blur effect */
+    transition: opacity 0.3s ease;
+}
+
+/* Modal Box - Main Wrapper */
+.modal-content-wrapper {
+    background-color: #ffffff;
+    margin: 5% auto; /* Position slightly higher */
+    padding: 20px;
+    max-height: 90vh;
+    width: 90%; max-width: 500px; /* Responsive max-width */
+    border-radius: 15px; /* Softer corners */
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    animation: slideIn 0.4s ease;
+    overflow-y: auto;
+    scrollbar-width: thin;
+}
+
+/* Animation */
+@keyframes slideIn {
+    from { transform: translateY(-50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* Close Button */
+.close-btn {
+    position: absolute; right: 20px; top: 15px;
+    font-size: 28px; cursor: pointer; color: #aaa; transition: color 0.2s;
+}
+.close-btn:hover { color: #333; }
+
+/* Modal Header */
+.modal-header { text-align: center; margin-bottom: 25px; border-bottom: 1px solid #eee; padding-bottom: 15px;}
+.modal-header h2 { color: #004a99; margin: 0; font-size: 24px; }
+.modal-header p { color: #777; margin: 5px 0 0 0; font-size: 14px; }
+
+/* Form Dividers */
+.input-divider {
+    font-weight: bold; color: #555; text-transform: uppercase;
+    font-size: 12px; letter-spacing: 1px; margin: 20px 0 10px 0;
+    border-left: 3px solid #f39c12; padding-left: 10px; /* Orange accent */
+}
+
+/* Input Group Styles */
+.input-group { position: relative; display: flex; align-items: center; margin-bottom: 15px; flex: 1; }
+.input-group .icon { position: absolute; left: 12px; color: #888; font-size: 16px; pointer-events: none; }
+
+.input-group input, .input-group select, .input-group textarea {
+    width: 100%; padding: 12px 12px 12px 40px; /* Padding for icon */
+    border: 1px solid #e1e1e1; border-radius: 8px;
+    font-size: 14px; transition: border-color 0.2s, box-shadow 0.2s;
+    box-sizing: border-box; background-color: #f9f9f9;
+}
+
+.input-group input:focus, .input-group select:focus, .input-group textarea:focus {
+    outline: none; border-color: #004a99; /* Blue focus color */
+    box-shadow: 0 0 0 3px rgba(0,86,179,0.1);
+}
+
+.input-group.full-width { width: 100%; }
+.input-row { display: flex; gap: 15px; width: 100%; }
+
+/* Styling for the disabled test name field */
+.input-group.disabled input {
+    background-color: #eef2f7; color: #004a99; font-weight: bold;
+    border-color: #d8e3ee;
+}
+.input-group.disabled .icon { color: #004a99; }
+
+/* Stylish Confirm Button */
+.stylish-confirm-btn {
+    width: 100%; background: linear-gradient(135deg, #f39c12 0%, #ff8c00 100%); /* Orange Gradient */
+    color: white; border: none; padding: 15px; margin-top: 25px;
+    border-radius: 10px; font-weight: bold; font-size: 16px;
+    cursor: pointer; transition: transform 0.1s, box-shadow 0.2s;
+    display: flex; justify-content: center; align-items: center; gap: 10px;
+}
+.stylish-confirm-btn:hover {
+    box-shadow: 0 5px 15px rgba(243,156,18,0.3);
+}
+.stylish-confirm-btn:active { transform: scale(0.98); }
+
+/* Body aur Font setup */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f7f6;
+    margin: 0;
+    color: #333;
+  }
+  
+  /* Home Page Container */
+  .home-container {
+    padding: 50px 20px;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+  /* Lab Buttons Styling */
+  .lab-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 30px;
+  }
+  
+  .tab-btn {
+    padding: 15px 30px;
+    background-color: #ffffff;
+    color: #007bff;
+    text-decoration: none;
+    border: 2px solid #007bff;
+    border-radius: 8px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+  }
+  
+  .tab-btn:hover {
+    background-color: #007bff;
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  }
+  
+  /* Lab Card Styling */
+  .test-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+    padding: 20px;
+  }
+  
+  .card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+    text-align: center;
+    border-top: 5px solid #007bff;
+  }
+  
+  .lab-tag {
+    background: #e7f3ff;
+    color: #007bff;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+  }
+  
+  .book-btn {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 15px;
+  }
+  /* Dr. Dang button ka alag rang (Optional) */
+.dr-dang-btn {
+    border-color:  #06346d; /* Purple color */
+    color: #8e44ad;
+  }
+  
+  .dr-dang-btn:hover {
+    background-color: #034f5e;
+    color: rgb(67, 13, 231);
+  }
+  /* Modal Overlay (Background blackish) */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  /* Popup Box */
+  .modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 450px;
+    position: relative;
+  }
+  
+  .close-btn {
+    position: absolute;
+    right: 15px; top: 10px;
+    font-size: 24px; cursor: pointer;
+  }
+  
+  /* Form Styling */
+  .modal-content input, .modal-content select, .modal-content textarea {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+  }
+  
+  .input-row { display: flex; gap: 10px; }
+  
+  .confirm-btn {
+    width: 100%;
+    background: #28a745;
+    color: white;
+    padding: 12px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 10px;
+  }
+
+  /* Modal Wrapper */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(5px); /* Piche ka screen blur ho jayega */
+    display: flex; justify-content: center; align-items: center;
+    z-index: 2000;
+}
+
+.modal-content-wrapper {
+    background: #fff;
+    width: 95%; max-width: 500px;
+    border-radius: 20px;
+    padding: 25px;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    max-height: 90vh; overflow-y: auto;
+}
+
+.modal-header {
+    border-bottom: 2px solid #f0f0f0;
+    margin-bottom: 20px; padding-bottom: 10px;
+}
+
+.modal-header h2 { color: #007bff; margin: 0; }
+.modal-header p { color: #666; font-size: 14px; margin-top: 5px; }
+
+/* Form Fields */
+.input-group {
+    margin-bottom: 15px;
+}
+
+.input-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+input, select, textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1.5px solid #ddd;
+    border-radius: 10px;
+    font-size: 15px;
+    outline: none;
+    transition: 0.3s;
+}
+
+input:focus, select:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0,123,255,0.2);
+}
+
+.input-divider {
+    font-weight: bold;
+    color: #444;
+    font-size: 13px;
+    margin: 15px 0 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.confirm-btn {
+    background: linear-gradient(135deg, #28a745, #218838);
+    color: white;
+    width: 100%;
+    padding: 15px;
+    border: none;
+    border-radius: 12px;
+    font-size: 17px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: 0.3s;
+}
+
+.confirm-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(40,167,69,0.3);
+}
+input[type="email"] {
+    border: 1.5px solid #007bff; /* Email box ko highlight karne ke liye blue border */
+    background-color: #f0f7ff;
+}
+
+/* Color Variables */
+:root {
+    --primary-blue: #0056b3;
+    --light-blue: #eef5ff;
+    --text-dark: #333;
+    --accent-green: #28a745;
+  }
+  
+  body {
+    background-color: #f8f9fa;
+    font-family: 'Poppins', sans-serif;
+  }
+  
+  /* Hero Section */
+  .hero-section {
+    background: linear-gradient(135deg, #0056b3 0%, #002d5e 100%);
+    color: white;
+    padding: 60px 20px;
+    text-align: center;
+  }
+  
+  .hero-section h1 { font-size: 2.5rem; margin-bottom: 10px; }
+  
+  .search-container {
+    max-width: 600px;
+    margin: 30px auto 0;
+    display: flex;
+    background: white;
+    padding: 5px;
+    border-radius: 50px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  }
+  
+  .search-container input {
+    flex: 1;
+    border: none;
+    padding: 15px 25px;
+    border-radius: 50px;
+    outline: none;
+  }
+  
+  .search-btn {
+    background: var(--accent-green);
+    color: white;
+    border: none;
+    padding: 10px 30px;
+    border-radius: 50px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  
+  /* Features Strip */
+  .features-strip {
+    display: flex;
+    justify-content: space-around;
+    background: white;
+    padding: 20px;
+    margin-top: -30px;
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  }
+  
+  .feature {
+    color: var(--primary-blue);
+    font-weight: 600;
+    font-size: 14px;
+  }
+  
+  /* Card Styling Update */
+  .card {
+    border: none;
+    border-top: 4px solid var(--primary-blue);
+    transition: 0.3s transform;
+  }
+  
+  .card:hover {
+    transform: translateY(-10px);
+  }
+  /* Card Modernization */
+.card {
+  border: none;
+  background: #fff;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.05); /* Light premium shadow */
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 10px 30px rgba(0,86,179,0.15); /* Blue glow on hover */
+}
+
+.lab-badge {
+  background: #eef5ff;
+  color: #0056b3;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  display: inline-block;
+}
+
+.price-tag {
+  font-size: 22px;
+  font-weight: 800;
+  color: #333;
+}
+
+.book-btn {
+  background: linear-gradient(90deg, #FF8C00, #ffae42); /* Attractive Orange gradient */
+  border: none;
+  border-radius: 8px;
+  color: white;
+  padding: 12px 20px;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+}
+
+/* Hero Layout */
+.hero-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 60px 10%;
+  background: linear-gradient(135deg, #f0f7ff 0%, #ffffff 100%);
+  text-align: left;
+}
+
+.hero-content { flex: 1; }
+.hero-image { flex: 1; text-align: right; }
+.hero-image img { width: 90%; border-radius: 20px; box-shadow: 20px 20px 60px #d9d9d9; }
+
+.trust-badge {
+  background: #eef5ff;
+  color: #0056b3;
+  padding: 5px 15px;
+  border-radius: 50px;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.hero-content h1 { font-size: 3rem; margin-top: 20px; color: #333; }
+.hero-content h1 span { color: #0056b3; }
+
+/* Features Layout */
+.features-container {
+  display: flex;
+  justify-content: space-around;
+  background: white;
+  padding: 30px;
+  width: 85%;
+  margin: -50px auto 0;
+  border-radius: 15px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+}
+
+.feature-item { display: flex; align-items: center; gap: 15px; }
+.feature-item .icon { font-size: 30px; }
+.feature-item h4 { margin: 0; color: #333; }
+.feature-item p { margin: 0; font-size: 12px; color: #777; }
+  
+
+.search-box-container {
+  display: flex;
+  background: white;
+  padding: 8px;
+  border-radius: 50px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  margin: 25px 0;
+  max-width: 550px;
+}
+
+.main-search {
+  flex: 1;
+  border: none;
+  padding: 12px 20px;
+  outline: none;
+  font-size: 16px;
+  border-radius: 50px;
+}
+
+.search-btn {
+  background: #0056b3; /* Primary Blue */
+  color: white;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 50px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.search-btn:hover {
+  background: #003d82;
+}
+
+/* Purana test-grid hata kar ye naya code dalein */
+.test-grid {
+  display: grid; /* Flex ki jagah Grid use karein */
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Ye automatically 4-5 cards set karega */
+  gap: 25px; /* Cards ke beech ki doori */
+  padding: 20px 0;
+  width: 100%;
+  max-width: 1200px; /* Page ko bohot zyada phailne se rokega */
+  margin: 0 auto; /* Center mein rakhne ke liye */
+}
+
+/* Cards ki width ko fix karne ke liye */
+.card {
+  width: 100%; /* Ab card grid ke hisab se apne aap ko adjust karega */
+  margin: 0; 
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 250px;
+}
+.test-grid {
+  display: grid;
+  /* minmax(180px, 1fr) karne se cards ki width kam hogi aur ek line mein 5-6 cards ayenge */
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); 
+  gap: 15px; /* Cards ke beech ka gap thoda kam kiya taaki space bache */
+  padding: 20px;
+  width: 100%;
+  max-width: 1400px; /* Isse badi screens par zyada failne ka mauka milega */
+  margin: 0 auto;
+}
+
+/* Cards ka content bhi thoda compact karna hoga */
+.card {
+  padding: 15px;
+  text-align: center;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  transition: transform 0.2s;
+}
+
+.card h3 {
+  font-size: 1.1rem; /* Heading thodi chhoti ki taaki fit ho jaye */
+  margin: 10px 0;
+}
+
+.card .price-tag {
+  font-size: 1.2rem;
+  font-weight: bold;
+  display: block;
+  margin-bottom: 10px;
+}
+
+/* Home Page Grid */
+.test-grid {
+  display: grid !important; /* Forcefully apply grid */
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); 
+  gap: 20px;
+  padding: 20px;
+}
+
+/* Card se underline hatane ke liye */
+.book-btn {
+  text-decoration: none !important; /* Underline hatayega */
+  background: #FF8C00;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 5px;
+  display: inline-block;
+  margin-top: 10px;
+}
+
+.test-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)) !important;
+  gap: 20px;
+}
+.lab-logo-container {
+  width: 100%;
+  height: 60px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.lab-logo-container img {
+  max-width: 120px;
+  max-height: 50px;
+  object-fit: contain; /* Isse image khichegi nahi, proportional rahegi */
+}
+
+/* Grid layout fix for 5-6 cards */
+.test-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 20px;
+  width: 100%;
+}
+
+/* Standard Reset */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+}
+
+/* 1. Fluid Layout Structure (Headers full-width ke liye) */
+.home-wrapper {
+  width: 100%;
+}
+
+.home-container,
+.hero-container,
+.features-container {
+  max-width: 100%; /* Header ab full-width hoga */
+  margin: 0;
+  padding: 40px 20px;
+}
+
+/* 2. Uniform 5-Test Grid (Fluid) */
+.test-grid {
+  display: flex;
+  flex-wrap: wrap; /* Flexible wrap on small screens */
+  gap: 1.5%; /* Fluid gap */
+  width: 100%;
+  justify-content: space-around; /* Fluid spacing */
+}
+
+/* 3. Fluid Card width for 5 cards per row */
+.card {
+  flex: 0 1 18.5%; /* Har card screen ka lagbhag 1/5 area lega */
+  min-width: 220px; /* Tablet pe wrap karne ke liye ek minimum width */
+  max-width: 300px; /* Bade dekstops pe card ko bohot bada hone se rokne ke liye */
+  border-radius: 10px;
+  background-color: #fff;
+  padding: 20px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  margin-bottom: 20px;
+  transition: transform 0.3s ease;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column; /* Content alignment ke liye */
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
+
+/* Stylized uniform internal card layout */
+.lab-logo-container {
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 15px;
+}
+
+.lab-logo-container img {
+  max-height: 50px;
+  max-width: 120px;
+  object-fit: contain;
+}
+
+.lab-logo-container .text-logo {
+  font-weight: bold;
+}
+
+.card h3 {
+  font-size: 1.1em;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.card .provider-text {
+  font-size: 0.8em;
+  color: #888;
+  margin-bottom: 15px;
+}
+
+.card .price-tag {
+  color: #0056b3;
+  font-weight: 700;
+  font-size: 1.3em;
+  margin-bottom: 15px;
+}
+
+.book-btn {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  background-color: #0056b3;
+  color: #fff;
+  border-radius: 5px;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 0.9em;
+  text-align: center;
+}
+
+/* Card aur Grid ki uniformity ke liye */
+.test-grid {
+  display: grid;
+  /* Ye line 5 cards per row ensure karegi */
+  grid-template-columns: repeat(5, 1fr); 
+  gap: 20px;
+  padding: 10px;
+}
+
+/* Jab screen choti ho (Mobile), tab 1 ya 2 card dikhein */
+@media (max-width: 1200px) {
+  .test-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 768px) {
+  .test-grid { grid-template-columns: repeat(1, 1fr); }
+}
+
+/* Header links style */
+.nav-links {
+  display: flex;
+  gap: 30px; /* Links ke beech gap */
+}
+
+.nav-links a {
+  text-decoration: none;
+  font-weight: 500;
+  color: #333;
+  transition: 0.3s;
+}
+
+.nav-links a:hover {
+  color: #0056b3;
+}
+
+@keyframes slideIn {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
