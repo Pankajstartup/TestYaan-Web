@@ -1,20 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Papa from 'papaparse';
 import './Home.css';
-import { useNavigate } from 'react-router-dom'; // 1. Import karein
 
-const Home = () => {
-  const navigate = useNavigate(); // 2. Initialize karein
-  // ... purana code ...
-
-  // ✅ Updated Booking Function (Navigating to OrderPage)
-  const handleBooking = (test) => {
-    // URL mein data bhej rahe hain taaki OrderPage use read kar sake
-    const query = `?test=${encodeURIComponent(test.name)}&lab=${encodeURIComponent(test.lab)}&price=${test.price}`;
-    navigate(`/order${query}`); 
-  };
-
-  // ... Grid mein Book Now button par onClick={handleBooking(test)} laga rehne dein ...
 
 const Home = () => {
   const [searchTerm, setSearchTerm] = useState("");
