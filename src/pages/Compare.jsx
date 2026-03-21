@@ -77,4 +77,4 @@ function CompareModal({ compareList, onClose, removeCompareItem }) {
   );
 }
 
-export default CompareModal;
+export default Compare;
