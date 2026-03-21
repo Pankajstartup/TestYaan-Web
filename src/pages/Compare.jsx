@@ -1,6 +1,6 @@
 import React from 'react';
 
-function CompareModal({ compareList, onClose, removeCompareItem }) {
+function Compare({ compareList, onClose, removeCompareItem }) {
   if (!compareList || compareList.length === 0) return null;
 
   return (
