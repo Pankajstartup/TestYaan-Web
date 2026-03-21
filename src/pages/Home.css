@@ -1,67 +1,237 @@
+/* Healthians Clone CSS */
 :root {
-    --primary: #0056b3;
-    --accent: #ffb400;
-    --bg-light: #f4f7fe;
+    --healthians-blue: #023c72;
+    --healthians-yellow: #ffc107;
+    --bg-light-blue: #f0f7ff;
+    --text-dark: #333;
+    --text-gray: #666;
   }
   
-  .home-wrapper { font-family: 'Inter', sans-serif; background: var(--bg-light); }
-  
-  .main-search-area {
+  .healthians-home {
+    font-family: 'Poppins', sans-serif; /* Recommended for modern feel */
     background: white;
-    padding: 100px 20px;
-    text-align: center;
-    background-image: radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
-                      radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%);
-    color: white;
+    color: var(--text-dark);
   }
   
-  .main-title { font-size: 3rem; font-weight: 800; margin-bottom: 10px; }
-  .blue-text { color: #4facfe; }
+  /* 1. Hero Search Section */
+  .main-search-container {
+    background: var(--bg-light-blue);
+    padding: 80px 20px;
+    background-image: radial-gradient(at 10% 20%, #e0f2fe 0, transparent 50%),
+                      radial-gradient(at 80% 80%, #dbeafe 0, transparent 50%);
+  }
   
-  .search-bar-wrap {
+  .grid-layer {
+    max-width: 1100px;
+    margin: 0 auto;
+    text-align: center;
+  }
+  
+  .main-search-container h1 {
+    font-size: 3.5rem;
+    font-weight: 800;
+    color: var(--healthians-blue);
+    margin-bottom: 10px;
+  }
+  
+  .highlight-text {
+    color: var(--healthians-yellow);
+  }
+  
+  .sub-header {
+    font-size: 1.2rem;
+    color: var(--text-gray);
+    margin-bottom: 40px;
+  }
+  
+  /* Rounded Search Box */
+  .search-box-wrapper {
     background: white;
     padding: 10px;
-    border-radius: 15px;
+    border-radius: 50px;
     display: flex;
-    max-width: 700px;
-    margin: 40px auto;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    max-width: 650px;
+    margin: 0 auto 40px auto;
+    box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+    border: 1px solid #ddd;
   }
   
-  .search-bar-wrap input {
-    flex: 1; border: none; padding: 15px; font-size: 1.1rem; outline: none;
+  .search-box-wrapper input {
+    flex: 1;
+    border: none;
+    padding: 15px 25px;
+    font-size: 1rem;
+    outline: none;
+    border-radius: 50px;
   }
   
-  .search-trigger {
-    background: var(--primary); color: white; border: none; padding: 0 40px;
-    border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.3s;
+  .search-btn {
+    background: var(--healthians-blue);
+    color: white;
+    border: none;
+    padding: 0 40px;
+    border-radius: 50px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
   }
   
-  .search-trigger:hover { background: #003d80; }
+  .search-btn:hover {
+    background: #01284d;
+  }
   
-  .modern-card {
+  /* Trust Bars */
+  .trust-bars {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    font-size: 0.9rem;
+    color: var(--healthians-blue);
+  }
+  
+  .t-item .icon {
+    background: var(--healthians-yellow);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 50%;
+    margin-right: 5px;
+  }
+  
+  /* 2. Packages Section */
+  .packages-container {
+    max-width: 1100px;
+    margin: 60px auto;
+    padding: 0 20px;
+  }
+  
+  .section-header-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+  }
+  
+  .packages-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 30px;
+  }
+  
+  /* Rounded Card Style */
+  .package-card {
     background: white;
     border-radius: 20px;
-    padding: 25px;
     border: 1px solid #eee;
+    padding: 30px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     transition: 0.4s;
+    position: relative;
   }
   
-  .modern-card:hover { transform: translateY(-10px); box-shadow: 0 15px 30px rgba(0,0,0,0.08); }
-  
-  .tag-green { background: #e6f7ed; color: #28a745; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; }
-  .tag-blue { background: #e7f1ff; color: #007bff; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; }
-  
-  .pricing .amt { font-size: 28px; font-weight: 800; color: #333; }
-  .pricing .old-amt { text-decoration: line-through; color: #999; margin-left: 10px; }
-  
-  .add-to-cart {
-    width: 100%; margin-top: 20px; padding: 15px; border-radius: 12px;
-    border: 1px solid var(--primary); background: transparent; color: var(--primary);
-    font-weight: bold; cursor: pointer; transition: 0.3s;
+  .package-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.08);
   }
   
-  .add-to-cart:hover { background: var(--primary); color: white; }
+  .package-card.bestselling {
+    border: 2px solid var(--healthians-yellow);
+  }
+  
+  .bestseller-badge {
+    background: var(--healthians-yellow);
+    color: white;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+    position: absolute;
+    top: 15px;
+    right: 15px;
+  }
+  
+  .param-count {
+    font-weight: bold;
+    color: #888;
+    margin-top: -5px;
+    margin-bottom: 20px;
+  }
+  
+  .test-list {
+    list-style-type: none;
+    padding: 0;
+    color: var(--text-gray);
+    font-size: 0.9rem;
+    margin-bottom: 30px;
+  }
+  
+  /* Pricing and Button */
+  .price-tag .final {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: var(--healthians-blue);
+  }
+  
+  .price-tag .original {
+    text-decoration: line-through;
+    color: #999;
+    margin-left: 10px;
+  }
+  
+  .price-tag .save-amount {
+    color: #28a745;
+    font-weight: bold;
+    margin-left: 5px;
+  }
+  
+  .book-now-btn {
+    width: 100%;
+    margin-top: 25px;
+    padding: 15px;
+    border-radius: 12px;
+    border: none;
+    background: var(--healthians-blue);
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+  
+  .book-now-btn:hover {
+    background: #01284d;
+  }
+  
+  /* 3. Why Healthians Section */
+  .why-healthians-section {
+    background: var(--bg-light-blue);
+    padding: 80px 20px;
+    text-align: center;
+  }
+  
+  .trust-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+    max-width: 900px;
+    margin: 40px auto 0 auto;
+  }
+  
+  .trust-card {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+  }
+  
+  .trust-icon {
+    font-size: 3rem;
+    margin-bottom: 20px;
+  }
+  
+  /* Responsive Adjustments */
+  @media (max-width: 768px) {
+    .main-search-container h1 { font-size: 2.5rem; }
+    .trust-bars { flex-wrap: wrap; gap: 10px; }
+    .trust-grid { grid-template-columns: 1fr; }
+  }
