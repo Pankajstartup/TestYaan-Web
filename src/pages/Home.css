@@ -1,237 +1,311 @@
-/* Healthians Clone CSS */
+/* TestYaan Professional Theme - Healthians Inspired */
 :root {
-    --healthians-blue: #023c72;
-    --healthians-yellow: #ffc107;
-    --bg-light-blue: #f0f7ff;
-    --text-dark: #333;
-    --text-gray: #666;
+    --testyaan-blue: #023c72;      /* Trustworthy Medical Blue */
+    --testyaan-yellow: #ffc107;    /* Highlight/Gold Color */
+    --bg-soft-blue: #f4f9ff;       /* Very light background */
+    --text-main: #2d3436;
+    --text-light: #636e72;
+    --white: #ffffff;
   }
   
   .healthians-home {
-    font-family: 'Poppins', sans-serif; /* Recommended for modern feel */
-    background: white;
-    color: var(--text-dark);
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--white);
+    color: var(--text-main);
+    line-height: 1.6;
   }
   
-  /* 1. Hero Search Section */
+  /* --- 1. Hero Search Section --- */
   .main-search-container {
-    background: var(--bg-light-blue);
-    padding: 80px 20px;
-    background-image: radial-gradient(at 10% 20%, #e0f2fe 0, transparent 50%),
-                      radial-gradient(at 80% 80%, #dbeafe 0, transparent 50%);
+    background: var(--bg-soft-blue);
+    padding: 100px 20px;
+    text-align: center;
+    border-bottom: 1px solid #e1e8ef;
   }
   
   .grid-layer {
-    max-width: 1100px;
+    max-width: 900px;
     margin: 0 auto;
-    text-align: center;
   }
   
   .main-search-container h1 {
-    font-size: 3.5rem;
+    font-size: 3rem;
     font-weight: 800;
-    color: var(--healthians-blue);
-    margin-bottom: 10px;
+    color: var(--testyaan-blue);
+    margin-bottom: 15px;
+    letter-spacing: -1px;
   }
   
   .highlight-text {
-    color: var(--healthians-yellow);
+    color: var(--testyaan-yellow);
+    text-shadow: 1px 1px 0px rgba(0,0,0,0.1);
   }
   
   .sub-header {
-    font-size: 1.2rem;
-    color: var(--text-gray);
-    margin-bottom: 40px;
+    font-size: 1.25rem;
+    color: var(--text-light);
+    margin-bottom: 45px;
   }
   
   /* Rounded Search Box */
   .search-box-wrapper {
-    background: white;
-    padding: 10px;
+    background: var(--white);
+    padding: 8px;
     border-radius: 50px;
     display: flex;
-    max-width: 650px;
-    margin: 0 auto 40px auto;
-    box-shadow: 0 15px 30px rgba(0,0,0,0.1);
-    border: 1px solid #ddd;
+    max-width: 700px;
+    margin: 0 auto 50px auto;
+    box-shadow: 0 20px 40px rgba(2, 60, 114, 0.1);
+    border: 1px solid #d1d9e0;
   }
   
   .search-box-wrapper input {
     flex: 1;
     border: none;
-    padding: 15px 25px;
-    font-size: 1rem;
+    padding: 15px 30px;
+    font-size: 1.1rem;
     outline: none;
     border-radius: 50px;
   }
   
   .search-btn {
-    background: var(--healthians-blue);
-    color: white;
+    background: var(--testyaan-blue);
+    color: var(--white);
     border: none;
-    padding: 0 40px;
+    padding: 0 45px;
     border-radius: 50px;
-    font-weight: bold;
+    font-weight: 700;
+    font-size: 1rem;
     cursor: pointer;
-    transition: 0.3s;
+    transition: all 0.3s ease;
   }
   
   .search-btn:hover {
-    background: #01284d;
+    background: #012a52;
+    transform: scale(1.02);
   }
   
   /* Trust Bars */
   .trust-bars {
     display: flex;
     justify-content: center;
-    gap: 30px;
-    font-size: 0.9rem;
-    color: var(--healthians-blue);
+    gap: 40px;
+    flex-wrap: wrap;
+  }
+  
+  .t-item {
+    font-weight: 600;
+    color: var(--testyaan-blue);
+    display: flex;
+    align-items: center;
   }
   
   .t-item .icon {
-    background: var(--healthians-yellow);
-    color: white;
-    padding: 2px 6px;
+    background: var(--testyaan-yellow);
+    color: var(--testyaan-blue);
+    width: 24px;
+    height: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     border-radius: 50%;
-    margin-right: 5px;
+    margin-right: 10px;
+    font-size: 0.8rem;
   }
   
-  /* 2. Packages Section */
+  /* --- 2. Packages Section --- */
   .packages-container {
-    max-width: 1100px;
-    margin: 60px auto;
-    padding: 0 20px;
+    max-width: 1200px;
+    margin: 80px auto;
+    padding: 0 25px;
   }
   
   .section-header-flex {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    margin-bottom: 30px;
+    align-items: flex-end;
+    margin-bottom: 40px;
+    border-left: 5px solid var(--testyaan-yellow);
+    padding-left: 20px;
+  }
+  
+  .section-header-flex h2 {
+    font-size: 2rem;
+    color: var(--testyaan-blue);
+  }
+  
+  .view-link {
+    color: var(--testyaan-blue);
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 0.95rem;
   }
   
   .packages-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 30px;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 35px;
   }
   
-  /* Rounded Card Style */
+  /* Modern Rounded Card */
   .package-card {
-    background: white;
-    border-radius: 20px;
-    border: 1px solid #eee;
-    padding: 30px;
+    background: var(--white);
+    border-radius: 24px;
+    border: 1px solid #e9ecef;
+    padding: 35px;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    transition: 0.4s;
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
     position: relative;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
   }
   
   .package-card:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+    transform: translateY(-12px);
+    box-shadow: 0 30px 60px rgba(2, 60, 114, 0.12);
   }
   
   .package-card.bestselling {
-    border: 2px solid var(--healthians-yellow);
+    border: 2px solid #e0e7ff;
+    background: linear-gradient(to bottom, #ffffff, #f9faff);
   }
   
   .bestseller-badge {
-    background: var(--healthians-yellow);
+    background: #27ae60;
     color: white;
-    padding: 5px 15px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: bold;
+    padding: 6px 16px;
+    border-radius: 50px;
+    font-size: 0.75rem;
+    font-weight: 800;
     position: absolute;
-    top: 15px;
-    right: 15px;
+    top: 20px;
+    right: 20px;
+    text-transform: uppercase;
+  }
+  
+  .package-card h3 {
+    font-size: 1.5rem;
+    margin-bottom: 5px;
+    color: var(--testyaan-blue);
   }
   
   .param-count {
-    font-weight: bold;
-    color: #888;
-    margin-top: -5px;
-    margin-bottom: 20px;
+    color: #a0aec0;
+    font-weight: 700;
+    font-size: 0.85rem;
+    margin-bottom: 25px;
   }
   
   .test-list {
-    list-style-type: none;
+    list-style: none;
     padding: 0;
-    color: var(--text-gray);
-    font-size: 0.9rem;
-    margin-bottom: 30px;
+    margin-bottom: 35px;
+    flex-grow: 1;
+  }
+  
+  .test-list li {
+    padding: 8px 0;
+    border-bottom: 1px dashed #edf2f7;
+    color: var(--text-light);
+    font-size: 0.95rem;
   }
   
   /* Pricing and Button */
+  .price-tag {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+  
   .price-tag .final {
-    font-size: 2.2rem;
-    font-weight: 800;
-    color: var(--healthians-blue);
+    font-size: 2.4rem;
+    font-weight: 900;
+    color: var(--testyaan-blue);
   }
   
   .price-tag .original {
     text-decoration: line-through;
-    color: #999;
-    margin-left: 10px;
+    color: #cbd5e0;
+    font-size: 1.1rem;
   }
   
-  .price-tag .save-amount {
-    color: #28a745;
-    font-weight: bold;
-    margin-left: 5px;
+  .save-amount {
+    background: #fff3cd;
+    color: #856404;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 700;
+    font-size: 0.85rem;
   }
   
   .book-now-btn {
     width: 100%;
     margin-top: 25px;
-    padding: 15px;
-    border-radius: 12px;
+    padding: 18px;
+    border-radius: 16px;
     border: none;
-    background: var(--healthians-blue);
-    color: white;
-    font-weight: bold;
+    background: var(--testyaan-blue);
+    color: var(--white);
+    font-weight: 800;
+    font-size: 1.05rem;
     cursor: pointer;
-    transition: 0.3s;
+    transition: background 0.2s;
   }
   
   .book-now-btn:hover {
-    background: #01284d;
+    background: #ffc107;
+    color: var(--testyaan-blue);
   }
   
-  /* 3. Why Healthians Section */
+  /* --- 3. Why TestYaan Section --- */
   .why-healthians-section {
-    background: var(--bg-light-blue);
-    padding: 80px 20px;
+    background: #f8fafc;
+    padding: 100px 20px;
     text-align: center;
+  }
+  
+  .why-healthians-section h2 {
+    font-size: 2.5rem;
+    color: var(--testyaan-blue);
+    margin-bottom: 50px;
   }
   
   .trust-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 30px;
-    max-width: 900px;
-    margin: 40px auto 0 auto;
+    max-width: 1100px;
+    margin: 0 auto;
   }
   
   .trust-card {
-    background: white;
-    padding: 30px;
-    border-radius: 15px;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+    background: var(--white);
+    padding: 45px 35px;
+    border-radius: 24px;
+    transition: 0.3s;
   }
   
   .trust-icon {
-    font-size: 3rem;
-    margin-bottom: 20px;
+    font-size: 3.5rem;
+    margin-bottom: 25px;
+    display: block;
   }
   
-  /* Responsive Adjustments */
+  .trust-card h4 {
+    font-size: 1.3rem;
+    color: var(--testyaan-blue);
+    margin-bottom: 15px;
+  }
+  
+  .trust-card p {
+    color: var(--text-light);
+  }
+  
+  /* Mobile Responsiveness */
   @media (max-width: 768px) {
-    .main-search-container h1 { font-size: 2.5rem; }
-    .trust-bars { flex-wrap: wrap; gap: 10px; }
-    .trust-grid { grid-template-columns: 1fr; }
+    .main-search-container h1 { font-size: 2.2rem; }
+    .search-box-wrapper { flex-direction: column; border-radius: 20px; padding: 15px; }
+    .search-btn { margin-top: 10px; padding: 15px; }
+    .trust-bars { gap: 15px; }
+    .section-header-flex { flex-direction: column; align-items: flex-start; gap: 10px; }
   }
