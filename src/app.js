@@ -29,7 +29,7 @@ function App() {
         </Routes>
         
         <footer className="main-footer">
-          <p>&copy; 2026 TestKart Diagnostic. All rights reserved.</p>
+          <p>&copy; 2026 TestYaan Diagnostic. All rights reserved.</p>
         </footer>
       </div>
     </Router>

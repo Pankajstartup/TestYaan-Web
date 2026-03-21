@@ -6,8 +6,8 @@ function ContactUs() {
       <h2 style={{ color: '#0056b3', marginBottom: '20px' }}>Contact Us</h2>
       <div style={{ maxWidth: '600px', margin: '0 auto', fontSize: '18px', lineHeight: '2' }}>
         <p>📍 123 Health Street, Diagnostic Plaza, New Delhi</p>
-        <p>📞 Phone: +91 98765 43210</p>
-        <p>📧 Email: support@testkart.in</p>
+        <p>📞 Phone: +91 8130484197</p>
+        <p>📧 Email: pankaj.mallik2025@gmail.com </p>
         <p>🕒 Hours: Mon - Sun (6 AM - 10 PM)</p>
       </div>
     </div>

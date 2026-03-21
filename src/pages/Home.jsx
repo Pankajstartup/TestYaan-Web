@@ -17,9 +17,9 @@ function Home() {
         </div>
       </section>
 
-      {/* Why TestKart Section */}
+      {/* Why TestYaan Section */}
       <section className="why-TestYaan" style={{ padding: '80px 20px', backgroundColor: '#f9f9f9', textAlign: 'center' }}>
-        <h2 style={{ marginBottom: '40px', fontSize: '32px' }}>Why Choose TestKart?</h2>
+        <h2 style={{ marginBottom: '40px', fontSize: '32px' }}>Why Choose TestYaan?</h2>
         <div className="features-grid" style={{ display: 'flex', justifyContent: 'center', gap: '30px', flexWrap: 'wrap' }}>
           <div className="feature-card">
             <div className="fancy-icon">🏆</div>
