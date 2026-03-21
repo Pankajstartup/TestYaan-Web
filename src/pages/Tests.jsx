@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import Papa from 'papaparse'; 
-import { useNavigate } from 'react-router-dom'; // ✅ Navigation ke liye add kiya
+import { useNavigate } from 'react-router-dom'; 
 import CompareModal from '../components/CompareModal';
+import BookingModal from '../components/BookingModal'; // ✅ Modal Import
 
 const stylishInput = {
   padding: '16px 20px',
@@ -20,15 +21,17 @@ function Tests() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedLab, setSelectedLab] = useState("All"); 
   const [isLoading, setIsLoading] = useState(true);
-  const navigate = useNavigate(); // ✅ Initialize navigate
   
   const [compareList, setCompareList] = useState([]);
   const [isCompareOpen, setIsCompareOpen] = useState(false);
   const [selectedTestDetails, setSelectedTestDetails] = useState(null); 
 
+  // ✅ 1. Booking State
+  const [isBookingOpen, setIsBookingOpen] = useState(false);
+  const [testToBook, setTestToBook] = useState(null);
+
   useEffect(() => {
     const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSbxApGB2BZluOJ4nO9PXtMN2cRnibZE0dgcLQajFRQB1dkdpV1kdMild2-22tXEjEyipkdo8_dPcOx/pub?gid=0&single=true&output=csv";
-    
     fetch(sheetUrl).then(res => res.text()).then(csv => {
       Papa.parse(csv, {
         header: true,
@@ -41,10 +44,11 @@ function Tests() {
     });
   }, []);
 
-  // ✅ FIXED: Ab ye Order Page par bhejega saare data ke saath
+  // ✅ 2. Universal Booking Handler (Pop-up open karne ke liye)
   const handleBooking = (test) => {
-    const query = `?test=${encodeURIComponent(test.name)}&lab=${encodeURIComponent(test.lab)}&price=${test.price}`;
-    navigate(`/order${query}`); 
+    setTestToBook(test);
+    setIsBookingOpen(true);
+    setSelectedTestDetails(null); // Agar details modal khula hai to use band kar do
   };
 
   useEffect(() => {
@@ -81,7 +85,8 @@ function Tests() {
         <h1 style={{ color: '#1a365d', fontSize: '32px' }}>Find & Book Lab Tests</h1>
       </div>
 
-      <div style={{ display: 'flex', justifyContent: 'center', gap: '15px', marginBottom: '40px' }}>
+      {/* Lab Filter */}
+      <div style={{ display: 'flex', justifyContent: 'center', gap: '15px', marginBottom: '40px', flexWrap: 'wrap' }}>
         {labOptions.map(labName => (
             <button key={labName} onClick={() => setSelectedLab(labName)} style={{ padding: '10px 20px', background: selectedLab === labName ? '#1e3a8a' : 'white', color: selectedLab === labName ? 'white' : '#333', border: '1px solid #ddd', borderRadius: '25px', fontWeight: 'bold', cursor: 'pointer' }}>
                 {labName}
@@ -89,17 +94,18 @@ function Tests() {
         ))}
       </div>
 
+      {/* Search Bar */}
       <div style={{ maxWidth: '600px', margin: '0 auto 50px auto' }}>
         <input type="text" placeholder={`Search in ${selectedLab}...`} style={{...stylishInput, borderRadius: '40px'}} onChange={(e) => setSearchTerm(e.target.value)} />
       </div>
 
+      {/* TESTS GRID */}
       {isLoading ? (
         <p style={{ textAlign: 'center' }}>Searching database...</p>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '25px', maxWidth: '1400px', margin: '0 auto' }}>
           {filteredTests.map((test, index) => (
             <div key={index} className="test-card" style={{ background: 'white', borderRadius: '15px', padding: '20px', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', position: 'relative' }}>
-              
               <div style={{ position: 'absolute', top: '15px', right: '15px', zIndex: 5 }}>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '12px', cursor: 'pointer' }}>
                     <input type="checkbox" checked={compareList.some(t => t.id === test.id)} onChange={(e) => handleCompareClick(test, e.target.checked)} style={{ cursor: 'pointer' }} />
@@ -126,7 +132,7 @@ function Tests() {
                 >
                   View Parameters
                 </button>
-                {/* ✅ FIXED: Yahan handleBooking call kar diya */}
+                {/* ✅ Card wala Book Now button */}
                 <button 
                   onClick={() => handleBooking(test)}
                   style={{ flex: 1, padding: '12px', background: '#1a365d', color: 'white', border: 'none', borderRadius: '10px', fontWeight: 'bold', cursor: 'pointer' }}
@@ -139,6 +145,7 @@ function Tests() {
         </div>
       )}
 
+      {/* VIEW PARAMETERS MODAL */}
       {selectedTestDetails && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999, padding: '20px' }}>
           <div style={{ background: 'white', padding: '30px', borderRadius: '24px', maxWidth: '500px', width: '100%', position: 'relative' }}>
@@ -153,7 +160,7 @@ function Tests() {
                 </span>
               )) : <p style={{ fontSize: '12px', color: '#999' }}>Consult lab for all {selectedTestDetails.name} parameters.</p>}
             </div>
-            {/* ✅ FIXED: Modal ke andar wala button bhi ab Order page par jayega */}
+            {/* ✅ View Details ke andar wala Book Now button bhi ab Pop-up kholega */}
             <button 
               onClick={() => handleBooking(selectedTestDetails)}
               style={{ width: '100%', marginTop: '30px', padding: '15px', background: '#22c55e', color: 'white', border: 'none', borderRadius: '15px', fontWeight: 'bold', cursor: 'pointer' }}
@@ -164,6 +171,18 @@ function Tests() {
         </div>
       )}
 
+      {/* ✅ BOOKING FORM MODAL (Pop-up) */}
+      {isBookingOpen && testToBook && (
+        <BookingModal 
+          isOpen={isBookingOpen} 
+          onClose={() => setIsBookingOpen(false)} 
+          testName={testToBook.name} 
+          price={testToBook.price} 
+          labName={testToBook.lab} 
+        />
+      )}
+
+      {/* Floating Compare Bar */}
       {compareList.length > 0 && !isCompareOpen && (
         <div style={{ position: 'fixed', bottom: '20px', left: '50%', transform: 'translateX(-50%)', background: '#1a365d', color: 'white', padding: '15px 30px', borderRadius: '50px', display: 'flex', gap: '20px', alignItems: 'center', boxShadow: '0 10px 20px rgba(0,0,0,0.2)', zIndex: 4000 }}>
           <span>{compareList.length} Tests selected</span>
