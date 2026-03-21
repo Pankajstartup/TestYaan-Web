@@ -1,55 +1,64 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import './Home.css'; // Iska CSS niche diya hai
 
-function Home() {
+const Home = () => {
   return (
-    <div className="home-wrapper">
-      {/* Hero Section */}
-      <section className="hero-container">
+    <div className="home-container">
+      {/* 1. Hero Section with Search */}
+      <section className="hero-section">
         <div className="hero-content">
-          <span className="trust-badge">#1 Trusted Diagnostic Partner</span>
-          <h1>Accurate Reports, <br/><span>Trusted by Families.</span></h1>
-          <p>Book blood tests from NABL certified labs and get reports on WhatsApp.</p>
-          <Link to="/tests" className="cta-button">Browse All Tests</Link>
-        </div>
-        <div className="hero-image">
-          <img src="https://img.freepik.com/free-photo/medium-shot-scientist-working-with-microscope_23-2148813042.jpg" alt="Lab Specialist" />
-        </div>
-      </section>
+          <h1>India's Most Trusted <span className="highlight">Diagnostic Partner</span></h1>
+          <p>Book 2000+ Tests from NABL Certified Labs at Home</p>
+          
+          <div className="search-container">
+            <input type="text" placeholder="Search for Blood Test, Thyroid, Full Body Checkup..." />
+            <button className="search-btn">Search</button>
+          </div>
 
-      {/* Why TestYaan Section */}
-      <section className="why-TestYaan" style={{ padding: '80px 20px', backgroundColor: '#f9f9f9', textAlign: 'center' }}>
-        <h2 style={{ marginBottom: '40px', fontSize: '32px' }}>Why Choose TestYaan?</h2>
-        <div className="features-grid" style={{ display: 'flex', justifyContent: 'center', gap: '30px', flexWrap: 'wrap' }}>
-          <div className="feature-card">
-            <div className="fancy-icon">🏆</div>
-            <h3>NABL Certified</h3>
-            <p>Only top-tier labs for maximum accuracy.</p>
-          </div>
-          <div className="feature-card">
-            <div className="fancy-icon">🏠</div>
-            <h3>Free Home Collection</h3>
-            <p>Our phlebotomist comes to your doorstep.</p>
-          </div>
-          <div className="feature-card">
-            <div className="fancy-icon">⚡</div>
-            <h3>Fast Reports</h3>
-            <p>Digital reports delivered within 24 hours.</p>
+          <div className="trust-badges">
+            <span>✓ NABL Accredited</span>
+            <span>✓ 60 Min Collection</span>
+            <span>✓ Digital Reports</span>
           </div>
         </div>
       </section>
 
-      {/* How it Works */}
-      <section style={{ padding: '80px 20px', textAlign: 'center' }}>
-        <h2>How It Works</h2>
-        <div style={{ display: 'flex', justifyContent: 'space-around', marginTop: '40px', flexWrap: 'wrap', gap: '20px' }}>
-          <div><h4>1. Search Test</h4><p>Pick from 1000+ tests</p></div>
-          <div><h4>2. Book Slot</h4><p>Choose your time & lab</p></div>
-          <div><h4>3. Sample Pickup</h4><p>At your home/office</p></div>
-          <div><h4>4. Get Reports</h4><p>Directly on WhatsApp</p></div>
+      {/* 2. Popular Test Packages */}
+      <section className="packages-section">
+        <div className="section-header">
+          <h2>Popular Health Packages</h2>
+          <button className="view-all">View All</button>
+        </div>
+
+        <div className="package-grid">
+          {/* Package Card 1 */}
+          <div className="package-card bestseller">
+            <span className="badge">Bestseller</span>
+            <h3>Full Body Checkup</h3>
+            <p className="test-includes">Includes 80+ Parameters</p>
+            <div className="price-tag">
+              <span className="current">₹799</span>
+              <span className="original">₹1999</span>
+              <span className="discount">60% OFF</span>
+            </div>
+            <button className="book-btn">Book Now</button>
+          </div>
+
+          {/* Package Card 2 */}
+          <div className="package-card">
+            <h3>Diabetes Care</h3>
+            <p className="test-includes">HbA1c, FBS, PPBS</p>
+            <div className="price-tag">
+              <span className="current">₹499</span>
+              <span className="original">₹999</span>
+              <span className="discount">50% OFF</span>
+            </div>
+            <button className="book-btn">Book Now</button>
+          </div>
         </div>
       </section>
     </div>
   );
-}
+};
+
 export default Home;
