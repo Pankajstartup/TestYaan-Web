@@ -20,7 +20,7 @@ const Home = () => {
           header: true,
           complete: (res) => {
             // Hum sirf top 5 trending tests dikhayenge (slice se)
-            setLiveTests(res.data.slice(0, 5)); 
+            setLiveTests(res.data.slice(0, 10)); 
           }
         });
       });
@@ -76,7 +76,7 @@ const Home = () => {
 
       {/* SECTION 2: Categories (Yahan Real Tests dikhenge round categories ke niche) */}
       <section className="trending-tests-section" style={{ maxWidth: '1200px', margin: '60px auto', padding: '0 20px' }}>
-        <h2 style={{ fontSize: '2.2rem', marginBottom: '30px', color: '#1e3a8a' }}>Trending Tests in Delhi-NCR</h2>
+        <h2 style={{ fontSize: '2.2rem', marginBottom: '30px', color: '#1e3a8a' }}>Book Tests in Delhi-NCR</h2>
         
         {/* Real Dynamic Grid from Google Sheet */}
         <div className="live-test-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '30px' }}>
