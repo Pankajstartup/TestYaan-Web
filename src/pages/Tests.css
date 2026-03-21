@@ -1,0 +1,92 @@
+/* 1. Global Page Styling */
+.tests-page {
+    padding-top: 100px; /* Navbar ke niche jagah chhodne ke liye */
+    background-color: #f4f7f9;
+    min-height: 100vh;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+  
+  /* 2. Search Bar Styling */
+  .tests-page input[type="text"] {
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  }
+  
+  .tests-page input[type="text"]:focus {
+    border-color: #1e3a8a;
+    box-shadow: 0 4px 20px rgba(30, 58, 138, 0.15);
+  }
+  
+  /* 3. Test Card Styling (image_0.png Look) */
+  .test-card {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    border: 1px solid #e2e8f0;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  
+  .test-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.08);
+  }
+  
+  /* 4. Price & Badge Styling */
+  .test-card h3 {
+    color: #1a202c;
+    margin: 10px 0;
+    font-size: 1.25rem;
+  }
+  
+  .test-card .price {
+    color: #1e3a8a;
+    font-size: 1.5rem;
+    font-weight: 800;
+  }
+  
+  /* 5. Compare Bar (Floating at Bottom) */
+  .compare-bar {
+    animation: slideUp 0.4s ease-out;
+  }
+  
+  @keyframes slideUp {
+    from { transform: translate(-50%, 100%); }
+    to { transform: translate(-50%, 0); }
+  }
+  
+  /* 6. Comparison Table (Modal) */
+  table {
+    width: 100%;
+    border-spacing: 0;
+    margin-top: 20px;
+  }
+  
+  th, td {
+    padding: 16px;
+    border-bottom: 1px solid #edf2f7;
+    text-align: center;
+  }
+  
+  th:first-child, td:first-child {
+    text-align: left;
+    background-color: #f8fafc;
+    width: 150px;
+  }
+  
+  tr:hover td {
+    background-color: #f1f5f9;
+  }
+  
+  /* 7. Responsive Fixes */
+  @media (max-width: 768px) {
+    .tests-page {
+      padding-top: 80px;
+    }
+    
+    .hero-blue h1 {
+      font-size: 2rem !important;
+    }
+  }
