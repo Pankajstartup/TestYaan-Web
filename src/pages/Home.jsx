@@ -1,78 +1,83 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import Papa from 'papaparse';
 import './Home.css';
 
 const Home = () => {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [liveTests, setLiveTests] = useState([]);
+  const navigate = useNavigate();
+
+  // 1. Google Sheet se Data Fetch karna (Sirf Top 4-5 Tests ke liye)
+  useEffect(() => {
+    const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSbxApGB2BZluOJ4nO9PXtMN2cRnibZE0dgcLQajFRQB1dkdpV1kdMild2-22tXEjEyipkdo8_dPcOx/pub?gid=0&single=true&output=csv";
+    fetch(sheetUrl)
+      .then(res => res.text())
+      .then(csv => {
+        Papa.parse(csv, {
+          header: true,
+          complete: (res) => {
+            // Sirf wahi tests dikhao jo "Bestseller" ya important hain
+            setLiveTests(res.data.slice(0, 5)); 
+          }
+        });
+      });
+  }, []);
+
+  // 2. Search Activate karna
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchTerm.trim()) {
+      // User ko Tests page par bhej rahe hain query ke saath
+      navigate(`/tests?search=${searchTerm}`);
+    }
+  };
+
   return (
-    <div className="home-container" style={{ background: '#f1f5f9', minHeight: '100vh' }}>
-      
-      {/* 1. ULTRA MODERN HERO SECTION */}
-      <section className="hero" style={{ 
-        height: '500px', 
-        background: 'linear-gradient(45deg, #1e3a8a 0%, #3b82f6 100%)', 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center',
-        color: 'white',
-        textAlign: 'center',
-        padding: '0 20px'
-      }}>
+    <div className="home-container">
+      {/* HERO SECTION WITH ACTIVE SEARCH */}
+      <section className="hero-amazon">
         <div className="hero-content reveal">
-          <h1 style={{ fontSize: '3.5rem', fontWeight: '900', marginBottom: '10px' }}>
-            TestYaan <span style={{ color: '#fbbf24' }}>Delhi-NCR</span>
-          </h1>
-          <p style={{ fontSize: '1.2rem', opacity: 0.9, marginBottom: '30px' }}>
-            Compare 1000+ Tests from NABL Labs at Amazon-like Prices.
-          </p>
+          <h1>TestYaan <span className="yellow">Delhi-NCR</span></h1>
+          <p>Book 1000+ Tests from Certified Labs</p>
           
-          {/* Floating Search Bar */}
-          <div className="search-box" style={{ 
-            background: 'white', 
-            padding: '5px', 
-            borderRadius: '50px', 
-            display: 'flex', 
-            maxWidth: '700px', 
-            margin: '0 auto',
-            boxShadow: '0 15px 30px rgba(0,0,0,0.2)'
-          }}>
-            <input type="text" placeholder="Search for CBC, Vitamin D, Full Body..." style={{ flex: 1, border: 'none', padding: '15px 25px', borderRadius: '50px', outline: 'none', fontSize: '16px' }} />
-            <button style={{ background: '#fbbf24', color: '#1e3a8a', border: 'none', padding: '15px 40px', borderRadius: '50px', fontWeight: 'bold', cursor: 'pointer' }}>Search</button>
-          </div>
+          <form className="search-box-active" onSubmit={handleSearch}>
+            <input 
+              type="text" 
+              placeholder="Search for CBC, Thyroid, PCOD..." 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <button type="submit">Search</button>
+          </form>
         </div>
       </section>
 
-      {/* 2. CATEGORY SCROLLER (Flip effect) */}
-      <div className="categories" style={{ display: 'flex', justifyContent: 'center', gap: '40px', marginTop: '-50px', padding: '20px', overflowX: 'auto' }}>
-        {['Heart', 'Diabetes', 'Kidney', 'Cancer', 'Full Body'].map((cat) => (
-          <div className="cat-circle reveal" style={{ textAlign: 'center', cursor: 'pointer' }}>
-            <div style={{ width: '100px', height: '100px', background: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 10px 15px rgba(0,0,0,0.1)', marginBottom: '10px' }}>
-              <img src={`https://cdn-icons-png.flaticon.com/512/3022/3022216.png`} width="50" alt={cat} />
-            </div>
-            <span style={{ fontWeight: 'bold', color: '#1e293b' }}>{cat}</span>
-          </div>
-        ))}
-      </div>
+      {/* LIVE TESTS FROM GOOGLE SHEET */}
+      <section className="trending-section">
+        <div className="section-header">
+          <h2>Trending Tests in Delhi-NCR</h2>
+          <Link to="/tests" className="view-all">View All Labs & Prices →</Link>
+        </div>
 
-      {/* 3. DYNAMIC TEST GRID (The Amazon "Flip" Style) */}
-      <section style={{ maxWidth: '1200px', margin: '60px auto', padding: '0 20px' }}>
-        <h2 style={{ fontSize: '2rem', marginBottom: '30px', color: '#1e3a8a' }}>Trending Tests in Delhi-NCR</h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '30px' }}>
-          
-          {[1, 2, 3, 4].map((i) => (
-            <div className="premium-card reveal" style={{ background: 'white', borderRadius: '20px', padding: '25px', position: 'relative' }}>
-              <span style={{ background: '#dcfce7', color: '#166534', padding: '5px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold' }}>Bestseller</span>
-              <h3 style={{ marginTop: '15px', fontSize: '1.4rem' }}>Advanced Full Body Checkup</h3>
-              <p style={{ color: '#64748b', fontSize: '14px' }}>84 Parameters Included</p>
-              
-              <div style={{ margin: '20px 0', display: 'flex', alignItems: 'baseline', gap: '10px' }}>
-                <span style={{ fontSize: '2rem', fontWeight: '800', color: '#1e3a8a' }}>₹999</span>
-                <span style={{ textDecoration: 'line-through', color: '#94a3b8' }}>₹2499</span>
+        <div className="live-test-grid">
+          {liveTests.map((test, index) => (
+            <div className="premium-card reveal" key={index}>
+              <div className="lab-tag">{test.lab}</div>
+              <h3>{test.name}</h3>
+              <div className="price-row">
+                <span className="now">₹{test.price}</span>
+                <span className="was">₹{test.originalPrice || (Number(test.price) + 500)}</span>
               </div>
-              
-              <Link to="/tests" style={{ display: 'block', textAlign: 'center', background: '#1e3a8a', color: 'white', textDecoration: 'none', padding: '12px', borderRadius: '12px', fontWeight: 'bold' }}>Compare & Book</Link>
+              <p className="reporting">⏱ Reports in 24 Hours</p>
+              <button 
+                className="compare-btn" 
+                onClick={() => navigate('/tests')}
+              >
+                Compare & Book
+              </button>
             </div>
           ))}
-
         </div>
       </section>
     </div>
