@@ -11,7 +11,7 @@ function App() {
     <Router>
       <div className="app-container">
         <header className="main-header">
-          <Link to="/" className="logo">Test<span>Yaant</span></Link>
+          <Link to="/" className="logo">Test<span>Yaan</span></Link>
           <nav className="nav-links">
              <Link to="/">Home</Link>
              <Link to="/tests">Tests</Link>
