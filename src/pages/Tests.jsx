@@ -28,7 +28,7 @@ function Tests() {
   const [testToBook, setTestToBook] = useState(null);
 
   useEffect(() => {
-    const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRdjwfomAdUnXXo8mN4MIv_jRATEdHk3QFPpOzEzcDloGrRym7FKpXNjLaha3KKRoByFJLZG9NhL_8j/pubhtml?gid=0&single=true";
+    const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRdjwfomAdUnXXo8mN4MIv_jRATEdHk3QFPpOzEzcDloGrRym7FKpXNjLaha3KKRoByFJLZG9NhL_8j/pub?output=csv";
     fetch(sheetUrl).then(res => res.text()).then(csv => {
       Papa.parse(csv, {
         header: true,
