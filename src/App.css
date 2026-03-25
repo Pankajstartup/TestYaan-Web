@@ -1,0 +1,162 @@
+/* 1. Global Reset & Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Inter', sans-serif;
+}
+
+body {
+  background-color: #f8fafc;
+  color: #1e293b;
+  overflow-x: hidden;
+  width: 100%;
+}
+
+/* 2. Modern Glassmorphism Card Effect */
+.hover-card {
+  background: rgba(255, 255, 255, 0.7) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+}
+
+.hover-card:hover {
+  transform: translateY(-12px) scale(1.02);
+  box-shadow: 0 25px 50px -12px rgba(30, 58, 138, 0.15) !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  border-color: #3b82f6 !important;
+}
+
+/* 3. Smooth Modal Overlay */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 20px;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.modal-content-wrapper {
+  background: white;
+  padding: 40px;
+  border-radius: 32px;
+  width: 100%;
+  max-width: 500px;
+  position: relative;
+  box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.25);
+  animation: slideUp 0.4s ease-out;
+}
+
+/* 4. Form Inputs Design */
+#bookingForm input, 
+#bookingForm textarea {
+  width: 100%;
+  padding: 14px 18px;
+  margin-bottom: 15px;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  font-size: 15px;
+  outline: none;
+  transition: 0.3s;
+}
+
+#bookingForm input:focus {
+  border-color: #1e3a8a;
+  background: white;
+  box-shadow: 0 0 0 4px rgba(30, 58, 138, 0.1);
+}
+
+.input-row {
+  display: flex;
+  gap: 15px;
+}
+
+/* 5. Animated Buttons */
+.confirm-btn {
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+  color: white;
+  border: none;
+  border-radius: 16px;
+  font-weight: 700;
+  font-size: 16px;
+  cursor: pointer;
+  box-shadow: 0 10px 20px -5px rgba(30, 58, 138, 0.4);
+  transition: 0.3s;
+}
+
+.confirm-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 15px 25px -5px rgba(30, 58, 138, 0.5);
+}
+
+/* 6. Navigation Link Hover */
+nav a:hover {
+  color: #1e3a8a !important;
+  transform: translateY(-1px);
+}
+
+/* 7. Animations */
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+/* 8. Mobile Responsiveness - FIXED FOR PC & MOBILE */
+@media (max-width: 1024px) {
+  nav { padding: 15px 30px !important; }
+}
+
+@media (max-width: 768px) {
+  nav {
+    padding: 15px 20px !important;
+    justify-content: space-between !important;
+  }
+  
+  .navLinks {
+    display: none !important; /* Mobile menu needed later */
+  }
+
+  /* Input row ko stack karne ke liye */
+  .input-row {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  section {
+    padding: 40px 15px !important;
+  }
+
+  h1 {
+    font-size: 1.8rem !important; /* Smaller on mobile */
+    line-height: 1.3 !important;
+  }
+
+  .modal-content-wrapper {
+    padding: 25px;
+    border-radius: 24px;
+  }
+
+  /* Grid adjustment for small screens */
+  .cards-grid {
+    grid-template-columns: 1fr !important;
+    padding: 10px !important;
+  }
+}
+
+/* Footer Responsive */
+@media (max-width: 480px) {
+  footer > div {
+    flex-direction: column !important;
+    text-align: center;
+  }
+}

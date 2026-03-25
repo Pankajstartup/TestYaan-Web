@@ -1,51 +1,42 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { ShoppingCart, Search, MapPin } from 'lucide-react'; // icons ke liye
+import { Link } from 'react-router-dom';
 
-const Navbar = ({ cartCount }) => {
+const Navbar = () => {
+  // Footer tak scroll karne ka function ab yahan hai
+  const scrollToFooter = () => {
+    const footer = document.getElementById('contact-section');
+    if (footer) {
+      footer.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
-    <nav style={{ background: '#131921', padding: '10px 20px', display: 'flex', alignItems: 'center', gap: '20px', color: 'white', position: 'fixed', width: '100%', top: 0, zIndex: 1000 }}>
-      {/* Logo */}
-      <Link to="/" style={{ color: 'white', textDecoration: 'none', fontSize: '24px', fontWeight: 'bold' }}>
-        TestYaan<span style={{ color: '#ff9900' }}>.com</span>
-      </Link>
-
-      {/* Location */}
-      <div style={{ display: 'flex', alignItems: 'center', fontSize: '12px' }}>
-        <MapPin size={18} color="#ccc" />
-        <div style={{ marginLeft: '5px' }}>
-          <span style={{ color: '#ccc', display: 'block' }}>Deliver to</span>
-          <span style={{ fontWeight: 'bold' }}>Delhi-NCR</span>
-        </div>
+    <nav style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '15px 60px', backgroundColor: 'white', boxShadow: '0 2px 10px rgba(0,0,0,0.05)', position: 'sticky', top: 0, zIndex: 1000 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
+           <img src="/favicon.ico" alt="Logo" style={{ height: '35px' }} />
+           <span style={{ fontSize: '1.5rem', fontWeight: '800', color: '#1e3a8a', marginLeft: '10px' }}>Test<span style={{ color: '#ffbf00' }}>Yaan</span></span>
+        </Link>
+      </div>
+      
+      <div style={{ display: 'flex', gap: '30px', fontWeight: '600', color: '#475569' }}>
+        <Link to="/" style={linkItem}>Home</Link>
+        <Link to="/tests" style={linkItem}>Lab Tests</Link>
+        <Link to="/packages" style={linkItem}>Health Packages</Link>
+        {/* Contact Us par click karne par footer tak jayega */}
+        <span onClick={scrollToFooter} style={{ ...linkItem, cursor: 'pointer' }}>Contact Us</span>
       </div>
 
-      {/* Search Bar (Center) */}
-      <div style={{ flex: 1, display: 'flex', height: '40px' }}>
-        <input 
-          type="text" 
-          placeholder="Search for CBC, Thyroid, Full Body Checkup..." 
-          style={{ flex: 1, borderRadius: '4px 0 0 4px', border: 'none', padding: '0 15px', outline: 'none' }}
-        />
-        <button style={{ background: '#ff9900', border: 'none', width: '45px', borderRadius: '0 4px 4px 0', cursor: 'pointer' }}>
-          <Search size={20} />
-        </button>
-      </div>
-
-      {/* Right Side Icons */}
-      <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
-        <div style={{ fontSize: '12px', cursor: 'pointer' }}>
-          <span>Hello, Sign in</span>
-          <div style={{ fontWeight: 'bold' }}>Account & Lists</div>
-        </div>
-        
-        <Link to="/tests" style={{ color: 'white', textDecoration: 'none', position: 'relative' }}>
-          <ShoppingCart size={30} />
-          <span style={{ position: 'absolute', top: '-5px', right: '-5px', background: '#ff9900', color: 'black', borderRadius: '50%', padding: '2px 6px', fontSize: '12px', fontWeight: 'bold' }}>
-            {cartCount || 0}
-          </span>
-          <span style={{ fontWeight: 'bold', marginLeft: '5px' }}>Cart</span>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+        <span style={{ fontWeight: '700', color: '#1e3a8a' }}>📞 +91 8130484197</span>
+        <Link to="/tests">
+          <button style={{ backgroundColor: '#1e3a8a', color: 'white', padding: '10px 20px', borderRadius: '8px', border: 'none', fontWeight: 'bold', cursor: 'pointer' }}>Book Now</button>
         </Link>
       </div>
     </nav>
   );
 };
+
+const linkItem = { textDecoration: 'none', color: 'inherit', fontSize: '15px' };
+
+export default Navbar;

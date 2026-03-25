@@ -2,149 +2,273 @@ import React, { useState, useEffect } from 'react';
 import Papa from 'papaparse';
 import BookingModal from '../components/BookingModal';
 
-const colors = {
-  primary: '#1e40af',
-  secondary: '#3b82f6',
-  accent: '#ffbf00',
-  bg: '#ffffff'
-};
-
 const Packages = () => {
   const [allPackages, setAllPackages] = useState([]);
-  const [filterLab, setFilterLab] = useState("All");
-  const [isLoading, setIsLoading] = useState(true);
+  const [filteredPackages, setFilteredPackages] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [activeLab, setActiveLab] = useState("All");
+
+  // Naye States: Popup aur Booking ke liye
+  const [selectedPkg, setSelectedPkg] = useState(null);
   const [isBookingOpen, setIsBookingOpen] = useState(false);
-  const [testToBook, setTestToBook] = useState(null);
-  const [selectedDetails, setSelectedDetails] = useState(null);
+  const [showParamModal, setShowParamModal] = useState(false);
 
   useEffect(() => {
-    const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSbxApGB2BZluOJ4nO9PXtMN2cRnibZE0dgcLQajFRQB1dkdpV1kdMild2-22tXEjEyipkdo8_dPcOx/pub?gid=0&single=true&output=csv";
+    const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vShYhNLxqm5dPsxN42c-unJ1ByWLnU3DmduiBdPkafMj_3NOH_AZohRJtZLLDvW76jfd_uL0VlvNlVx/pub?output=csv";
     fetch(sheetUrl).then(res => res.text()).then(csv => {
-      Papa.parse(csv, {
-        header: true,
-        complete: (res) => {
-          // Sirf wo data jo 'Package' category mein hai
-          const onlyPackages = res.data.filter(item => item.type === 'Package');
-          setAllPackages(onlyPackages);
-          setIsLoading(false);
-        }
-      });
+      Papa.parse(csv, { header: true, complete: (res) => {
+          const pkgs = res.data.filter(item => item.Type?.trim() === 'Package');
+          setAllPackages(pkgs);
+          setFilteredPackages(pkgs);
+      }});
     });
   }, []);
 
-  const handleBooking = (pkg) => {
-    setTestToBook(pkg);
+  useEffect(() => {
+    let result = allPackages;
+    if (activeLab !== "All") {
+      result = result.filter(pkg => pkg['Lab Name'] === activeLab);
+    }
+    if (searchTerm) {
+      result = result.filter(pkg => pkg['Test Name'].toLowerCase().includes(searchTerm.toLowerCase()));
+    }
+    setFilteredPackages(result);
+  }, [searchTerm, activeLab, allPackages]);
+
+  // Naye Functions
+  const openParams = (pkg) => {
+    setSelectedPkg(pkg);
+    setShowParamModal(true);
+  };
+
+  const openBooking = (pkg) => {
+    setSelectedPkg(pkg);
     setIsBookingOpen(true);
   };
 
-  const labs = ["All", ...new Set(allPackages.map(p => p.lab))];
+  const labs = ["All", "Dr Lal Pathlabs", "Metropolis", "Redcliffe Labs"];
 
   return (
-    <div style={{ backgroundColor: colors.bg, minHeight: '100vh', fontFamily: 'Inter, sans-serif' }}>
+    <div style={{ fontFamily: 'Inter, sans-serif', backgroundColor: '#f8fafc', minHeight: '100vh' }}>
       
-      {/* 1. HERO SECTION (Sync with Home/Tests) */}
-      <section style={{ 
-        background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.secondary} 100%)`,
-        padding: '100px 60px 140px', color: 'white', position: 'relative', textAlign: 'center', overflow: 'hidden'
-      }}>
-        <h1 style={{ fontSize: '3.2rem', fontWeight: '800', marginBottom: '15px' }}>Health Packages</h1>
-        <p style={{ fontSize: '1.2rem', opacity: 0.9 }}>Complete body checkups and wellness bundles for your family.</p>
-
-        {/* 🌊 Curve Divider */}
-        <div style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', lineHeight: 0 }}>
-          <svg viewBox="0 0 1440 320" preserveAspectRatio="none" style={{ width: '100%', height: '80px' }}>
-            <path fill="#ffffff" d="M0,192L48,197.3C96,203,192,213,288,192C384,171,480,117,576,112C672,107,768,149,864,165.3C960,181,1056,171,1152,144C1248,117,1344,75,1392,53.3L1440,32L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
-          </svg>
+      {/* --- HERO SECTION --- */}
+      <section style={heroStyle}>
+        <h1 style={heroTitleStyle}>Health Packages</h1>
+        <p style={{ opacity: 0.9, marginBottom: '30px', fontSize: 'clamp(0.9rem, 2vw, 1.1rem)' }}>
+          Complete body checkups and wellness bundles for your family.
+        </p>
+        
+        <div style={{ position: 'relative', maxWidth: '700px', margin: '0 auto' }}>
+          <input 
+            type="text" 
+            placeholder="Search health packages..." 
+            style={searchBarStyle}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
         </div>
       </section>
 
-      {/* 2. LAB FILTERS */}
-      <div style={{ padding: '40px 20px 20px', display: 'flex', justifyContent: 'center', gap: '12px', flexWrap: 'wrap' }}>
+      {/* --- LAB FILTERS --- */}
+      <div style={filterContainerStyle}>
         {labs.map(lab => (
-          <button key={lab} onClick={() => setFilterLab(lab)} style={{ 
-            padding: '10px 25px', borderRadius: '25px', border: '1px solid #e2e8f0', cursor: 'pointer',
-            background: filterLab === lab ? colors.primary : 'white', color: filterLab === lab ? 'white' : '#4b5563',
-            fontWeight: '600', transition: '0.3s'
-          }}>
+          <button 
+            key={lab}
+            onClick={() => setActiveLab(lab)}
+            style={{
+              ...(activeLab === lab ? activeFilterBtn : filterBtn),
+              flexShrink: 0 
+            }}
+          >
             {lab}
           </button>
         ))}
       </div>
 
-      {/* 3. PACKAGES GRID */}
-      <section style={{ padding: '20px 60px 100px' }}>
-        {isLoading ? (
-          <p style={{ textAlign: 'center' }}>Loading packages...</p>
-        ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '30px', maxWidth: '1300px', margin: '0 auto' }}>
-            {allPackages.filter(p => filterLab === "All" || p.lab === filterLab).map((pkg, i) => (
-              <div key={i} style={{ 
-                background: 'white', padding: '35px', borderRadius: '28px', 
-                boxShadow: '0 15px 35px rgba(0,0,0,0.06)', border: '1px solid #f0f4f8', position: 'relative' 
-              }}>
-                <div style={{ backgroundColor: '#fffbe6', color: '#b27a00', padding: '5px 15px', borderRadius: '10px', fontSize: '12px', fontWeight: 'bold', display: 'inline-block', marginBottom: '15px' }}>
-                  {pkg.lab}
-                </div>
-                <h3 style={{ fontSize: '1.5rem', color: '#1a1a1a', marginBottom: '10px' }}>{pkg.name}</h3>
-                <p style={{ color: '#666', fontSize: '14px', marginBottom: '20px' }}>⏱ {pkg.Fasting || "12 Hrs Fasting Required"}</p>
-                
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px', marginBottom: '30px' }}>
-                  <span style={{ fontSize: '2rem', fontWeight: '900', color: colors.primary }}>₹{pkg.price}</span>
-                  <span style={{ fontSize: '15px', color: '#94a3b8', textDecoration: 'line-through' }}>₹{parseInt(pkg.price) + 1500}</span>
-                </div>
-
-                <div style={{ display: 'flex', gap: '15px' }}>
-                  <button 
-                    onClick={() => setSelectedDetails(pkg)}
-                    style={{ flex: 1, padding: '14px', border: `1px solid ${colors.primary}`, background: 'none', color: colors.primary, borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer' }}
-                  >
-                    View Parameters
-                  </button>
-                  <button 
-                    onClick={() => handleBooking(pkg)}
-                    style={{ flex: 1, padding: '14px', background: colors.primary, color: 'white', border: 'none', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer' }}
-                  >
-                    Book Now
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
-
-      {/* --- PARAMETERS POPUP --- */}
-      {selectedDetails && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999 }}>
-          <div style={{ background: 'white', padding: '40px', borderRadius: '30px', maxWidth: '550px', width: '90%', position: 'relative' }}>
-            <button onClick={() => setSelectedDetails(null)} style={{ position: 'absolute', top: '20px', right: '20px', border: 'none', background: 'none', fontSize: '20px', cursor: 'pointer' }}>✕</button>
-            <h2 style={{ color: colors.primary }}>{selectedDetails.name}</h2>
-            <p style={{ color: '#666', marginBottom: '25px' }}>Lab: {selectedDetails.lab}</p>
+      {/* --- CARDS GRID --- */}
+      <div style={gridStyle}>
+        {filteredPackages.map((pkg, i) => (
+          <div key={i} className="hover-card" style={cardStyle}>
             
-            <h4 style={{ marginBottom: '15px' }}>What's Included?</h4>
-            <div style={{ maxHeight: '250px', overflowY: 'auto', background: '#f8fafc', padding: '20px', borderRadius: '20px' }}>
-               {selectedDetails.Parameters ? selectedDetails.Parameters.split(',').map((p, i) => (
-                 <div key={i} style={{ padding: '8px 0', borderBottom: '1px solid #eee', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                   <span style={{ color: '#22c55e' }}>✔</span> {p.trim()}
-                 </div>
-               )) : "Complete health checkup parameters."}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+              <span style={pillStyle}>PACKAGE</span>
+              <p style={{ fontSize: '11px', color: '#dc2626', fontWeight: '700' }}>🕒 {pkg['Fasting Status']}</p>
             </div>
 
-            <button 
-              onClick={() => { handleBooking(selectedDetails); setSelectedDetails(null); }}
-              style={{ width: '100%', marginTop: '30px', padding: '16px', background: '#22c55e', color: 'white', border: 'none', borderRadius: '15px', fontWeight: 'bold', cursor: 'pointer' }}
-            >
-              Book Package Now
-            </button>
+            <h3 style={{ fontSize: '1.3rem', color: '#0f172a', fontWeight: '800', marginBottom: '5px' }}>{pkg['Test Name']}</h3>
+            <p style={{ color: '#64748b', fontSize: '14px', marginBottom: '20px' }}>Lab: {pkg['Lab Name']}</p>
+            
+            <div style={{ flexGrow: 1 }}></div>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto' }}>
+              <span style={{ fontSize: '1.5rem', fontWeight: '900', color: '#1e3a8a' }}>₹{pkg['MRP']}</span>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button onClick={() => openParams(pkg)} style={viewBtnStyle}>Details</button>
+                <button onClick={() => openBooking(pkg)} style={bookBtnStyle}>Book Now</button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* --- POPUP WINDOW FOR PARAMETERS --- */}
+      {showParamModal && selectedPkg && (
+        <div style={modalOverlayStyle} onClick={() => setShowParamModal(false)}>
+          <div style={modalContentStyle} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px' }}>
+              <h2 style={{ fontSize: '1.4rem', color: '#1e3a8a', margin: 0 }}>Package Details</h2>
+              <button onClick={() => setShowParamModal(false)} style={closeIconStyle}>✕</button>
+            </div>
+            <p style={{ fontWeight: '800', marginBottom: '10px' }}>{selectedPkg['Test Name']}</p>
+            <div style={paramBoxStyle}>
+              <strong>Tests Included:</strong><br/>
+              {selectedPkg['Parameter'] || "N/A"}
+            </div>
+            <button onClick={() => {setShowParamModal(false); openBooking(selectedPkg);}} style={{...bookBtnStyle, width: '100%', marginTop: '20px', padding: '15px'}}>Book This Package</button>
           </div>
         </div>
       )}
 
-      {isBookingOpen && testToBook && (
-        <BookingModal isOpen={isBookingOpen} onClose={() => setIsBookingOpen(false)} testName={testToBook.name} price={testToBook.price} labName={testToBook.lab} />
+      {/* --- BOOKING MODAL --- */}
+      {isBookingOpen && selectedPkg && (
+        <BookingModal 
+          isOpen={isBookingOpen} 
+          onClose={() => setIsBookingOpen(false)} 
+          testName={selectedPkg['Test Name']} 
+          price={selectedPkg['MRP']} 
+          labName={selectedPkg['Lab Name']} 
+        />
       )}
     </div>
   );
+};
+
+// --- STYLES (Aapka Original Format + Popup Styles) ---
+
+const heroStyle = {
+  background: 'linear-gradient(135deg, #3b82f6 0%, #1e3a8a 100%)',
+  padding: 'clamp(50px, 8vw, 80px) 20px',
+  color: 'white',
+  textAlign: 'center'
+};
+
+const heroTitleStyle = {
+  fontSize: 'clamp(2rem, 6vw, 3rem)',
+  fontWeight: '800',
+  marginBottom: '10px'
+};
+
+const searchBarStyle = {
+  width: '100%',
+  padding: '16px 25px',
+  borderRadius: '50px',
+  border: 'none',
+  fontSize: '16px',
+  outline: 'none',
+  boxShadow: '0 4px 15px rgba(0,0,0,0.1)'
+};
+
+const filterContainerStyle = {
+  display: 'flex', 
+  justifyContent: 'flex-start',
+  gap: '12px', 
+  padding: '30px 20px',
+  overflowX: 'auto',
+  maxWidth: '1200px',
+  margin: '0 auto',
+  WebkitOverflowScrolling: 'touch'
+};
+
+const filterBtn = {
+  padding: '10px 22px',
+  borderRadius: '50px',
+  border: '1px solid #e2e8f0',
+  backgroundColor: 'white',
+  cursor: 'pointer',
+  fontWeight: '600',
+  color: '#64748b',
+  fontSize: '14px'
+};
+
+const activeFilterBtn = {
+  ...filterBtn,
+  backgroundColor: '#1e3a8a',
+  color: 'white',
+  border: 'none'
+};
+
+const gridStyle = {
+  display: 'grid', 
+  gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', 
+  gap: '25px', 
+  maxWidth: '1200px', 
+  margin: '0 auto', 
+  padding: '0 20px 60px'
+};
+
+const cardStyle = {
+  background: 'white',
+  padding: '25px',
+  borderRadius: '28px',
+  border: '1px solid #e2e8f0',
+  boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)',
+  display: 'flex',
+  flexDirection: 'column',
+  transition: 'transform 0.2s'
+};
+
+const pillStyle = {
+  backgroundColor: '#fef3c7',
+  color: '#92400e',
+  padding: '4px 10px',
+  borderRadius: '20px',
+  fontSize: '10px',
+  fontWeight: '800'
+};
+
+const viewBtnStyle = {
+  background: '#f1f5f9',
+  color: '#1e3a8a',
+  padding: '10px 18px',
+  borderRadius: '12px',
+  border: '1px solid #e2e8f0',
+  fontWeight: 'bold',
+  cursor: 'pointer',
+  fontSize: '13px'
+};
+
+const bookBtnStyle = {
+  background: '#1e3a8a',
+  color: 'white',
+  padding: '10px 18px',
+  borderRadius: '12px',
+  border: 'none',
+  fontWeight: 'bold',
+  cursor: 'pointer',
+  fontSize: '13px'
+};
+
+// --- POPUP MODAL STYLES ---
+const modalOverlayStyle = {
+  position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
+  backgroundColor: 'rgba(0,0,0,0.7)', display: 'flex', justifyContent: 'center',
+  alignItems: 'center', zIndex: 10001, padding: '20px'
+};
+
+const modalContentStyle = {
+  backgroundColor: 'white', padding: '30px', borderRadius: '24px',
+  maxWidth: '500px', width: '100%', boxShadow: '0 10px 30px rgba(0,0,0,0.2)',
+  position: 'relative'
+};
+
+const closeIconStyle = {
+  background: 'none', border: 'none', fontSize: '22px',
+  cursor: 'pointer', color: '#64748b'
+};
+
+const paramBoxStyle = {
+  backgroundColor: '#f8fafc', padding: '15px', borderRadius: '16px',
+  fontSize: '14px', color: '#475569', maxHeight: '300px',
+  overflowY: 'auto', lineHeight: '1.6', border: '1px solid #e2e8f0'
 };
 
 export default Packages;

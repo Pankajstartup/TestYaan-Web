@@ -1,17 +1,26 @@
 import React from 'react';
 
-function ContactUs() {
+const ContactUs = () => {
   return (
-    <div style={{ padding: '120px 20px', textAlign: 'center', minHeight: '60vh' }}>
-      <h2 style={{ color: '#0056b3', marginBottom: '20px' }}>Contact Us</h2>
-      <div style={{ maxWidth: '600px', margin: '0 auto', fontSize: '18px', lineHeight: '2' }}>
-        <p>📍 123 Health Street, Diagnostic Plaza, New Delhi</p>
-        <p>📞 Phone: +91 8130484197</p>
-        <p>📧 Email: pankaj.mallik2025@gmail.com </p>
-        <p>🕒 Hours: Mon - Sun (6 AM - 10 PM)</p>
+    <div style={{ maxWidth: '800px', margin: '80px auto', padding: '0 20px', fontFamily: 'Inter, sans-serif' }}>
+      <h1 style={{ fontSize: '2.5rem', textAlign: 'center', color: '#1e3a8a' }}>Contact TestYaan</h1>
+      <p style={{ textAlign: 'center', marginBottom: '50px', color: '#64748b' }}>Hamari team aapki madad ke liye taiyaar hai.</p>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
+        <div style={{ padding: '30px', background: '#f8fafc', borderRadius: '20px', border: '1px solid #e2e8f0' }}>
+          <h3>📍 Lab & Office Address</h3>
+          <p>AIIMS Delhi Campus, Ansari Nagar, New Delhi - 110029</p>
+        </div>
+
+        <div style={{ padding: '30px', background: '#f8fafc', borderRadius: '20px', border: '1px solid #e2e8f0', textAlign: 'center' }}>
+          <h3>📞 Helpline Number</h3>
+          <p style={{ fontSize: '1.8rem', fontWeight: 'bold' }}>+91 8130484197</p>
+          <a href="https://wa.me/918130484197" style={{ display: 'inline-block', marginTop: '15px', padding: '12px 30px', background: '#25D366', color: 'white', textDecoration: 'none', borderRadius: '10px', fontWeight: 'bold' }}>
+            Chat on WhatsApp
+          </a>
+        </div>
       </div>
     </div>
   );
-}
-
+};
 export default ContactUs;
