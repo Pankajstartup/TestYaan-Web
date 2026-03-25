@@ -1,38 +1,22 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Layout from './components/Layout';
 import Home from './pages/Home';
-import Tests from './pages/Tests'; // Naya Page
-import LabPage from './pages/LabPage';
-import ContactUs from './pages/ContactUs';
-import './style.css';
+import Tests from './pages/Tests';
+import Packages from './pages/Packages';
 
 function App() {
   return (
     <Router>
-      <div className="app-container">
-        <header className="main-header">
-          <Link to="/" className="logo">Test<span>Yaan</span></Link>
-          <nav className="nav-links">
-             <Link to="/">Home</Link>
-             <Link to="/tests">Tests</Link>
-             <Link to="/contact">Contact Us</Link>
-          </nav>
-          {/* Login/Signup Buttons yahan se hata diye gaye hain */}
-        </header>
-
+      <Layout> 
         <Routes>
-        
           <Route path="/" element={<Home />} />
           <Route path="/tests" element={<Tests />} />
-          <Route path="/lab/:labId" element={<LabPage />} />
-          <Route path="/contact" element={<ContactUs />} />
+          <Route path="/packages" element={<Packages />} />
         </Routes>
-        
-        <footer className="main-footer">
-          <p>&copy; 2026 TestYaan Diagnostic. All rights reserved.</p>
-        </footer>
-      </div>
+      </Layout>
     </Router>
   );
 }
+
 export default App;
