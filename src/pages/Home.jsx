@@ -1,107 +1,105 @@
 import React, { useState, useEffect } from 'react';
 import Papa from 'papaparse';
-import { useNavigate } from 'react-router-dom'; // ✅ Navigation ke liye add kiya
-import './Home.css';
+import BookingModal from '../components/BookingModal';
 
 const Home = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [allTests, setAllTests] = useState([]); 
   const [displayTests, setDisplayTests] = useState([]);
-  const [selectedTest, setSelectedTest] = useState(null);
-  const navigate = useNavigate(); // ✅ Initialize navigate
+  const [isBookingOpen, setIsBookingOpen] = useState(false);
+  const [testToBook, setTestToBook] = useState(null);
 
   useEffect(() => {
     const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSbxApGB2BZluOJ4nO9PXtMN2cRnibZE0dgcLQajFRQB1dkdpV1kdMild2-22tXEjEyipkdo8_dPcOx/pub?gid=0&single=true&output=csv";
-    
     fetch(sheetUrl).then(res => res.text()).then(csv => {
       Papa.parse(csv, {
         header: true,
-        skipEmptyLines: true,
         complete: (res) => {
           setAllTests(res.data);
-          setDisplayTests(res.data.slice(0, 6)); 
+          setDisplayTests(res.data.slice(0, 4)); 
         }
       });
     });
   }, []);
 
-  // ✅ FIXED BOOKING FUNCTION: Ab ye WhatsApp nahi, Order Page par bhejega
   const handleBooking = (test) => {
-    const query = `?test=${encodeURIComponent(test.name)}&lab=${encodeURIComponent(test.lab)}&price=${test.price}`;
-    navigate(`/order${query}`); // ✅ Ye line aapko Order Page par le jayegi
-  };
-
-  const handleSearch = (value) => {
-    setSearchTerm(value);
-    if (value.trim() === "") {
-      setDisplayTests(allTests.slice(0, 6));
-    } else {
-      const filtered = allTests.filter(test => 
-        (test.name && test.name.toLowerCase().includes(value.toLowerCase())) || 
-        (test.lab && test.lab.toLowerCase().includes(value.toLowerCase()))
-      );
-      setDisplayTests(filtered);
-    }
+    setTestToBook(test);
+    setIsBookingOpen(true);
   };
 
   return (
-    <div className="home-container" style={{ background: '#f8fafc', minHeight: '100vh' }}>
+    <div style={{ fontFamily: 'Inter, sans-serif', backgroundColor: '#f0f7ff' }}>
       
-      {/* 🔵 Wahi Original Blue Hero Section */}
-      <section className="hero-blue" style={{ 
-        height: '400px', background: 'linear-gradient(to right, #2563eb, #1d4ed8)', 
-        color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center' 
+      {/* 1. TOP NAVBAR (Contact & Book Now) */}
+      <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', padding: '10px 50px', backgroundColor: 'white', gap: '20px', borderBottom: '1px solid #eee' }}>
+        <span style={{ fontSize: '14px', color: '#333' }}>📞 +91 9876543210</span>
+        <button style={{ backgroundColor: '#ffb800', border: 'none', padding: '8px 20px', borderRadius: '8px', color: 'white', fontWeight: 'bold', cursor: 'pointer' }}>Book Now</button>
+      </div>
+
+      {/* 2. HERO SECTION (Blue Gradient + Image) */}
+      <section style={{ 
+        background: 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)', 
+        padding: '60px 50px', 
+        color: 'white', 
+        position: 'relative',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        overflow: 'hidden'
       }}>
-        <div className="hero-content" style={{ width: '100%', padding: '0 20px' }}>
-          <h1 style={{ fontSize: '3rem', fontWeight: '900', marginBottom: '10px' }}>
-            TestYaan <span style={{ color: '#fbbf24' }}>Delhi-NCR</span>
+        <div style={{ maxWidth: '600px', zIndex: 2 }}>
+          <h1 style={{ fontSize: '3rem', fontWeight: '800', lineHeight: '1.2' }}>
+            Compare & Book Lab Tests <br />
+            <span style={{ color: '#ffb800' }}>Delhi-NCR</span>
           </h1>
-          <p style={{ opacity: 0.9, marginBottom: '30px' }}>Compare 1000+ Tests from NABL Labs</p>
+          <p style={{ fontSize: '1.1rem', margin: '20px 0', opacity: 0.9 }}>Save upto 50% on lab tests from top NABL certified labs.</p>
           
-          <div className="search-bar-locked" style={{
-            background: 'white', padding: '5px', borderRadius: '50px', display: 'flex', maxWidth: '600px', margin: '0 auto', boxShadow: '0 10px 30px rgba(0,0,0,0.2)'
-          }}>
+          {/* SEARCH BAR */}
+          <div style={{ display: 'flex', background: 'white', borderRadius: '50px', padding: '5px', marginTop: '30px', boxShadow: '0 10px 20px rgba(0,0,0,0.1)' }}>
             <input 
-              type="text" placeholder="Search for CBC, Vitamin D, Lab Name..." 
-              value={searchTerm}
-              onChange={(e) => handleSearch(e.target.value)}
-              style={{ flex: 1, border: 'none', padding: '15px 25px', borderRadius: '50px', outline: 'none', fontSize: '16px', color: '#333' }}
+              type="text" 
+              placeholder="Search for CBC, Vitamin D, Lab..." 
+              style={{ flex: 1, border: 'none', padding: '15px 25px', borderRadius: '50px', outline: 'none' }}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
+            <button style={{ backgroundColor: '#ffb800', border: 'none', borderRadius: '50px', padding: '0 25px', cursor: 'pointer' }}>🔍</button>
           </div>
+
+          {/* BADGES */}
+          <div style={{ display: 'flex', gap: '15px', marginTop: '40px' }}>
+            <div style={{ background: 'rgba(255,255,255,0.2)', padding: '10px 15px', borderRadius: '12px', backdropFilter: 'blur(10px)', fontSize: '12px' }}>🛡️ Trusted Labs</div>
+            <div style={{ background: 'rgba(255,255,255,0.2)', padding: '10px 15px', borderRadius: '12px', backdropFilter: 'blur(10px)', fontSize: '12px' }}>🚲 Home Sample</div>
+            <div style={{ background: 'rgba(255,255,255,0.2)', padding: '10px 15px', borderRadius: '12px', backdropFilter: 'blur(10px)', fontSize: '12px' }}>⭐ 4.8 Rating</div>
+          </div>
+        </div>
+
+        {/* TEST TUBE DESIGN (IMAGE) */}
+        <div style={{ zIndex: 1 }}>
+           <img 
+             src="https://img.freepik.com/free-photo/medical-test-tubes-centrifuge_23-2149115291.jpg" 
+             alt="Test Tubes" 
+             style={{ width: '450px', borderRadius: '100px 0 0 100px', opacity: 0.8 }}
+           />
         </div>
       </section>
 
-      {/* 📦 Tests Grid */}
-      <section style={{ maxWidth: '1200px', margin: '50px auto', padding: '0 20px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '25px' }}>
+      {/* 3. POPULAR TESTS GRID */}
+      <section style={{ padding: '60px 50px' }}>
+        <h2 style={{ textAlign: 'center', color: '#1e3a8a', marginBottom: '40px' }}>Popular Lab Tests</h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '25px', maxWidth: '1200px', margin: '0 auto' }}>
           {displayTests.map((test, index) => (
-            <div className="test-card" key={index} style={{ background: 'white', borderRadius: '20px', padding: '25px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }}>
-              
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
-                {test.logoUrl ? (
-                  <img src={test.logoUrl} alt={test.lab} style={{ height: '30px', maxWidth: '100px', objectFit: 'contain' }} />
-                ) : (
-                  <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#2563eb' }}>{test.lab}</span>
-                )}
-                
-                <span style={{ 
-                  fontSize: '10px', padding: '3px 10px', borderRadius: '12px', fontWeight: 'bold',
-                  background: test["Fasting/Non Fasting"]?.toLowerCase().includes('required') ? '#fee2e2' : '#dcfce7', 
-                  color: test["Fasting/Non Fasting"]?.toLowerCase().includes('required') ? '#ef4444' : '#16a34a',
-                }}>
-                  {test["Fasting/Non Fasting"] || 'Non-Fasting'}
-                </span>
+            <div key={index} style={{ background: 'white', padding: '25px', borderRadius: '24px', boxShadow: '0 10px 30px rgba(0,0,0,0.05)', border: '1px solid #f0f4f8' }}>
+              <span style={{ fontSize: '12px', background: '#dcfce7', color: '#16a34a', padding: '4px 10px', borderRadius: '20px' }}>20% OFF</span>
+              <h3 style={{ margin: '15px 0 10px 0', fontSize: '1.2rem' }}>{test.name}</h3>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px' }}>
+                <span style={{ fontSize: '1.5rem', fontWeight: '800', color: '#1e3a8a' }}>₹{test.price}</span>
+                <span style={{ fontSize: '14px', textDecoration: 'line-through', color: '#94a3b8' }}>₹{test.oldPrice || 1000}</span>
               </div>
-
-              <h3 style={{ fontSize: '1.3rem', margin: '15px 0', minHeight: '50px' }}>{test.name}</h3>
-              <div style={{ fontSize: '1.8rem', fontWeight: '900', color: '#1e3a8a' }}>₹{test.price}</div>
-
-              <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
-                <button onClick={() => setSelectedTest(test)} style={{ flex: 1, padding: '12px', background: '#f1f5f9', border: 'none', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer' }}>Details</button>
-                
+              <div style={{ display: 'flex', gap: '10px', marginTop: '25px' }}>
+                <button style={{ flex: 1, padding: '12px', border: '1px solid #e2e8f0', background: 'none', borderRadius: '12px', cursor: 'pointer' }}>Compare</button>
                 <button 
-                  onClick={() => handleBooking(test)}
-                  style={{ flex: 1, padding: '12px', background: '#1e3a8a', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer' }}
+                   onClick={() => handleBooking(test)}
+                   style={{ flex: 1, padding: '12px', background: '#1e3a8a', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer' }}
                 >
                   Book Now
                 </button>
@@ -111,31 +109,24 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Details Popup */}
-      {selectedTest && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div style={{ background: 'white', padding: '30px', borderRadius: '20px', maxWidth: '450px', width: '90%', position: 'relative' }}>
-            <button onClick={() => setSelectedTest(null)} style={{ position: 'absolute', top: '15px', right: '15px', border: 'none', background: 'none', fontSize: '20px', cursor: 'pointer' }}>✕</button>
-            <h2 style={{ color: '#1e3a8a' }}>{selectedTest.name}</h2>
-            <p style={{ fontSize: '14px', color: '#64748b', marginBottom: '15px' }}>Lab: {selectedTest.lab}</p>
-            
-            <h4 style={{ marginBottom: '10px' }}>Parameters:</h4>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-              {selectedTest.Parameter ? selectedTest.Parameter.split(',').map((p, i) => (
-                <span key={i} style={{ background: '#eff6ff', color: '#1e40af', padding: '5px 12px', borderRadius: '20px', fontSize: '11px', border: '1px solid #bfdbfe' }}>
-                  {p.trim()}
-                </span>
-              )) : <p style={{ fontSize: '12px', color: '#999' }}>Check with lab for full list.</p>}
-            </div>
-            
-            <button 
-              onClick={() => handleBooking(selectedTest)}
-              style={{ width: '100%', marginTop: '25px', padding: '15px', background: '#22c55e', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer' }}
-            >
-              Confirm Booking
-            </button>
-          </div>
-        </div>
+      {/* 4. WHATSAPP FLOATING BUTTON */}
+      <a 
+        href="https://wa.me/919876543210" 
+        target="_blank" 
+        rel="noreferrer"
+        style={{ position: 'fixed', bottom: '30px', right: '30px', backgroundColor: '#25d366', color: 'white', width: '60px', height: '60px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '30px', boxShadow: '0 5px 15px rgba(0,0,0,0.2)', zIndex: 1000, textDecoration: 'none' }}
+      >
+        <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WA" style={{ width: '35px' }} />
+      </a>
+
+      {isBookingOpen && testToBook && (
+        <BookingModal 
+          isOpen={isBookingOpen} 
+          onClose={() => setIsBookingOpen(false)} 
+          testName={testToBook.name} 
+          price={testToBook.price} 
+          labName={testToBook.lab} 
+        />
       )}
     </div>
   );
