@@ -4,6 +4,8 @@
   "private": true,
   "dependencies": {
     "@emailjs/browser": "^4.4.1",
+    "jspdf": "^4.2.1",
+    "jspdf-autotable": "^5.0.7",
     "papaparse": "^5.5.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

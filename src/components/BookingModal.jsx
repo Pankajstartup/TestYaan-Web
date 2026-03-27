@@ -4,8 +4,8 @@ function BookingModal({ isOpen, onClose, testName, price, labName }) {
   const [formData, setFormData] = useState({
     pName: '', pMobile: '', pAge: '', pDob: '', pAddress: '', 
     pState: '', pPincode: '', pDate: '', pTime: '', pEmail: '',
-    pPrefix: '', // Prefix state
-    pGender: ''  // Gender automatic set hoga
+    pPrefix: '', 
+    pGender: ''  
   });
 
   const [couponInput, setCouponInput] = useState('');
@@ -16,8 +16,8 @@ function BookingModal({ isOpen, onClose, testName, price, labName }) {
   const handlePrefixChange = (e) => {
     const prefix = e.target.value;
     let gender = '';
-    if (prefix === 'Mr.'|| prefix === 'Master') gender = 'Male';
-    else if (prefix === 'Mrs.' || prefix === 'Miss'|| prefix === 'Baby') gender = 'Female';
+    if (prefix === 'Mr.' || prefix === 'Master') gender = 'Male';
+    else if (prefix === 'Mrs.' || prefix === 'Miss' || prefix === 'Baby') gender = 'Female';
     
     setFormData({ ...formData, pPrefix: prefix, pGender: gender });
   };
@@ -79,27 +79,40 @@ function BookingModal({ isOpen, onClose, testName, price, labName }) {
     }
 
     const bookingId = `TY-${Date.now().toString().slice(-6)}-${Math.floor(10 + Math.random() * 90)}`;
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbx5ho1zKNXiyoLQVl4FXyvjTaLX1Lr-X_8yH8lmffWfSqNtSv-M2IKKKwUehmLk8XJqZw/exec';
+    
+    // Yahan apni wahi SCRIPT_URL rakhein jo aapne pehle banayi thi
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbxxmz8W4txUjdJ2NcOv5nflZ6IIiUi1d6Y6AodR8VXPZ-8mbn9KPLKzoOeWQ8A_OQV-lA/exec';
 
-    // Hum Full Name bhejenge: Prefix + Name
+    // --- SABSE ZAROORI: Payload with Action ---
     const finalData = {
-      ...formData,
+      action: "new_booking", // <--- Yeh signal dena zaroori hai
+      bookingId: bookingId,
       pName: `${formData.pPrefix} ${formData.pName}`,
-      bookingId,
-      testName,
+      pMobile: formData.pMobile,
+      pEmail: formData.pEmail,
+      pAge: formData.pAge,
+      pGender: formData.pGender || "Not Specified",
+      pAddress: formData.pAddress,
+      pState: formData.pState,
+      pPincode: formData.pPincode,
+      pDate: formData.pDate,
+      pTime: formData.pTime,
+      testName: testName,
+      labName: labName,
       price: finalPrice,
-      labName,
       couponUsed: isApplied ? 'TEST10' : 'None'
     };
 
     try {
+      // POST Request to Google Sheets
       fetch(scriptURL, {
         method: 'POST',
         mode: 'no-cors',
-        headers: { 'Content-Type': 'application/plain' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(finalData)
       });
 
+      // WhatsApp Message Logic
       const msg = `*Booking Confirmed! ✅*%0A%0A*ID:* ${bookingId}%0A*Patient:* ${formData.pPrefix} ${formData.pName}%0A*Gender:* ${formData.pGender}%0A*Test:* ${testName}%0A*Lab:* ${labName}%0A*Final Price:* ₹${finalPrice}%0A*Address:* ${formData.pAddress}`;
       
       window.open(`https://wa.me/918130484197?text=${msg}`, '_blank');
@@ -110,7 +123,7 @@ function BookingModal({ isOpen, onClose, testName, price, labName }) {
       alert(`Booking Confirmed! ID: ${bookingId}`);
       onClose();
     } catch (error) {
-      alert("Error. Please try again.");
+      alert("Error saving booking. Please try again.");
     }
   };
 
@@ -136,7 +149,6 @@ function BookingModal({ isOpen, onClose, testName, price, labName }) {
           </div>
         </div>
 
-        {/* --- COUPON SECTION --- */}
         <div style={{ display: 'flex', gap: '8px', marginBottom: '15px' }}>
           <input 
             type="text" 
@@ -154,14 +166,14 @@ function BookingModal({ isOpen, onClose, testName, price, labName }) {
         </div>
 
         <form onSubmit={handleSubmit} style={formStyle}>
-          
-          {/* --- PREFIX & NAME ROW --- */}
           <div style={rowStyle}>
             <select required style={{ ...inputStyle, width: '90px' }} onChange={handlePrefixChange}>
               <option value="">Prefix</option>
               <option value="Mr.">Mr.</option>
               <option value="Mrs.">Mrs.</option>
               <option value="Miss">Miss</option>
+              <option value="Master">Master</option>
+              <option value="Baby">Baby</option>
             </select>
             <input type="text" placeholder="Full Name *" required style={{ ...inputStyle, flex: 1 }}
               onChange={e => setFormData({...formData, pName: e.target.value})} />
@@ -215,7 +227,7 @@ function BookingModal({ isOpen, onClose, testName, price, labName }) {
   );
 }
 
-// --- STYLES ---
+// --- STYLES (Keep as original) ---
 const overlayStyle = { position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.7)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 10000, padding: '10px' };
 const modalStyle = { backgroundColor: 'white', padding: '20px', borderRadius: '24px', width: '100%', maxWidth: '450px', maxHeight: '95vh', overflowY: 'auto', boxShadow: '0 10px 25px rgba(0,0,0,0.2)', position: 'relative' };
 const headerStyle = { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' };

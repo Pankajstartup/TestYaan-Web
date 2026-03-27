@@ -32,7 +32,7 @@ export default function OrderPage() {
     };
 
     try {
-      const scriptURL = "https://script.google.com/macros/s/AKfycbxbuNVIA7n4mFfWPfM4BM5qvOoicD53Sjjw2GKsaGmJWTAaFX7j2LG8hiiExVibzlLb/exec";
+      const scriptURL = "https://script.google.com/macros/s/AKfycbxxmz8W4txUjdJ2NcOv5nflZ6IIiUi1d6Y6AodR8VXPZ-8mbn9KPLKzoOeWQ8A_OQV-lA/exec";
       const response = await fetch(scriptURL, {
         method: 'POST',
         body: JSON.stringify(bookingData),

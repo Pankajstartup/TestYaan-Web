@@ -4,6 +4,7 @@ import Home from './pages/Home';
 import Tests from './pages/Tests';
 import Packages from './pages/Packages'; // 1. PEHLE ISSE IMPORT KAREIN
 import './App.css';
+import AdminDashboard from './pages/AdminDashboard';
 
 function App() {
   return (
@@ -45,6 +46,7 @@ function App() {
           {/* 2. YAHAN PACKAGES KA ROUTE ADD KIYA HAI */}
           <Route path="/packages" element={<Packages />} /> 
           <Route path="*" element={<Home />} />
+          <Route path="/admin" element={<AdminDashboard />} />
         </Routes>
 
         {/* --- FOOTER --- */}
