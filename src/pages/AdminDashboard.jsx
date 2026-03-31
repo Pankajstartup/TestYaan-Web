@@ -10,7 +10,10 @@ const AdminDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedPatient, setSelectedPatient] = useState(null);
   
-  // State for Payment & Details
+  // --- NAYE STATES (DATE FILTER) ---
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+
   const [paymentData, setPaymentData] = useState({ 
     discount: 0, 
     paid: 0,
@@ -104,21 +107,17 @@ const AdminDashboard = () => {
 
   const downloadBill = (patient) => {
     const doc = new jsPDF();
-    
-    // YAHAN APNA LOGO PASTE KAREIN
     const logoBase64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA..."; 
 
     const total = parseFloat(patient["Final Amount"] || 0);
-    const disc = parseFloat(paymentData.discount || 0);
-    const paid = parseFloat(paymentData.paid || 0);
+    const disc = parseFloat(patient["Discount"] || 0);
+    const paid = parseFloat(patient["Paid Amount"] || 0);
     const net = total - disc;
     const pending = net - paid;
 
-    // Header Design
     doc.setFillColor(30, 58, 138); 
     doc.rect(0, 0, 210, 45, 'F');
 
-    // Add Logo
     try {
       doc.addImage(logoBase64, 'PNG', 15, 8, 30, 30); 
     } catch (e) { console.error("Logo Error"); }
@@ -165,6 +164,22 @@ const AdminDashboard = () => {
     doc.save(`Bill_${patient["Patient Name"]}.pdf`);
   };
 
+  // --- NAYA FILTER LOGIC (SEARCH + DATE) ---
+  const filteredBookings = bookings.filter(b => {
+    const matchesSearch = b["Patient Name"]?.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                         b["Mobile Number"]?.includes(searchTerm);
+    
+    if (!startDate || !endDate) return matchesSearch;
+    
+    const bDate = new Date(b["Collection Date"]);
+    const sDate = new Date(startDate);
+    const eDate = new Date(endDate);
+    
+    return matchesSearch && (bDate >= sDate && bDate <= eDate);
+  });
+
+  const totalRevenue = filteredBookings.reduce((acc, b) => acc + parseFloat(b["Final Amount"] || 0), 0);
+
   if (!isAuthenticated) {
     return (
       <div style={loginContainerStyle}>
@@ -180,8 +195,6 @@ const AdminDashboard = () => {
     );
   }
 
-  const totalRevenue = bookings.reduce((acc, b) => acc + parseFloat(b["Final Amount"] || 0), 0);
-
   return (
     <div style={{ padding: '30px', backgroundColor: '#f1f5f9', minHeight: '100vh' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
@@ -195,7 +208,7 @@ const AdminDashboard = () => {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', marginBottom: '30px' }}>
         <div style={statCardStyle}>
           <small style={{color: '#64748b'}}>Total Bookings</small>
-          <h2 style={{margin: '5px 0', color: '#1e3a8a'}}>{bookings.length}</h2>
+          <h2 style={{margin: '5px 0', color: '#1e3a8a'}}>{filteredBookings.length}</h2>
         </div>
         <div style={statCardStyle}>
           <small style={{color: '#64748b'}}>Gross Revenue</small>
@@ -203,18 +216,31 @@ const AdminDashboard = () => {
         </div>
       </div>
 
-      <div style={{ marginBottom: '20px' }}>
-        <input 
-          type="text" placeholder="Search Patient Name or Mobile..." 
-          style={{ padding: '15px', width: '100%', maxWidth: '450px', borderRadius: '12px', border: '1px solid #cbd5e1', outline: 'none' }}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
+      {/* --- NAYA FILTER UI --- */}
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '15px', marginBottom: '20px', backgroundColor: 'white', padding: '20px', borderRadius: '12px', boxShadow: '0 2px 10px rgba(0,0,0,0.05)' }}>
+        <div style={{ flex: 1, minWidth: '300px' }}>
+            <label style={labelStyle}>Search Patient</label>
+            <input 
+              type="text" placeholder="Search Name or Mobile..." 
+              style={{ ...inputStyle, marginBottom: 0 }} 
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+        </div>
+        <div>
+            <label style={labelStyle}>From Date</label>
+            <input type="date" style={{ ...inputStyle, marginBottom: 0 }} onChange={(e) => setStartDate(e.target.value)} />
+        </div>
+        <div>
+            <label style={labelStyle}>To Date</label>
+            <input type="date" style={{ ...inputStyle, marginBottom: 0 }} onChange={(e) => setEndDate(e.target.value)} />
+        </div>
       </div>
 
       <div style={{ overflowX: 'auto', background: 'white', borderRadius: '16px', boxShadow: '0 4px 15px rgba(0,0,0,0.05)' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead style={{ background: '#1e3a8a', color: 'white' }}>
             <tr>
+              <th style={thStyle}>Order ID</th> {/* NAYA COLUMN */}
               <th style={thStyle}>Date</th>
               <th style={thStyle}>Patient Info</th>
               <th style={thStyle}>Test Details</th>
@@ -223,10 +249,11 @@ const AdminDashboard = () => {
             </tr>
           </thead>
           <tbody>
-            {bookings
-              .filter(b => b["Patient Name"]?.toLowerCase().includes(searchTerm.toLowerCase()) || b["Mobile Number"]?.includes(searchTerm))
-              .map((b, i) => (
+            {filteredBookings.map((b, i) => (
               <tr key={i} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                <td style={{ ...tdStyle, fontWeight: 'bold', color: '#1e3a8a' }}>
+                    #{b["Booking ID"] ? b["Booking ID"].toString().slice(-6) : `ORD-${i}`}
+                </td>
                 <td style={tdStyle}>{b["Collection Date"]}</td>
                 <td style={tdStyle}>
                   <strong style={{ color: '#0f172a' }}>{b["Patient Name"]}</strong><br/>
@@ -278,6 +305,7 @@ const AdminDashboard = () => {
   );
 };
 
+// --- STYLES (AS IT IS) ---
 const statCardStyle = { background: 'white', padding: '20px', borderRadius: '16px', boxShadow: '0 4px 10px rgba(0,0,0,0.03)', border: '1px solid #e2e8f0' };
 const labelStyle = { fontSize: '12px', fontWeight: 'bold', color: '#64748b' };
 const thStyle = { padding: '18px 15px', textAlign: 'left', fontSize: '14px' };

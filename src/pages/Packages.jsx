@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Papa from 'papaparse';
 import BookingModal from '../components/BookingModal';
+import CompareModal from '../components/CompareModal';
 
 const Packages = () => {
   const [allPackages, setAllPackages] = useState([]);
@@ -12,6 +13,10 @@ const Packages = () => {
   const [selectedPkg, setSelectedPkg] = useState(null);
   const [isBookingOpen, setIsBookingOpen] = useState(false);
   const [showParamModal, setShowParamModal] = useState(false);
+
+  // --- COMPARE LOGIC (HOME/TESTS STYLE) ---
+  const [compareList, setCompareList] = useState([]);
+  const [showCompareOverlay, setShowCompareOverlay] = useState(false);
 
   useEffect(() => {
     const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vShYhNLxqm5dPsxN42c-unJ1ByWLnU3DmduiBdPkafMj_3NOH_AZohRJtZLLDvW76jfd_uL0VlvNlVx/pub?output=csv";
@@ -46,12 +51,27 @@ const Packages = () => {
     setIsBookingOpen(true);
   };
 
-  const labs = ["All", "Dr Lal Pathlabs", "Metropolis", "Redcliffe Labs"];
+  // Compare Handlers
+  const handleCompareClick = (test, isChecked) => {
+    if (isChecked) {
+      if (compareList.length >= 3) return alert("Maximum 3 packages compare kar sakte hain!");
+      setCompareList([...compareList, test]);
+    } else {
+      setCompareList(compareList.filter(t => t['Test Name'] !== test['Test Name']));
+    }
+  };
+
+  const removeCompareItem = (name) => {
+    setCompareList(compareList.filter(t => t['Test Name'] !== name));
+  };
+
+  // FIX: Thyrocare yahan add kar diya hai
+  const labs = ["All", "Thyrocare", "Dr Lal Pathlabs", "Metropolis", "Redcliffe Labs"];
 
   return (
     <div style={{ backgroundColor: '#f8fafc', minHeight: '100vh' }}>
       
-      {/* 1. Stylish Hero Section (Using App.css class) */}
+      {/* 1. Hero Section */}
       <section className="universal-hero">
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
           <h1 className="hero-title">Health Packages</h1>
@@ -64,7 +84,6 @@ const Packages = () => {
             <input 
               type="text" 
               placeholder="Search health packages..." 
-              className="search-input"
               style={{ width: '100%', padding: '16px 25px', borderRadius: '50px', border: 'none', fontSize: '16px', outline: 'none', boxShadow: '0 10px 25px rgba(0,0,0,0.2)' }}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -72,7 +91,7 @@ const Packages = () => {
         </div>
       </section>
 
-      {/* 2. Lab Filters (Keeping your Scroll Logic) */}
+      {/* 2. Lab Filters */}
       <div style={{ display: 'flex', gap: '12px', padding: '30px 20px', overflowX: 'auto', maxWidth: '1200px', margin: '0 auto' }}>
         {labs.map(lab => (
           <button 
@@ -90,32 +109,57 @@ const Packages = () => {
         ))}
       </div>
 
-      {/* 3. Cards Grid (Using Universal Grid from App.css) */}
+      {/* 3. Cards Grid */}
       <div className="universal-grid" style={{ paddingTop: '0' }}>
         {filteredPackages.map((pkg, i) => (
           <div key={i} className="modern-card hover-card">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
               <span style={{ backgroundColor: '#fef3c7', color: '#92400e', padding: '4px 10px', borderRadius: '20px', fontSize: '10px', fontWeight: '800' }}>PACKAGE</span>
-              <p style={{ fontSize: '12px', color: '#dc2626', fontWeight: '700' }}>🕒 {pkg['Fasting Status']}</p>
+              
+              {/* NAYA: Checkbox added here */}
+              <label style={{ fontSize: '12px', color: '#64748b', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontWeight: '600' }}>
+                <input 
+                  type="checkbox" 
+                  checked={compareList.some(t => t['Test Name'] === pkg['Test Name'])} 
+                  onChange={(e) => handleCompareClick(pkg, e.target.checked)} 
+                /> Compare
+              </label>
             </div>
 
-            <h3 style={{ fontSize: '1.4rem', color: '#0f172a', fontWeight: '800', marginBottom: '5px' }}>{pkg['Test Name']}</h3>
-            <p style={{ color: '#64748b', fontSize: '14px', marginBottom: '20px' }}>Lab: {pkg['Lab Name']}</p>
+            <h3 style={{ fontSize: '1.3rem', color: '#0f172a', fontWeight: '800', marginBottom: '5px' }}>{pkg['Test Name']}</h3>
+            <p style={{ color: '#64748b', fontSize: '14px', marginBottom: '10px' }}>Lab: {pkg['Lab Name']}</p>
+            <p style={{ fontSize: '12px', color: '#dc2626', fontWeight: '700', marginBottom: '15px' }}>🕒 {pkg['Fasting Status']}</p>
             
             <div style={{ flexGrow: 1 }}></div>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto' }}>
               <span style={{ fontSize: '1.7rem', fontWeight: '900', color: '#1e3a8a' }}>₹{pkg['MRP']}</span>
               <div style={{ display: 'flex', gap: '8px' }}>
-                <button onClick={() => openParams(pkg)} className="btn-secondary" style={{ padding: '10px 15px', borderRadius: '10px', border: '1px solid #e2e8f0', cursor: 'pointer', fontWeight: 'bold' }}>Details</button>
-                <button onClick={() => openBooking(pkg)} className="confirm-btn" style={{ padding: '10px 15px', fontSize: '13px', width: 'auto' }}>Book Now</button>
+                <button onClick={() => openParams(pkg)} className="btn-secondary" style={{ padding: '8px 12px', borderRadius: '10px', border: '1px solid #e2e8f0', cursor: 'pointer', fontWeight: 'bold', fontSize: '12px' }}>Details</button>
+                <button onClick={() => openBooking(pkg)} className="confirm-btn" style={{ padding: '8px 12px', fontSize: '12px', width: 'auto' }}>Book Now</button>
               </div>
             </div>
           </div>
         ))}
       </div>
 
-      {/* 4. Modals (Logic remains 100% same) */}
+      {/* 4. Compare Floating Bar */}
+      {compareList.length > 0 && !showCompareOverlay && (
+        <div style={{ position: 'fixed', bottom: '25px', left: '50%', transform: 'translateX(-50%)', background: '#1e3a8a', color: 'white', padding: '15px 30px', borderRadius: '50px', display: 'flex', gap: '20px', alignItems: 'center', boxShadow: '0 15px 35px rgba(0,0,0,0.3)', zIndex: 4000 }}>
+          <span style={{fontWeight: '700'}}>{compareList.length} Packages Selected</span>
+          <button onClick={() => setShowCompareOverlay(true)} className="confirm-btn" style={{ background: '#ffbf00', color: '#1e3a8a', padding: '8px 20px', width: 'auto', boxShadow: 'none' }}>Compare Now</button>
+        </div>
+      )}
+
+      {/* 5. Modals */}
+      {showCompareOverlay && (
+        <CompareModal 
+          compareList={compareList} 
+          onClose={() => setShowCompareOverlay(false)} 
+          removeCompareItem={removeCompareItem} 
+        />
+      )}
+
       {showParamModal && selectedPkg && (
         <div className="modal-overlay" onClick={() => setShowParamModal(false)}>
           <div className="modal-content-wrapper" onClick={e => e.stopPropagation()}>

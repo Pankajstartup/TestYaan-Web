@@ -21,7 +21,7 @@ body {
   color: white;
   text-align: center;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
 }
 
 /* Second photo jaisa medical pattern background ke liye */
