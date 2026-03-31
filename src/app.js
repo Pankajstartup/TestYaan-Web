@@ -2,9 +2,11 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import Home from './pages/Home';
 import Tests from './pages/Tests';
-import Packages from './pages/Packages'; // 1. PEHLE ISSE IMPORT KAREIN
+import Packages from './pages/Packages'; 
 import './App.css';
 import AdminDashboard from './pages/AdminDashboard';
+
+// AB LOGODATA IMPORT KARNE KI ZARURAT NAHI HAI
 
 function App() {
   return (
@@ -14,14 +16,17 @@ function App() {
         {/* --- NAVIGATION BAR --- */}
         <nav style={navStyle}>
           <div style={logoContainer}>
-            <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
+            <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '30px' }}>
+              
+              {/* DIRECT PNG METHOD */}
               <img 
-                src="/favicon.ico" 
-                alt="TestYaan Logo" 
-                style={{ height: '35px', marginRight: '10px', objectFit: 'contain' }} 
-                onError={(e) => { e.target.style.display = 'none'; }} 
+                src="/logo.png" 
+                alt="TestYaan" 
+                style={{ height: '100px', width: 'auto' }} 
+                className="main-logo"
+                onError={(e) => { e.target.src = "https://via.placeholder.com/150?text=TestYaan"; }}
               />
-              <h1 style={logoStyle}>Test<span style={{ color: '#ffbf00' }}>Yaan</span></h1>
+              
             </Link>
           </div>
           
@@ -39,11 +44,10 @@ function App() {
           </div>
         </nav>
 
-        {/* --- ROUTING LOGIC --- */}
+        {/* --- ROUTES --- */}
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/tests" element={<Tests />} />
-          {/* 2. YAHAN PACKAGES KA ROUTE ADD KIYA HAI */}
           <Route path="/packages" element={<Packages />} /> 
           <Route path="*" element={<Home />} />
           <Route path="/admin" element={<AdminDashboard />} />
@@ -53,7 +57,10 @@ function App() {
         <footer id="contact-section" style={footerStyle}>
           <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '40px' }}>
             <div style={{ flex: 1, minWidth: '250px' }}>
-              <h2 style={{ color: '#ffbf00', marginBottom: '15px' }}>TestYaan</h2>
+              
+              {/* FOOTER LOGO (Direct Path) */}
+              <img src="/logo.png" alt="TestYaan" style={{ height: '45px', marginBottom: '15px', filter: 'brightness(0) invert(1)' }} />
+              
               <p style={{ opacity: 0.8, lineHeight: '1.6' }}>
                 Delhi-NCR's leading platform to compare and book lab tests from NABL certified laboratories.
               </p>
@@ -76,10 +83,10 @@ function App() {
   );
 }
 
-// Styles (Aapke original styles locked hain)
+// Styles (Vahi purane wale)
 const navStyle = { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '15px 60px', backgroundColor: 'white', boxShadow: '0 2px 10px rgba(0,0,0,0.05)', position: 'sticky', top: 0, zIndex: 1000 };
 const logoContainer = { display: 'flex', alignItems: 'center' };
-const logoStyle = { fontSize: '24px', fontWeight: '900', color: '#1e3a8a', margin: 0 };
+const logoStyle = { fontSize: '50px', fontWeight: '900', color: '#1e3a8a', margin: 0 };
 const navLinks = { display: 'flex', gap: '30px' };
 const linkStyle = { textDecoration: 'none', color: '#334155', fontWeight: '600', fontSize: '15px' };
 const ctaButtonStyle = { backgroundColor: '#1e3a8a', color: 'white', border: 'none', padding: '10px 25px', borderRadius: '10px', fontWeight: 'bold', cursor: 'pointer' };
