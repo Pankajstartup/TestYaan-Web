@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import Papa from 'papaparse';
 import BookingModal from '../components/BookingModal';
 import CompareModal from '../components/CompareModal';
+import SEO from '../components/SEO';
+import { Helmet } from 'react-helmet-async';
 
 const Home = () => {
   const [displayPackages, setDisplayPackages] = useState([]);
@@ -14,11 +16,9 @@ const Home = () => {
   const [isBookingOpen, setIsBookingOpen] = useState(false);
   const [showParamModal, setShowParamModal] = useState(false);
 
-  // --- NAYA STATE: COMPARE KE LIYE (TESTS.JSX STYLE) ---
   const [compareList, setCompareList] = useState([]);
   const [showCompareOverlay, setShowCompareOverlay] = useState(false);
 
-  // Partner Logos Data
   const partners = [
     { name: "Thyrocare", logo: "https://www.thyrocare.com/assets/images/logo.png" },
     { name: "Dr Lal PathLabs", logo: "https://www.lalpathlabs.com/images/logo.png" },
@@ -34,7 +34,7 @@ const Home = () => {
           const validData = res.data.filter(item => item['Test Name']);
           setAllData(validData); 
           const pkgs = validData.filter(item => item.Type?.trim() === 'Package');
-          setDisplayPackages(pkgs.slice(0, 10)); // PC par 10 tests dikhayenge (2 lines of 5)
+          setDisplayPackages(pkgs.slice(0, 10));
       }});
     });
   }, []);
@@ -66,7 +66,6 @@ const Home = () => {
     setSearchTerm(''); 
   };
 
-  // --- EXACT TESTS.JSX LOGIC ---
   const handleCompareClick = (test, isChecked) => {
     if (isChecked) {
       if (compareList.length >= 3) return alert("Maximum 3 tests compare kar sakte hain!");
@@ -83,16 +82,50 @@ const Home = () => {
   return (
     <div style={{ overflowX: 'hidden' }}>
       
+      {/* HOME PAGE SEO ENGINES */}
+      <SEO 
+        title="TestYaan | Compare & Book Lab Tests Online in Delhi-NCR"
+        description="Book CBC, Blood Tests, and Health Packages at lowest prices in Delhi, Tuglakabad & NCR. Free Home Sample Collection. CSIR NET Expert Managed Lab Service."
+        path="/"
+        testsData={allData.slice(0, 20)}
+      />
+
+      <Helmet>
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "MedicalOrganization",
+            "name": "TestYaan",
+            "url": "https://testyaan.online",
+            "logo": "https://testyaan.online/favicon.png",
+            "contactPoint": {
+              "@type": "ContactPoint",
+              "telephone": "+91-YOUR-NUMBER",
+              "contactType": "customer service"
+            },
+            "location": {
+              "@type": "Place",
+              "name": "Delhi NCR, Tuglakabad"
+            }
+          })}
+        </script>
+      </Helmet>
+
+      {/* Invisible H1 for Home Page Power */}
+      <h1 style={{ position: 'absolute', width: '1px', height: '1px', padding: '0', margin: '-1px', overflow: 'hidden', clip: 'rect(0,0,0,0)', border: '0' }}>
+        Online Lab Test Booking Delhi, Best Diagnostic Center Tuglakabad, Home Blood Test Collection NCR
+      </h1>
+
       {/* --- HERO SECTION --- */}
       <section className="universal-hero">
         <div style={{ maxWidth: '1200px', margin: '0 auto', position: 'relative', zIndex: 2 }}>
-          <h1 className="hero-title">
+          <h2 className="hero-title">
             Compare & Book Lab Tests <br/>
             <span style={{ color: '#ffbf00' }}>Delhi-NCR</span>
-          </h1>
+          </h2>
           <div className="city-badge">AVAILABLE IN DELHI-NCR</div>
           <p style={{ margin: '10px 0 30px', fontSize: '1.1rem', opacity: 0.9 }}>
-            NABL Certified Labs | Free Home Collection | 10% Discount
+            NABL Certified Labs | Free Home Collection | Lowest Price Guarantee
           </p>
           
           <div style={{ maxWidth: '600px', margin: '0 auto', position: 'relative' }}>
@@ -132,7 +165,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* --- TOP HEALTH PACKAGES GRID (REVISED FOR PC VIEW) --- */}
+      {/* Grid and Sliders remain same as your original code... */}
       <section style={{ padding: '60px 20px', backgroundColor: '#f8fafc' }}>
         <h2 style={{ fontSize: '2.2rem', color: '#1e3a8a', fontWeight: '800', textAlign: 'center', marginBottom: '40px' }}>Top Health Packages</h2>
         
@@ -171,21 +204,36 @@ const Home = () => {
         </div>
       </section>
 
-      {/* --- ASSOCIATED PARTNERS SLIDER --- */}
+      {/* Logos and Modals remain same as your code... */}
       <section style={{ padding: '60px 0', background: '#ffffff', borderTop: '1px solid #e2e8f0' }}>
           <h2 style={{ textAlign: 'center', color: '#1e3a8a', marginBottom: '40px', fontWeight: '800' }}>Our Associated Partners</h2>
           <div className="logos-slider">
               <div className="logos-track">
                   {[...partners, ...partners].map((p, index) => (
                       <div className="logo-slide" key={index}>
-                          <img src={p.logo} alt={p.name} style={{ height: '40px', objectFit: 'contain', filter: 'grayscale(100%)', opacity: 0.6 }} />
+                          <img src={p.logo} alt={`${p.name} laboratory partner`} style={{ height: '40px', objectFit: 'contain', filter: 'grayscale(100%)', opacity: 0.6 }} />
                       </div>
                   ))}
               </div>
           </div>
       </section>
 
-      {/* --- MODALS --- */}
+      {/* Floating Bar and Modals... */}
+      {compareList.length > 0 && !showCompareOverlay && (
+        <div style={{ position: 'fixed', bottom: '25px', left: '50%', transform: 'translateX(-50%)', background: '#1e3a8a', color: 'white', padding: '15px 30px', borderRadius: '50px', display: 'flex', gap: '20px', alignItems: 'center', boxShadow: '0 15px 35px rgba(0,0,0,0.3)', zIndex: 4000 }}>
+          <span style={{fontWeight: '700'}}>{compareList.length} Tests Selected</span>
+          <button onClick={() => setShowCompareOverlay(true)} className="confirm-btn" style={{ background: '#ffbf00', color: '#1e3a8a', padding: '8px 20px', width: 'auto', boxShadow: 'none' }}>Compare Now</button>
+        </div>
+      )}
+
+      {showCompareOverlay && (
+        <CompareModal 
+          compareList={compareList} 
+          onClose={() => setShowCompareOverlay(false)} 
+          removeCompareItem={removeCompareItem} 
+        />
+      )}
+
       {showParamModal && selectedPkg && (
         <div className="modal-overlay" onClick={() => setShowParamModal(false)}>
           <div className="modal-content-wrapper" onClick={e => e.stopPropagation()} style={{ padding: '30px', borderRadius: '24px', maxWidth: '500px' }}>
@@ -203,22 +251,6 @@ const Home = () => {
         </div>
       )}
 
-      {/* FLOATING BAR */}
-      {compareList.length > 0 && !showCompareOverlay && (
-        <div style={{ position: 'fixed', bottom: '25px', left: '50%', transform: 'translateX(-50%)', background: '#1e3a8a', color: 'white', padding: '15px 30px', borderRadius: '50px', display: 'flex', gap: '20px', alignItems: 'center', boxShadow: '0 15px 35px rgba(0,0,0,0.3)', zIndex: 4000 }}>
-          <span style={{fontWeight: '700'}}>{compareList.length} Tests Selected</span>
-          <button onClick={() => setShowCompareOverlay(true)} className="confirm-btn" style={{ background: '#ffbf00', color: '#1e3a8a', padding: '8px 20px', width: 'auto', boxShadow: 'none' }}>Compare Now</button>
-        </div>
-      )}
-
-      {showCompareOverlay && (
-        <CompareModal 
-          compareList={compareList} 
-          onClose={() => setShowCompareOverlay(false)} 
-          removeCompareItem={removeCompareItem} 
-        />
-      )}
-
       {isBookingOpen && selectedPkg && (
         <BookingModal 
           isOpen={isBookingOpen} 
@@ -230,39 +262,14 @@ const Home = () => {
       )}
 
       <style>{`
-        /* Advanced PC Grid System */
-        .test-grid-system {
-          display: grid;
-          gap: 20px;
-          max-width: 1300px;
-          margin: 0 auto;
-          grid-template-columns: repeat(1, 1fr); /* Mobile */
-        }
-
+        .test-grid-system { display: grid; gap: 20px; max-width: 1300px; margin: 0 auto; grid-template-columns: repeat(1, 1fr); }
         @media (min-width: 768px) { .test-grid-system { grid-template-columns: repeat(2, 1fr); } }
         @media (min-width: 1024px) { .test-grid-system { grid-template-columns: repeat(4, 1fr); } }
         @media (min-width: 1440px) { .test-grid-system { grid-template-columns: repeat(5, 1fr); } }
-
-        /* Healthians Style Card */
-        .test-card-advanced {
-          background: white;
-          border: 1px solid #e2e8f0;
-          border-radius: 16px;
-          padding: 18px;
-          display: flex;
-          flex-direction: column;
-          transition: all 0.3s ease;
-          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-        }
-
-        .test-card-advanced:hover {
-          transform: translateY(-5px);
-          box-shadow: 0 12px 24px rgba(0,0,0,0.1);
-          border-color: #3b82f6;
-        }
-
+        .test-card-advanced { background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 18px; display: flex; flex-direction: column; transition: all 0.3s ease; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
+        .test-card-advanced:hover { transform: translateY(-5px); box-shadow: 0 12px 24px rgba(0,0,0,0.1); border-color: #3b82f6; }
         .package-tag { background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 800; }
-        .compare-checkbox { font-size: 12px; color: #64748b; display: flex; alignItems: center; gap: 5px; cursor: pointer; }
+        .compare-checkbox { font-size: 12px; color: #64748b; display: flex; align-items: center; gap: 5px; cursor: pointer; }
         .card-title { font-size: 1.1rem; font-weight: 800; color: #1e293b; margin: 12px 0 4px; line-height: 1.3; height: 2.6em; overflow: hidden; }
         .card-lab { font-size: 12px; color: #64748b; margin-bottom: 12px; }
         .fasting-info { font-size: 12px; color: #dc2626; font-weight: 600; margin: 0; }
@@ -271,7 +278,6 @@ const Home = () => {
         .button-group { display: flex; gap: 8px; margin-top: 12px; }
         .details-btn { flex: 1; padding: 8px; border-radius: 10px; border: 1px solid #e2e8f0; background: white; cursor: pointer; font-weight: 700; font-size: 12px; }
         .book-btn { flex: 1; padding: 8px; border-radius: 10px; background: #1e3a8a; color: white; border: none; cursor: pointer; font-weight: 700; font-size: 12px; }
-
         @keyframes scroll { 0% { transform: translateX(0); } 100% { transform: translateX(calc(-200px * 5)); } }
         .logos-slider { overflow: hidden; position: relative; width: 100%; }
         .logos-track { display: flex; width: calc(200px * 10); animation: scroll 25s linear infinite; }

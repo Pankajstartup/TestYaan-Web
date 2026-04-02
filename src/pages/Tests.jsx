@@ -3,6 +3,7 @@ import Papa from 'papaparse';
 import CompareModal from '../components/CompareModal';
 import BookingModal from '../components/BookingModal';
 import { Helmet } from 'react-helmet-async';
+import SEO from '../components/SEO'; // SEO Component
 
 const colors = { 
   primary: '#1e40af', 
@@ -83,22 +84,56 @@ function Tests() {
   return (
     <div style={{ backgroundColor: '#f8fafc', minHeight: '100vh' }}>
       
-      {/* SEO Section */}
+      {/* --- RANK 1 SEO ENGINES --- */}
       <SEO 
-      title="All Lab Tests" 
-      description="Compare and book 500+ lab tests at discounted prices." 
-      testsData={allTests}  // Ye line aapke saare tests ko SEO file mein bhej degi
+        title="Book Blood Tests Online - Compare Prices & Save 70%" 
+        description="Book CBC, KFT, LFT, Lipid Profile and more. Cheapest prices in Delhi NCR with home sample collection. Compare Dr Lal Pathlabs, Thyrocare and top NABL labs." 
+        path="/tests"
+        testsData={allTests}
       />
+
       <Helmet>
-        <title>All Lab Tests | TestYaan - Compare and Book Online</title>
-        <meta name="description" content="Compare blood test prices from top NABL labs like Dr Lal Pathlabs and Thyrocare. Book online with home collection at TestYaan." />
+        {/* Schema markup for Google Rich Results */}
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "MedicalBusiness",
+            "name": "TestYaan",
+            "description": "Book diagnostic tests online at discounted prices in Delhi NCR.",
+            "address": {
+              "@type": "PostalAddress",
+              "addressLocality": "Tuglakabad",
+              "addressRegion": "Delhi",
+              "addressCountry": "IN"
+            },
+            "priceRange": "₹₹",
+            "hasOfferCatalog": {
+              "@type": "OfferCatalog",
+              "name": "Diagnostic Tests",
+              "itemListElement": allTests.slice(0, 10).map((t, i) => ({
+                "@type": "Offer",
+                "itemOffered": {
+                  "@type": "Service",
+                  "name": t['Test Name']
+                },
+                "price": t['MRP'],
+                "priceCurrency": "INR"
+              }))
+            }
+          })}
+        </script>
       </Helmet>
-      
-      {/* SECTION 1: HERO & SEARCH (ULTRA STYLISH) */}
+
+      {/* Invisible H1 for Ranking Power */}
+      <h1 style={{ position: 'absolute', width: '1px', height: '1px', padding: '0', margin: '-1px', overflow: 'hidden', clip: 'rect(0,0,0,0)', border: '0' }}>
+        Cheap Blood Tests in Delhi NCR, Home Sample Collection Tuglakabad, Best Pathology Lab Prices
+      </h1>
+
+      {/* SECTION 1: HERO & SEARCH */}
       <section className="universal-hero">
         <div style={{ maxWidth: '1200px', margin: '0 auto', position: 'relative', zIndex: 10 }}>
-          <div className="city-badge">✨ Trusted Pathology Partner</div>
-          <h1 className="hero-title">Book Individual <br/>Lab Tests Online</h1>
+          <div className="city-badge">✨ Trusted Pathology Partner in Delhi-NCR</div>
+          <h2 className="hero-title">Book Individual <br/>Lab Tests Online</h2>
           
           <div className="hero-search-wrapper">
             <input 
@@ -111,12 +146,11 @@ function Tests() {
             <button className="hero-search-button">FIND TEST</button>
           </div>
         </div>
-        {/* Decorative Floating Elements */}
         <div style={{ position: 'absolute', top: '-10%', right: '-5%', width: '350px', height: '350px', background: 'rgba(255,255,255,0.05)', borderRadius: '50%', filter: 'blur(40px)' }}></div>
         <div style={{ position: 'absolute', bottom: '-20%', left: '-5%', width: '250px', height: '250px', background: 'rgba(255,255,255,0.05)', borderRadius: '50%', filter: 'blur(40px)' }}></div>
       </section>
 
-      {/* SECTION 2: LAB FILTERS (Upgraded Look) */}
+      {/* SECTION 2: LAB FILTERS */}
       <div style={{ padding: '40px 20px 20px', display: 'flex', gap: '12px', overflowX: 'auto', maxWidth: '1200px', margin: '0 auto', scrollbarWidth: 'none' }}>
         {labOptions.map(lab => (
           <button 
@@ -143,10 +177,9 @@ function Tests() {
         ) : (
           filteredTests.map((item, index) => (
             <div key={index} className="modern-card hover-card">
-              
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px', alignItems: 'center' }}>
                 <div style={{ background: '#f8fafc', padding: '8px', borderRadius: '12px' }}>
-                  <img src={`/lab-logos/${item['Lab Logo']}`} alt="lab" style={{ height: '24px', objectFit: 'contain' }} onError={(e) => e.target.src = '/lab-logos/default.png'} />
+                  <img src={`/lab-logos/${item['Lab Logo']}`} alt={`${item['Lab Name']} logo`} style={{ height: '24px', objectFit: 'contain' }} onError={(e) => e.target.src = '/lab-logos/default.png'} />
                 </div>
                 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -169,7 +202,7 @@ function Tests() {
               
               <div style={{ marginTop: 'auto', paddingTop: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #f1f5f9' }}>
                 <div>
-                  <p style={{ fontSize: '11px', color: '#94a3b8', margin: 0, fontWeight: '700' }}>Price</p>
+                  <p style={{ fontSize: '11px', color: '#94a3b8', margin: 0, fontWeight: '700' }}>Starting Price</p>
                   <span style={{ fontSize: '1.7rem', fontWeight: '900', color: '#1e40af' }}>₹{item['MRP']}</span>
                 </div>
                 <button onClick={() => handleBooking(item)} className="confirm-btn" style={{ width: 'auto', padding: '12px 25px' }}>Book Now</button>

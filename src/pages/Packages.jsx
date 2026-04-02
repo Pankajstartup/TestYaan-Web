@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import Papa from 'papaparse';
 import BookingModal from '../components/BookingModal';
 import CompareModal from '../components/CompareModal';
+import { Helmet } from 'react-helmet-async';
+import SEO from '../components/SEO';
 
 const Packages = () => {
   const [allPackages, setAllPackages] = useState([]);
@@ -66,11 +68,40 @@ const Packages = () => {
   return (
     <div style={{ backgroundColor: '#f8fafc', minHeight: '100vh' }}>
       
-      {/* 1. HERO SECTION (STYLISH) */}
+      {/* RANK 1 SEO ENGINES */}
+      <SEO 
+        title="Full Body Checkup Packages Delhi NCR - Save 70%" 
+        description="Book affordable health checkup packages in Delhi, Tuglakabad & NCR. Compare Thyrocare, Dr Lal Pathlabs and more. Free home sample collection included."
+        path="/packages"
+        testsData={allPackages}
+      />
+
+      <Helmet>
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "ItemList",
+            "itemListElement": allPackages.slice(0, 15).map((p, i) => ({
+              "@type": "ListItem",
+              "position": i + 1,
+              "name": p['Test Name'],
+              "url": `https://testyaan.online/packages`,
+              "description": `Health package by ${p['Lab Name']} at ₹${p['MRP']}`
+            }))
+          })}
+        </script>
+      </Helmet>
+
+      {/* Invisible SEO Content for Google */}
+      <h1 style={{ position: 'absolute', width: '1px', height: '1px', padding: '0', margin: '-1px', overflow: 'hidden', clip: 'rect(0,0,0,0)', border: '0' }}>
+        Best Health Checkup Packages in Delhi, Full Body Test Tuglakabad, Cheap Diagnostic Packages NCR
+      </h1>
+
+      {/* 1. HERO SECTION */}
       <section className="universal-hero">
         <div style={{ maxWidth: '1200px', margin: '5 auto', position: 'relative', zIndex: 2 }}>
-          <div className="city-badge">🛡️ Complete Health Protection</div>
-          <h1 className="hero-title">Family Health <br/>Checkup Packages</h1>
+          <div className="city-badge">🛡️ Complete Health Protection in Delhi-NCR</div>
+          <h2 className="hero-title">Family Health <br/>Checkup Packages</h2>
           
           <div className="hero-search-wrapper">
             <input 
@@ -137,7 +168,7 @@ const Packages = () => {
         ))}
       </div>
 
-      {/* 4. Compare Floating Bar */}
+      {/* Floating Bar and Modals code remains exactly same... */}
       {compareList.length > 0 && !showCompareOverlay && (
         <div style={{ position: 'fixed', bottom: '25px', left: '50%', transform: 'translateX(-50%)', background: '#1e3a8a', color: 'white', padding: '15px 30px', borderRadius: '50px', display: 'flex', gap: '20px', alignItems: 'center', boxShadow: '0 15px 35px rgba(0,0,0,0.2)', zIndex: 4000 }}>
           <span style={{fontWeight: '700'}}>{compareList.length} Packages Selected</span>
@@ -145,7 +176,6 @@ const Packages = () => {
         </div>
       )}
 
-      {/* 5. Modals */}
       {showCompareOverlay && (
         <CompareModal 
           compareList={compareList} 
