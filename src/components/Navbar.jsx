@@ -118,6 +118,8 @@ const Navbar = ({ user = { name: 'Admin', role: 'Pathology Lab' } }) => {
               Logout
             </button>
           </div>
+          
+          <h1 className="text-5xl font-bold text-red-600">TestYaan Setup Done!</h1>
 
           {/* Mobile menu button */}
           <div className="flex items-center lg:hidden">

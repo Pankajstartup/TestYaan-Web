@@ -34,7 +34,7 @@ const Home = () => {
           const validData = res.data.filter(item => item['Test Name']);
           setAllData(validData); 
           const pkgs = validData.filter(item => item.Type?.trim() === 'Package');
-          setDisplayPackages(pkgs.slice(0, 8)); 
+          setDisplayPackages(pkgs.slice(0, 10)); // PC par 10 tests dikhayenge (2 lines of 5)
       }});
     });
   }, []);
@@ -132,17 +132,16 @@ const Home = () => {
         </div>
       </section>
 
-      {/* --- TOP HEALTH PACKAGES GRID --- */}
-      <section style={{ padding: '60px 20px', backgroundColor: '#ffffff' }}>
+      {/* --- TOP HEALTH PACKAGES GRID (REVISED FOR PC VIEW) --- */}
+      <section style={{ padding: '60px 20px', backgroundColor: '#f8fafc' }}>
         <h2 style={{ fontSize: '2.2rem', color: '#1e3a8a', fontWeight: '800', textAlign: 'center', marginBottom: '40px' }}>Top Health Packages</h2>
         
-        <div className="universal-grid">
+        <div className="test-grid-system">
           {displayPackages.map((pkg, i) => (
-            <div key={i} className="modern-card hover-card">
+            <div key={i} className="test-card-advanced">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ backgroundColor: '#fef3c7', color: '#92400e', padding: '5px 12px', borderRadius: '20px', fontSize: '11px', fontWeight: '700' }}>PACKAGE</span>
-                {/* EXACT CHECKBOX LIKE TESTS.JSX */}
-                <label style={{ fontSize: '12px', color: '#64748b', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontWeight: '600' }}>
+                <span className="package-tag">PACKAGE</span>
+                <label className="compare-checkbox">
                   <input 
                     type="checkbox" 
                     checked={compareList.some(t => t['Test Name'] === pkg['Test Name'])} 
@@ -151,20 +150,20 @@ const Home = () => {
                 </label>
               </div>
 
-              <h3 style={{ marginTop: '15px', fontSize: '1.4rem', fontWeight: '800', color: '#0f172a' }}>{pkg['Test Name']}</h3>
-              <p style={{ color: '#64748b', fontSize: '14px', marginBottom: '10px' }}>By {pkg['Lab Name']}</p>
+              <h3 className="card-title">{pkg['Test Name']}</h3>
+              <p className="card-lab">By {pkg['Lab Name']}</p>
               
-              <div style={{ margin: '15px 0', borderTop: '1px dashed #cbd5e1', paddingTop: '15px', flexGrow: 1 }}>
-                <p style={{ color: '#dc2626', fontWeight: '700', fontSize: '13px' }}>🕒 {pkg['Fasting Status']}</p>
+              <div className="card-info">
+                <p className="fasting-info">🕒 {pkg['Fasting Status']}</p>
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: 'auto' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: '1.8rem', fontWeight: '900', color: '#1e3a8a' }}>₹{pkg['MRP']}</span>
+              <div className="card-footer">
+                <div className="price-box">
+                    <span className="mrp-text">₹{pkg['MRP']}</span>
                 </div>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  <button onClick={() => openParams(pkg)} className="btn-secondary" style={{ flex: 1, padding: '10px', borderRadius: '12px', border: '1px solid #e2e8f0', cursor: 'pointer', fontWeight: 'bold' }}>Details</button>
-                  <button onClick={() => openBooking(pkg)} className="confirm-btn" style={{ flex: 2, padding: '10px', fontSize: '13px' }}>Book Now</button>
+                <div className="button-group">
+                  <button onClick={() => openParams(pkg)} className="details-btn">Details</button>
+                  <button onClick={() => openBooking(pkg)} className="book-btn">Book</button>
                 </div>
               </div>
             </div>
@@ -173,13 +172,13 @@ const Home = () => {
       </section>
 
       {/* --- ASSOCIATED PARTNERS SLIDER --- */}
-      <section style={{ padding: '60px 0', background: '#f8fafc', borderTop: '1px solid #e2e8f0' }}>
+      <section style={{ padding: '60px 0', background: '#ffffff', borderTop: '1px solid #e2e8f0' }}>
           <h2 style={{ textAlign: 'center', color: '#1e3a8a', marginBottom: '40px', fontWeight: '800' }}>Our Associated Partners</h2>
           <div className="logos-slider">
               <div className="logos-track">
                   {[...partners, ...partners].map((p, index) => (
                       <div className="logo-slide" key={index}>
-                          <img src={p.logo} alt={p.name} style={{ height: '50px', objectFit: 'contain', filter: 'grayscale(100%)', opacity: 0.6 }} />
+                          <img src={p.logo} alt={p.name} style={{ height: '40px', objectFit: 'contain', filter: 'grayscale(100%)', opacity: 0.6 }} />
                       </div>
                   ))}
               </div>
@@ -204,7 +203,7 @@ const Home = () => {
         </div>
       )}
 
-      {/* EXACT FLOATING BAR LIKE TESTS.JSX */}
+      {/* FLOATING BAR */}
       {compareList.length > 0 && !showCompareOverlay && (
         <div style={{ position: 'fixed', bottom: '25px', left: '50%', transform: 'translateX(-50%)', background: '#1e3a8a', color: 'white', padding: '15px 30px', borderRadius: '50px', display: 'flex', gap: '20px', alignItems: 'center', boxShadow: '0 15px 35px rgba(0,0,0,0.3)', zIndex: 4000 }}>
           <span style={{fontWeight: '700'}}>{compareList.length} Tests Selected</span>
@@ -231,16 +230,51 @@ const Home = () => {
       )}
 
       <style>{`
-        @keyframes scroll {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(calc(-200px * 5)); }
+        /* Advanced PC Grid System */
+        .test-grid-system {
+          display: grid;
+          gap: 20px;
+          max-width: 1300px;
+          margin: 0 auto;
+          grid-template-columns: repeat(1, 1fr); /* Mobile */
         }
-        .logos-slider { overflow: hidden; position: relative; width: 100%; }
-        .logos-track {
+
+        @media (min-width: 768px) { .test-grid-system { grid-template-columns: repeat(2, 1fr); } }
+        @media (min-width: 1024px) { .test-grid-system { grid-template-columns: repeat(4, 1fr); } }
+        @media (min-width: 1440px) { .test-grid-system { grid-template-columns: repeat(5, 1fr); } }
+
+        /* Healthians Style Card */
+        .test-card-advanced {
+          background: white;
+          border: 1px solid #e2e8f0;
+          border-radius: 16px;
+          padding: 18px;
           display: flex;
-          width: calc(200px * 10);
-          animation: scroll 20s linear infinite;
+          flex-direction: column;
+          transition: all 0.3s ease;
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
         }
+
+        .test-card-advanced:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+          border-color: #3b82f6;
+        }
+
+        .package-tag { background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 800; }
+        .compare-checkbox { font-size: 12px; color: #64748b; display: flex; alignItems: center; gap: 5px; cursor: pointer; }
+        .card-title { font-size: 1.1rem; font-weight: 800; color: #1e293b; margin: 12px 0 4px; line-height: 1.3; height: 2.6em; overflow: hidden; }
+        .card-lab { font-size: 12px; color: #64748b; margin-bottom: 12px; }
+        .fasting-info { font-size: 12px; color: #dc2626; font-weight: 600; margin: 0; }
+        .card-footer { margin-top: auto; padding-top: 15px; border-top: 1px solid #f1f5f9; }
+        .mrp-text { font-size: 1.5rem; font-weight: 900; color: #1e3a8a; }
+        .button-group { display: flex; gap: 8px; margin-top: 12px; }
+        .details-btn { flex: 1; padding: 8px; border-radius: 10px; border: 1px solid #e2e8f0; background: white; cursor: pointer; font-weight: 700; font-size: 12px; }
+        .book-btn { flex: 1; padding: 8px; border-radius: 10px; background: #1e3a8a; color: white; border: none; cursor: pointer; font-weight: 700; font-size: 12px; }
+
+        @keyframes scroll { 0% { transform: translateX(0); } 100% { transform: translateX(calc(-200px * 5)); } }
+        .logos-slider { overflow: hidden; position: relative; width: 100%; }
+        .logos-track { display: flex; width: calc(200px * 10); animation: scroll 25s linear infinite; }
         .logo-slide { width: 200px; display: flex; align-items: center; justify-content: center; }
       `}</style>
     </div>

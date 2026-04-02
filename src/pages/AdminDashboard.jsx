@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import Papa from 'papaparse';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable'; 
+// Logo import kiya gaya hai
+import { logoData } from '../LogoData'; 
 
 const AdminDashboard = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -28,8 +30,8 @@ const AdminDashboard = () => {
   const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRrQfBu42xRe4jWIthn9nJOVhYCh-b-qF27YWS4THIl22iAqTekWAEt1y-1ZEvZ5g1UF6droRSgPi-Y/pub?output=csv"; 
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxxmz8W4txUjdJ2NcOv5nflZ6IIiUi1d6Y6AodR8VXPZ-8mbn9KPLKzoOeWQ8A_OQV-lA/exec";
 
-  // LOGO BASE64 - Yahan apna pura code paste karein
-  const logoBase64 = ""; 
+  // LOGO BASE64 - Ab ye globally imported logoData use karega
+  const logoBase64 = logoData; 
 
   useEffect(() => {
     const loggedIn = localStorage.getItem("adminAuth");
@@ -111,7 +113,6 @@ const AdminDashboard = () => {
     }
   };
 
-  // --- PREMIUM PDF GENERATOR ---
   const downloadBill = (patient) => {
     const doc = new jsPDF();
     const total = parseFloat(patient["Final Amount"] || 0);
@@ -119,37 +120,40 @@ const AdminDashboard = () => {
     const paid = parseFloat(patient["Paid Amount"] || 0);
     const net = total - disc;
     const pending = net - paid;
-    const displayID = patient["Booking ID"] || "192663-89";
+    
+    const originalOrderID = patient["Booking ID"]; 
+    const receiptIndex = bookings.findIndex(b => b["Booking ID"] === originalOrderID);
+    const receiptNumber = 1000 + (bookings.length - receiptIndex);
+    const displayReceiptNo = `TY-${receiptNumber}/26`;
 
-    // Header Background
     doc.setFillColor(30, 58, 138); 
     doc.rect(0, 0, 210, 45, 'F');
 
-    // Logo & Branding
-    if (logoBase64) {
-        try { doc.addImage(logoBase64, 'PNG', 12, 8, 28, 28); } catch(e){}
+    if (logoBase64 && logoBase64.length > 100) {
+        try { 
+            doc.addImage(logoBase64, 'PNG', 12, 5, 35, 35); 
+        } catch(e){ console.error("Logo Error", e); }
     }
     
     doc.setTextColor(255, 255, 255);
-    doc.setFontSize(24);
+    doc.setFontSize(22);
     doc.setFont("helvetica", "bold");
-    doc.text("TestYaan.Online", 45, 22);
+    doc.text("TESTYAAN", 50, 20);
     
     doc.setFontSize(9);
     doc.setFont("helvetica", "normal");
-    doc.text("NABL Certified Labs | Free Home Collection | 10% Discount", 45, 30);
-    doc.text("Ph: +91 8130484197 | Web: www.testyaan.online", 45, 36);
+    doc.text("Pathology & Diagnostics | NABL Certified Labs", 50, 27);
+    doc.text("Ph: +91 8130484197 | Email: Helpline.Testyaan@gmail.com", 50, 33);
+    doc.text("Web: www.testyaan.online", 50, 38);
 
-    // Body
     doc.setTextColor(0);
     doc.setFontSize(10);
-    doc.text(`Receipt No: TY-REC-${displayID}`, 15, 55);
+    doc.text(`Receipt No: ${displayReceiptNo}`, 15, 55);
     doc.text(`Date: ${new Date().toLocaleDateString('en-GB')}`, 160, 55);
     
     doc.setDrawColor(230);
     doc.line(15, 60, 195, 60);
 
-    // Patient Info Grid
     doc.setFont("helvetica", "bold");
     doc.text("PATIENT DETAILS", 15, 70);
     doc.text("COLLECTION INFO", 120, 70);
@@ -161,14 +165,13 @@ const AdminDashboard = () => {
 
     doc.text(`Lab: ${patient["Lab Name"]}`, 120, 78);
     doc.text(`Collection Date: ${patient["Collection Date"]}`, 120, 84);
-    doc.text(`Order ID: ORD-TY-${displayID}`, 120, 90);
+    doc.text(`Order ID: ${originalOrderID}`, 120, 90);
 
-    // Table
     autoTable(doc, {
       startY: 100,
-      head: [['Test Code', 'Test Description', 'Amount (INR)']],
+      head: [['Sl No.', 'Test Description', 'Amount (INR)']],
       body: [
-        [patient["Test Code"] || 'TY-001', patient["Test Name"], total.toFixed(2)],
+        ['1', patient["Test Name"], total.toFixed(2)],
       ],
       theme: 'grid',
       headStyles: { fillColor: [241, 245, 249], textColor: [0,0,0], fontStyle: 'bold' },
@@ -176,7 +179,6 @@ const AdminDashboard = () => {
       columnStyles: { 2: { halign: 'right' } }
     });
 
-    // Summary
     const finalY = doc.lastAutoTable.finalY + 10;
     const rightCol = 195;
     const labelCol = 140;
@@ -209,7 +211,6 @@ const AdminDashboard = () => {
         doc.text("Status: FULLY PAID", labelCol, finalY + 35);
     }
 
-    // Footer
     doc.setTextColor(150);
     doc.setFontSize(8);
     doc.text("This is a computer generated invoice. No signature required.", 105, 285, { align: 'center' });
@@ -245,17 +246,34 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div style={{ padding: '30px', backgroundColor: '#f1f5f9', minHeight: '100vh' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
-        <div>
-           <h1 style={{ color: '#1e3a8a', margin: 0 }}>TestYaan Control Center</h1>
-           <p style={{ color: '#64748b' }}>Manage patient bookings and payments</p>
+    <div style={mainContainerStyle}>
+      {/* CSS for Responsiveness and Mobile Views */}
+      <style>{`
+        @media (max-width: 768px) {
+          .header-flex { flex-direction: column; text-align: center; gap: 15px; }
+          .stats-grid { grid-template-columns: 1fr !important; }
+          .filter-panel { flex-direction: column; padding: 15px !important; }
+          .filter-item { width: 100% !important; min-width: 100% !important; }
+          .hide-mobile { display: none; }
+          .modal-box { width: 95% !important; padding: 15px !important; margin: 10px; }
+          .table-container { border-radius: 8px !important; }
+          .td-cell { padding: 10px 5px !important; font-size: 12px !important; }
+          .action-btns { flex-direction: column; gap: 5px; }
+        }
+      `}</style>
+
+      <div className="header-flex" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+           <img src={logoData} alt="TestYaan" style={{ height: '50px' }} />
+           <div>
+              <h1 style={{ color: '#1e3a8a', margin: 0, fontSize: '1.5rem' }}>Control Center</h1>
+              <p className="hide-mobile" style={{ color: '#64748b', margin: 0 }}>Manage patient bookings and payments</p>
+           </div>
         </div>
         <button onClick={handleLogout} style={logoutBtnStyle}>Logout</button>
       </div>
 
-      {/* Stats Section */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', marginBottom: '30px' }}>
+      <div className="stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', marginBottom: '30px' }}>
         <div style={statCardStyle}>
           <small style={{color: '#64748b'}}>Total Bookings</small>
           <h2 style={{margin: '5px 0', color: '#1e3a8a'}}>{filteredBookings.length}</h2>
@@ -266,35 +284,35 @@ const AdminDashboard = () => {
         </div>
       </div>
 
-      {/* Filters Section */}
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '15px', marginBottom: '20px', backgroundColor: 'white', padding: '20px', borderRadius: '12px', boxShadow: '0 2px 10px rgba(0,0,0,0.05)' }}>
-        <div style={{ flex: 1, minWidth: '300px' }}>
+      <div className="filter-panel" style={filterPanelStyle}>
+        <div className="filter-item" style={{ flex: 1, minWidth: '250px' }}>
             <label style={labelStyle}>Search Patient</label>
             <input 
-              type="text" placeholder="Search Name or Mobile..." 
+              type="text" placeholder="Name or Mobile..." 
               style={{ ...inputStyle, marginBottom: 0 }} 
               onChange={(e) => setSearchTerm(e.target.value)}
             />
         </div>
-        <div>
-            <label style={labelStyle}>From Date</label>
-            <input type="date" style={{ ...inputStyle, marginBottom: 0 }} onChange={(e) => setStartDate(e.target.value)} />
-        </div>
-        <div>
-            <label style={labelStyle}>To Date</label>
-            <input type="date" style={{ ...inputStyle, marginBottom: 0 }} onChange={(e) => setEndDate(e.target.value)} />
+        <div style={{display: 'flex', gap: '10px', flex: 1}}>
+          <div style={{flex: 1}}>
+              <label style={labelStyle}>From</label>
+              <input type="date" style={{ ...inputStyle, marginBottom: 0 }} onChange={(e) => setStartDate(e.target.value)} />
+          </div>
+          <div style={{flex: 1}}>
+              <label style={labelStyle}>To</label>
+              <input type="date" style={{ ...inputStyle, marginBottom: 0 }} onChange={(e) => setEndDate(e.target.value)} />
+          </div>
         </div>
       </div>
 
-      {/* Table Section */}
-      <div style={{ overflowX: 'auto', background: 'white', borderRadius: '16px', boxShadow: '0 4px 15px rgba(0,0,0,0.05)' }}>
+      <div className="table-container" style={tableContainerStyle}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead style={{ background: '#1e3a8a', color: 'white' }}>
             <tr>
-              <th style={thStyle}>Order ID</th>
-              <th style={thStyle}>Date</th>
-              <th style={thStyle}>Patient Info</th>
-              <th style={thStyle}>Test Details</th>
+              <th style={thStyle}>ID</th>
+              <th style={thStyle} className="hide-mobile">Date</th>
+              <th style={thStyle}>Patient</th>
+              <th style={thStyle} className="hide-mobile">Test Details</th>
               <th style={thStyle}>Payment</th>
               <th style={thStyle}>Actions</th>
             </tr>
@@ -302,19 +320,21 @@ const AdminDashboard = () => {
           <tbody>
             {filteredBookings.map((b, i) => (
               <tr key={i} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                <td style={{ ...tdStyle, fontWeight: 'bold', color: '#1e3a8a' }}>
-                    #{b["Booking ID"] ? b["Booking ID"].toString().slice(-6) : `ORD-${i}`}
+                <td className="td-cell" style={{ ...tdStyle, fontWeight: 'bold', color: '#1e3a8a' }}>
+                    #{b["Booking ID"] ? b["Booking ID"] : `ORD-${i}`}
                 </td>
-                <td style={tdStyle}>{b["Collection Date"]}</td>
-                <td style={tdStyle}>
+                <td className="td-cell hide-mobile" style={tdStyle}>{b["Collection Date"]}</td>
+                <td className="td-cell" style={tdStyle}>
                   <strong style={{ color: '#0f172a' }}>{b["Patient Name"]}</strong><br/>
                   <small style={{ color: '#64748b' }}>{b["Mobile Number"]}</small>
                 </td>
-                <td style={tdStyle}>{b["Test Name"]}<br/><small style={{ color: '#1e40af' }}>Code: {b["Test Code"] || 'N/A'}</small></td>
-                <td style={tdStyle}><span style={{ fontWeight: '700' }}>₹{b["Final Amount"]}</span></td>
-                <td style={tdStyle}>
-                  <button onClick={() => openEditModal(b)} style={editBtnStyle}>Edit</button>
-                  <button onClick={() => downloadBill(b)} style={billBtnStyle}>Bill</button>
+                <td className="td-cell hide-mobile" style={tdStyle}>{b["Test Name"]}<br/><small style={{ color: '#1e40af' }}>Code: {b["Test Code"] || 'N/A'}</small></td>
+                <td className="td-cell" style={tdStyle}><span style={{ fontWeight: '700' }}>₹{b["Final Amount"]}</span></td>
+                <td className="td-cell" style={tdStyle}>
+                  <div className="action-btns" style={{display: 'flex'}}>
+                    <button onClick={() => openEditModal(b)} style={editBtnStyle}>✎</button>
+                    <button onClick={() => downloadBill(b)} style={billBtnStyle}>PDF</button>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -322,43 +342,34 @@ const AdminDashboard = () => {
         </table>
       </div>
 
-      {/* Edit Modal Section */}
       {selectedPatient && (
         <div style={modalOverlayStyle}>
-          <div style={modalContentStyle}>
+          <div className="modal-box" style={modalContentStyle}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px' }}>
-                <h3 style={{ margin: 0 }}>Edit Booking & Payment</h3>
+                <h3 style={{ margin: 0 }}>Edit Booking</h3>
                 <button onClick={() => setSelectedPatient(null)} style={{ border: 'none', background: 'none', fontSize: '20px', cursor: 'pointer' }}>✕</button>
             </div>
-            <div style={{maxHeight: '450px', overflowY: 'auto', paddingRight: '10px'}}>
+            <div style={{maxHeight: '70vh', overflowY: 'auto', paddingRight: '5px'}}>
                 <label style={labelStyle}>Patient Name:</label>
                 <input type="text" style={inputStyle} value={paymentData.pName} onChange={(e) => setPaymentData({...paymentData, pName: e.target.value})} />
                 
                 <label style={labelStyle}>Manual Test Code:</label>
-                <input type="text" style={inputStyle} placeholder="e.g. TY-101" value={paymentData.testCode} onChange={(e) => setPaymentData({...paymentData, testCode: e.target.value})} />
+                <input type="text" style={inputStyle} value={paymentData.testCode} onChange={(e) => setPaymentData({...paymentData, testCode: e.target.value})} />
 
-                <label style={labelStyle}>Mobile Number:</label>
-                <input type="text" style={inputStyle} value={paymentData.pMobile} onChange={(e) => setPaymentData({...paymentData, pMobile: e.target.value})} />
-                
-                <label style={labelStyle}>Address:</label>
-                <textarea style={{...inputStyle, height: '60px'}} value={paymentData.pAddress} onChange={(e) => setPaymentData({...paymentData, pAddress: e.target.value})} />
-                
-                <hr style={{margin: '15px 0', border: '0.5px solid #eee'}} />
-                
                 <label style={labelStyle}>Discount (₹):</label>
                 <input type="number" style={inputStyle} value={paymentData.discount} onChange={(e) => setPaymentData({...paymentData, discount: e.target.value})} />
                 
                 <label style={labelStyle}>Amount Paid (₹):</label>
                 <input type="number" style={inputStyle} value={paymentData.paid} onChange={(e) => setPaymentData({...paymentData, paid: e.target.value})} />
                 
-                <div style={{ background: '#f8fafc', padding: '15px', borderRadius: '12px', marginTop: '10px', border: '1px dashed #cbd5e1' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span>Pending Balance:</span>
+                <div style={{ background: '#f8fafc', padding: '12px', borderRadius: '10px', marginTop: '10px', border: '1px dashed #cbd5e1' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px' }}>
+                    <span>Pending:</span>
                     <strong style={{ color: 'red' }}>₹{(parseFloat(selectedPatient["Final Amount"]) - (parseFloat(paymentData.discount) || 0) - (parseFloat(paymentData.paid) || 0)).toFixed(2)}</strong>
                   </div>
                 </div>
             </div>
-            <button onClick={handleUpdatePayment} style={btnStyle}>Update & Save</button>
+            <button onClick={handleUpdatePayment} style={btnStyle}>Save Changes</button>
           </div>
         </div>
       )}
@@ -366,19 +377,22 @@ const AdminDashboard = () => {
   );
 };
 
-// Styles remain as defined in the system
+// Styles Objects
+const mainContainerStyle = { padding: '20px', backgroundColor: '#f1f5f9', minHeight: '100vh' };
+const filterPanelStyle = { display: 'flex', flexWrap: 'wrap', gap: '15px', marginBottom: '20px', backgroundColor: 'white', padding: '20px', borderRadius: '12px', boxShadow: '0 2px 10px rgba(0,0,0,0.05)' };
+const tableContainerStyle = { overflowX: 'auto', background: 'white', borderRadius: '16px', boxShadow: '0 4px 15px rgba(0,0,0,0.05)' };
 const statCardStyle = { background: 'white', padding: '20px', borderRadius: '16px', boxShadow: '0 4px 10px rgba(0,0,0,0.03)', border: '1px solid #e2e8f0' };
 const labelStyle = { fontSize: '10px', fontWeight: 'bold', color: '#64748b', textTransform: 'uppercase', marginBottom: '4px', display: 'block' };
-const thStyle = { padding: '18px 15px', textAlign: 'left', fontSize: '14px' };
-const tdStyle = { padding: '18px 15px', fontSize: '14px' };
-const loginContainerStyle = { height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', background: '#e2e8f0' };
-const loginBoxStyle = { background: 'white', padding: '40px', borderRadius: '24px', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)', width: '100%', maxWidth: '380px' };
+const thStyle = { padding: '15px', textAlign: 'left', fontSize: '13px' };
+const tdStyle = { padding: '15px', fontSize: '13px' };
 const inputStyle = { width: '100%', padding: '10px', marginTop: '5px', marginBottom: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box', outline: 'none' };
 const btnStyle = { width: '100%', marginTop: '15px', padding: '14px', background: '#1e3a8a', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer' };
-const logoutBtnStyle = { background: '#ef4444', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '10px', cursor: 'pointer', fontWeight: 'bold' };
-const editBtnStyle = { background: '#f1f5f9', color: '#1e3a8a', border: '1px solid #e2e8f0', padding: '8px 15px', borderRadius: '8px', marginRight: '8px', cursor: 'pointer', fontWeight: '600' };
-const billBtnStyle = { background: '#16a34a', color: 'white', border: 'none', padding: '8px 15px', borderRadius: '8px', cursor: 'pointer', fontWeight: '600' };
-const modalOverlayStyle = { position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.6)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, padding: '20px' };
-const modalContentStyle = { background: 'white', padding: '25px', borderRadius: '20px', width: '100%', maxWidth: '450px', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)' };
+const logoutBtnStyle = { background: '#ef4444', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '10px', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px' };
+const editBtnStyle = { background: '#f1f5f9', color: '#1e3a8a', border: '1px solid #e2e8f0', padding: '8px 12px', borderRadius: '8px', marginRight: '5px', cursor: 'pointer' };
+const billBtnStyle = { background: '#16a34a', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '8px', cursor: 'pointer' };
+const modalOverlayStyle = { position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.6)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 };
+const modalContentStyle = { background: 'white', padding: '25px', borderRadius: '20px', width: '100%', maxWidth: '400px' };
+const loginContainerStyle = { height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', background: '#e2e8f0' };
+const loginBoxStyle = { background: 'white', padding: '40px', borderRadius: '24px', width: '90%', maxWidth: '360px' };
 
 export default AdminDashboard;

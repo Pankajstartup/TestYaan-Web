@@ -1,131 +1,196 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
 
 :root {
-  --primary-blue: #1e3a8a;
-  --secondary: #3b82f6;
+  --primary-blue: #383c47;
   --text-main: #1e293b;
-  --big-light: #f8fafc;
-  --accent-gold: #ffbf00;
-  --white: #ffffff;
   --glass: rgba(255, 255, 255, 0.95);
-  --shadow: 0 20px 40px rgba(0,0,0,0.1);
 }
 
 body {
   margin: 0;
-  font-family: 'Inter', 'Segoe UI', sans-serif;
-  color: var(--text-main);
-  background-color: var(--bg-light);
-  line-height: 1.0;
-  background-color: #e7360af5;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background-color: #f8fafc;
 }
 
-/* --- Premium Hero Section --- */
+/* --- ADVANCED HEADER ONLY --- */
+.main-navbar {
+  background: var(--glass) !important;
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid #e2e8f0;
+  transition: all 0.3s ease;
+}
+
+.navLinks a {
+  position: relative;
+  transition: 0.3s;
+}
+
+.navLinks a:hover {
+  color: var(--primary-blue) !important;
+  transform: translateY(-1px);
+}
+
+/* --- ULTRA PREMIUM ANIMATED HERO SECTION --- */
 .universal-hero {
-  background: linear-gradient(135deg, #b911c8 0%, #42443d 50%, #3b82f6 100%);
-  padding: 50px 200px;
+  /* Naya Stylish Dark Gradient */
+  background: linear-gradient(-45deg, #0f172a, #1e3a8a, #312e81, #1e1b4b) !important;
+  background-size: 200% 200% !important;
+  animation: gradientBG 12s ease infinite;
+  
+  padding: 100px 20px;
   color: white;
   text-align: center;
   position: relative;
-  overflow: visible;
+  overflow: hidden;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+  box-shadow: 0 25px 50px rgba(0,0,0,0.2);
 }
 
-/* Second photo jaisa medical pattern background ke liye */
-.universal-hero::before {
-  content: "";
-  position: absolute;
-  top: 0; left: 0; width: 100%; height: 100%;
-  background-image: radial-gradient(circle at 2px 2px, rgba(255,255,255,0.05) 1px, transparent 0);
-  background-size: 30px 30px;
-  opacity: 0.3;
+@keyframes gradientBG {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@media (min-width: 1024px) {
+  .universal-hero { padding: 120px 200px; }
 }
 
 .hero-title {
-  font-size: clamp(3.5rem, 6vw, 4rem);
+  font-size: clamp(2.8rem, 7vw, 4.5rem);
   font-weight: 800;
-  letter-spacing: -1px;
-  margin-bottom: 15px;
-  text-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  line-height: 1.0;
+  letter-spacing: -5px;
+  margin-bottom: 2px;
+  /* Glow Effect on Text */
+  background: linear-gradient(to right, #fff, #bfdbfe);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 10px 30px rgba(0,0,0,0.3);
 }
 
 .city-badge {
-  background: rgba(255, 191, 0, 0.2);
-  color: #13ebe0;
-  border: 1px solid #ffbf00;
-  padding: 6px 20px;
-  border-radius: 60px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  padding: 8px 25px;
+  border-radius: 50px;
   display: inline-block;
-  font-weight: 700;
   font-size: 14px;
-  margin-bottom: 20px;
-  backdrop-filter: blur(5px);
+  font-weight: 800;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  margin-bottom: 5px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
 }
 
-/* --- Premium Glass Cards (Exactly like Image 2) --- */
+/* Glassmorphism Search Bar Upgraded */
+.hero-search-wrapper {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(25px);
+  padding: 12px;
+  border-radius: 100px;
+  max-width: 700px;
+  margin: 20px auto;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  box-shadow: 0 35px 70px -15px rgba(0, 0, 0, 0.4);
+}
+
+.hero-search-wrapper input {
+  flex: 1;
+  background: white;
+  border: none;
+  outline: none;
+  padding: 10px 35px;
+  font-size: 18px;
+  border-radius: 100px;
+  color: #1e293b; /* Readable text */
+  font-weight: 500;
+}
+
+.hero-search-button {
+  background: #fbbf24; /* Golden yellow */
+  color: #000;
+  border: none;
+  border-radius: 100px;
+  padding: 0 15px;
+  margin-left: 10px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.hero-search-button:hover {
+  transform: scale(1.05) rotate(2deg);
+  background: #fff;
+}
+
+/* --- THE GRID SYSTEM --- */
+.universal-grid {
+  display: grid;
+  gap: 25px;
+  padding: 50px 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+  grid-template-columns: repeat(1, 1fr);
+}
+
+@media (min-width: 640px) {
+  .universal-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (min-width: 1024px) {
+  .universal-grid { grid-template-columns: repeat(4, 1fr); }
+}
+
+@media (min-width: 1440px) {
+  .universal-grid { grid-template-columns: repeat(5, 1fr); }
+}
+
+/* Card Design Upgraded */
 .modern-card {
-  background: var(--white);
+  background: white;
   border-radius: 24px;
+  border: 1px solid #f1f5f9;
   padding: 24px;
-  border: 1px solid rgba(255,255,255,0.8);
-  box-shadow: var(--shadow);
-  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  position: relative;
-  overflow: hidden;
   display: flex;
   flex-direction: column;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  height: 100%;
 }
 
-.modern-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 30px 60px rgba(0,0,0,0.15);
+.hover-card:hover {
+  transform: translateY(-12px);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+  border-color: #3b82f6;
 }
 
-/* Red Tag for Fasting Required (Image 2 style) */
-.fasting-tag {
-  background: #e10808;
-  color: white;
-  padding: 4px 12px;
-  border-radius: 8px;
-  font-size: 11px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
-/* --- Buttons --- */
 .confirm-btn {
-  background: linear-gradient(to right, #2563eb, #1e40af);
+  background: #1e40af;
   color: white;
   border: none;
-  padding: 12px 24px;
-  border-radius: 14px;
+  padding: 14px;
+  border-radius: 16px;
   font-weight: 700;
   cursor: pointer;
+  width: 100%;
   transition: 0.3s;
-  box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
 }
 
 .confirm-btn:hover {
-  box-shadow: 0 8px 25px rgba(37, 99, 235, 0.5);
-  transform: scale(1.02);
+  background: #1d4ed8;
+  filter: brightness(1.1);
 }
 
-.btn-secondary {
-  background: #f1f5f9;
-  color: #1e3a8a;
-  border: 1px solid #e2e8f0;
-  padding: 12px 20px;
-  border-radius: 14px;
-  font-weight: 600;
-}
-
-/* --- Grid Fix --- */
-.universal-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 30px;
-  max-width: 1250px;
-  margin: 0 auto;
-  padding: 40px 20px;
+@media (max-width: 768px) {
+  .navLinks { display: none !important; }
+  .nav-right { gap: 10px !important; }
+  .main-logo { height: 50px !important; }
+  .universal-hero { border-radius: 0 0 40px 40px; }
 }

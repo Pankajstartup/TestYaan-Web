@@ -9,12 +9,10 @@ const Packages = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeLab, setActiveLab] = useState("All");
 
-  // Logic Safe: Modals States
   const [selectedPkg, setSelectedPkg] = useState(null);
   const [isBookingOpen, setIsBookingOpen] = useState(false);
   const [showParamModal, setShowParamModal] = useState(false);
 
-  // --- COMPARE LOGIC (HOME/TESTS STYLE) ---
   const [compareList, setCompareList] = useState([]);
   const [showCompareOverlay, setShowCompareOverlay] = useState(false);
 
@@ -40,7 +38,6 @@ const Packages = () => {
     setFilteredPackages(result);
   }, [searchTerm, activeLab, allPackages]);
 
-  // Logic Safe: Handlers
   const openParams = (pkg) => {
     setSelectedPkg(pkg);
     setShowParamModal(true);
@@ -51,7 +48,6 @@ const Packages = () => {
     setIsBookingOpen(true);
   };
 
-  // Compare Handlers
   const handleCompareClick = (test, isChecked) => {
     if (isChecked) {
       if (compareList.length >= 3) return alert("Maximum 3 packages compare kar sakte hain!");
@@ -65,33 +61,32 @@ const Packages = () => {
     setCompareList(compareList.filter(t => t['Test Name'] !== name));
   };
 
-  // FIX: Thyrocare yahan add kar diya hai
   const labs = ["All", "Thyrocare", "Dr Lal Pathlabs", "Metropolis", "Redcliffe Labs"];
 
   return (
     <div style={{ backgroundColor: '#f8fafc', minHeight: '100vh' }}>
       
-      {/* 1. Hero Section */}
+      {/* 1. HERO SECTION (STYLISH) */}
       <section className="universal-hero">
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-          <h1 className="hero-title">Health Packages</h1>
-          <div className="city-badge">PREVENTIVE CARE</div>
-          <p style={{ opacity: 0.9, marginBottom: '30px', fontSize: '1.1rem' }}>
-            Complete body checkups and wellness bundles for your family.
-          </p>
+        <div style={{ maxWidth: '1200px', margin: '5 auto', position: 'relative', zIndex: 2 }}>
+          <div className="city-badge">🛡️ Complete Health Protection</div>
+          <h1 className="hero-title">Family Health <br/>Checkup Packages</h1>
           
-          <div style={{ position: 'relative', maxWidth: '600px', margin: '0 auto' }}>
+          <div className="hero-search-wrapper">
             <input 
               type="text" 
-              placeholder="Search health packages..." 
-              style={{ width: '100%', padding: '16px 25px', borderRadius: '50px', border: 'none', fontSize: '16px', outline: 'none', boxShadow: '0 10px 25px rgba(0,0,0,0.2)' }}
+              placeholder="Search health packages (e.g. Wellness)..." 
+              style={{ color: '#333' }}
               onChange={(e) => setSearchTerm(e.target.value)}
+              value={searchTerm}
             />
+            <button className="hero-search-button">FIND</button>
           </div>
         </div>
+        <div style={{ position: 'absolute', top: '10%', left: '5%', width: '150px', height: '150px', background: 'rgba(255,255,255,0.1)', borderRadius: '50%' }}></div>
       </section>
 
-      {/* 2. Lab Filters */}
+      {/* 2. LAB FILTERS */}
       <div style={{ display: 'flex', gap: '12px', padding: '30px 20px', overflowX: 'auto', maxWidth: '1200px', margin: '0 auto' }}>
         {labs.map(lab => (
           <button 
@@ -109,14 +104,13 @@ const Packages = () => {
         ))}
       </div>
 
-      {/* 3. Cards Grid */}
-      <div className="universal-grid" style={{ paddingTop: '0' }}>
+      {/* 3. CARDS GRID */}
+      <div className="universal-grid">
         {filteredPackages.map((pkg, i) => (
           <div key={i} className="modern-card hover-card">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
               <span style={{ backgroundColor: '#fef3c7', color: '#92400e', padding: '4px 10px', borderRadius: '20px', fontSize: '10px', fontWeight: '800' }}>PACKAGE</span>
               
-              {/* NAYA: Checkbox added here */}
               <label style={{ fontSize: '12px', color: '#64748b', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontWeight: '600' }}>
                 <input 
                   type="checkbox" 
@@ -145,7 +139,7 @@ const Packages = () => {
 
       {/* 4. Compare Floating Bar */}
       {compareList.length > 0 && !showCompareOverlay && (
-        <div style={{ position: 'fixed', bottom: '25px', left: '50%', transform: 'translateX(-50%)', background: '#1e3a8a', color: 'white', padding: '15px 30px', borderRadius: '50px', display: 'flex', gap: '20px', alignItems: 'center', boxShadow: '0 15px 35px rgba(0,0,0,0.3)', zIndex: 4000 }}>
+        <div style={{ position: 'fixed', bottom: '25px', left: '50%', transform: 'translateX(-50%)', background: '#1e3a8a', color: 'white', padding: '15px 30px', borderRadius: '50px', display: 'flex', gap: '20px', alignItems: 'center', boxShadow: '0 15px 35px rgba(0,0,0,0.2)', zIndex: 4000 }}>
           <span style={{fontWeight: '700'}}>{compareList.length} Packages Selected</span>
           <button onClick={() => setShowCompareOverlay(true)} className="confirm-btn" style={{ background: '#ffbf00', color: '#1e3a8a', padding: '8px 20px', width: 'auto', boxShadow: 'none' }}>Compare Now</button>
         </div>
