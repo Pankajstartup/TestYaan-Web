@@ -84,6 +84,11 @@ function Tests() {
     <div style={{ backgroundColor: '#f8fafc', minHeight: '100vh' }}>
       
       {/* SEO Section */}
+      <SEO 
+      title="All Lab Tests" 
+      description="Compare and book 500+ lab tests at discounted prices." 
+      testsData={allTests}  // Ye line aapke saare tests ko SEO file mein bhej degi
+      />
       <Helmet>
         <title>All Lab Tests | TestYaan - Compare and Book Online</title>
         <meta name="description" content="Compare blood test prices from top NABL labs like Dr Lal Pathlabs and Thyrocare. Book online with home collection at TestYaan." />
