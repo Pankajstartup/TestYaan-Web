@@ -3,13 +3,13 @@ import React from 'react';
 const ContactUs = () => {
   return (
     <div style={{ maxWidth: '800px', margin: '80px auto', padding: '0 20px', fontFamily: 'Inter, sans-serif' }}>
-      <h1 style={{ fontSize: '2.5rem', textAlign: 'center', color: '#1e3a8a' }}>Contact TestYaan</h1>
-      <p style={{ textAlign: 'center', marginBottom: '50px', color: '#64748b' }}>Hamari team aapki madad ke liye taiyaar hai.</p>
+      <h1 style={{ fontSize: '2.5rem', textAlign: 'center', color: '#1e3a8a' }}>Contact at TestYaan</h1>
+      <p style={{ textAlign: 'center', marginBottom: '50px', color: '#64748b' }}>Contact us for any query.</p>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
         <div style={{ padding: '30px', background: '#f8fafc', borderRadius: '20px', border: '1px solid #e2e8f0' }}>
           <h3>📍 Lab & Office Address</h3>
-          <p>AIIMS Delhi Campus, Ansari Nagar, New Delhi - 110029</p>
+          <p>Tuglakabad, New Delhi - 110044</p>
         </div>
 
         <div style={{ padding: '30px', background: '#f8fafc', borderRadius: '20px', border: '1px solid #e2e8f0', textAlign: 'center' }}>
