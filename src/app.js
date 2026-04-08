@@ -7,6 +7,7 @@ import Packages from './pages/Packages';
 import './App.css';
 import AdminDashboard from './pages/AdminDashboard';
 import PrivacyPolicy from './pages/PrivacyPolicy'; // Naya Import
+import ContactUs from './pages/ContactUs';
 
 function App() {
   return (
@@ -56,6 +57,7 @@ function App() {
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/privacy" element={<PrivacyPolicy />} /> {/* Naya Route */}
             <Route path="*" element={<Home />} />
+            <Route path="/contact" element={<ContactUs />} />
           </Routes>
 
           {/* --- FOOTER --- */}
@@ -80,7 +82,7 @@ function App() {
               {/* AdSense ke liye links yahan add kiye hain */}
               <div style={{ marginTop: '10px' }}>
                 <Link to="/privacy" style={{ color: 'white', textDecoration: 'none', marginRight: '20px', opacity: '0.8' }}>Privacy Policy</Link>
-                <a href="mailto:Helpline.Testyaan@gmail.com" style={{ color: 'white', textDecoration: 'none', opacity: '0.8' }}>Contact Us</a>
+                <Link to="/contact" style={{ color: 'white', textDecoration: 'none', opacity: '0.8' }}>Contact Us</Link>
               </div>
             </div>
           </footer>
