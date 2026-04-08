@@ -47,8 +47,8 @@ const PrivacyPolicy = () => {
           <h1 className="hero-title" style={{ fontSize: '2.5rem', color: '#1e3a8a', fontWeight: '800', lineHeight: '1.2' }}>
             Privacy <span style={{ color: '#ffbf00' }}>Policy</span>
           </h1>
-          <p style={{ margin: '15px 0 0', fontSize: '1.1rem', opacity: 0.9, color: '#333' }}>
-            Effective Date: April 8, 2026
+          <p style={{ margin: '15px 0 0', fontSize: '1.1rem', opacity: 0.9, color: '#3533' }}>
+            Effective Date: March 2026
           </p>
         </div>
         {/* Floating background shape for matching style */}
