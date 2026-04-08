@@ -6,6 +6,7 @@ import Tests from './pages/Tests';
 import Packages from './pages/Packages'; 
 import './App.css';
 import AdminDashboard from './pages/AdminDashboard';
+import PrivacyPolicy from './pages/PrivacyPolicy'; // Naya Import
 
 function App() {
   return (
@@ -47,16 +48,17 @@ function App() {
             </div>
           </nav>
 
-          {/* --- ROUTES (No change in logic) --- */}
+          {/* --- ROUTES --- */}
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/tests" element={<Tests />} />
             <Route path="/packages" element={<Packages />} /> 
             <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} /> {/* Naya Route */}
             <Route path="*" element={<Home />} />
           </Routes>
 
-          {/* --- FOOTER (No change in logic) --- */}
+          {/* --- FOOTER --- */}
           <footer id="contact-section" style={footerStyle}>
             <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '40px' }}>
               <div style={{ flex: 1, minWidth: '250px' }}>
@@ -72,8 +74,14 @@ function App() {
                 <p style={{ marginBottom: '10px' }}>📞 +91 8130484197</p>
               </div>
             </div>
+            
             <div style={{ textAlign: 'center', marginTop: '50px', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '20px', fontSize: '14px', opacity: 0.6 }}>
-              © 2026 TestYaan. All Rights Reserved.
+              <div>© 2026 TestYaan. All Rights Reserved.</div>
+              {/* AdSense ke liye links yahan add kiye hain */}
+              <div style={{ marginTop: '10px' }}>
+                <Link to="/privacy" style={{ color: 'white', textDecoration: 'none', marginRight: '20px', opacity: '0.8' }}>Privacy Policy</Link>
+                <a href="mailto:Helpline.Testyaan@gmail.com" style={{ color: 'white', textDecoration: 'none', opacity: '0.8' }}>Contact Us</a>
+              </div>
             </div>
           </footer>
 
