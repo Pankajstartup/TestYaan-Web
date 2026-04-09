@@ -2,20 +2,31 @@ import React, { useState, useEffect } from 'react';
 import Papa from 'papaparse';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable'; 
-// Logo import kiya gaya hai
 import { logoData } from '../LogoData'; 
 
+/**
+ * TESTYAAN ADMIN CONTROL CENTER
+ * Version: 2.1.0 (Discount Loop Integration)
+ * Total Lines: 400+ for Full Functionality
+ */
+
 const AdminDashboard = () => {
+  // --- STATE MANAGEMENT ---
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loginDetails, setLoginDetails] = useState({ userid: "", password: "" });
   const [bookings, setBookings] = useState([]);
+  const [registrations, setRegistrations] = useState([]); 
+  const [activeTab, setActiveTab] = useState("bookings"); 
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedPatient, setSelectedPatient] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
   
+  // Date Filter States
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
-  // 1. Updated State to include testCode
+  // Payment & Edit States
   const [paymentData, setPaymentData] = useState({ 
     discount: 0, 
     paid: 0,
@@ -25,23 +36,28 @@ const AdminDashboard = () => {
     testCode: "" 
   });
 
+  // --- CONFIGURATIONS ---
   const ADMIN_USER = "admin123"; 
   const ADMIN_PASS = "testyaan@2026";
   const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRrQfBu42xRe4jWIthn9nJOVhYCh-b-qF27YWS4THIl22iAqTekWAEt1y-1ZEvZ5g1UF6droRSgPi-Y/pub?output=csv"; 
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxxmz8W4txUjdJ2NcOv5nflZ6IIiUi1d6Y6AodR8VXPZ-8mbn9KPLKzoOeWQ8A_OQV-lA/exec";
+  const REG_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxJo6qIVI3jKBokkKJ_B_EY-8lFLvTF4GNowt8jAGsuu8-4Hya5ShC6Vi93uSuzXrX46Q/exec";
 
-  // LOGO BASE64 - Ab ye globally imported logoData use karega
   const logoBase64 = logoData; 
 
+  // --- LIFECYCLE EFFECTS ---
   useEffect(() => {
     const loggedIn = localStorage.getItem("adminAuth");
     if (loggedIn === "true") {
       setIsAuthenticated(true);
-      fetchData();
+      fetchAllData();
     }
-  }, []);
+  }, [refreshKey]);
 
-  const fetchData = () => {
+  // --- DATA FETCHING LOGIC ---
+  const fetchAllData = () => {
+    setLoading(true);
+    // Fetch Bookings from CSV
     fetch(SHEET_CSV_URL)
       .then(res => res.text())
       .then(csv => {
@@ -52,23 +68,43 @@ const AdminDashboard = () => {
               setBookings(res.data.reverse());
             }
         });
+      })
+      .catch(err => console.error("CSV Fetch Error:", err));
+
+    // Fetch Registrations from Web App API
+    fetch('https://script.google.com/macros/s/AKfycbxJo6qIVI3jKBokkKJ_B_EY-8lFLvTF4GNowt8jAGsuu8-4Hya5ShC6Vi93uSuzXrX46Q/exec')
+      .then(res => res.json())
+      .then(data => {
+        setRegistrations(data.reverse());
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error("Reg API Error:", err);
+        setLoading(false);
       });
   };
 
+  // --- AUTHENTICATION HANDLERS ---
   const handleLogin = (e) => {
     e.preventDefault();
     if (loginDetails.userid === ADMIN_USER && loginDetails.password === ADMIN_PASS) {
       setIsAuthenticated(true);
       localStorage.setItem("adminAuth", "true");
-      fetchData();
-    } else { alert("Wrong Credentials"); }
+      fetchAllData();
+    } else { 
+      alert("Invalid Admin Credentials. Please check UserID and Password."); 
+    }
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("adminAuth");
-    setIsAuthenticated(false);
+    const confirmLogout = window.confirm("Are you sure you want to logout?");
+    if (confirmLogout) {
+      localStorage.removeItem("adminAuth");
+      setIsAuthenticated(false);
+    }
   };
 
+  // --- MODAL HANDLERS ---
   const openEditModal = (patient) => {
     setSelectedPatient(patient);
     setPaymentData({
@@ -81,7 +117,10 @@ const AdminDashboard = () => {
     });
   };
 
+  // --- ACTION HANDLERS ---
   const handleUpdatePayment = async () => {
+    if (!window.confirm("Confirm Payment & Details Update?")) return;
+
     const total = parseFloat(selectedPatient["Final Amount"] || 0);
     const disc = parseFloat(paymentData.discount || 0);
     const paid = parseFloat(paymentData.paid || 0);
@@ -96,20 +135,23 @@ const AdminDashboard = () => {
       newName: paymentData.pName,
       newMobile: paymentData.pMobile,
       newAddress: paymentData.pAddress,
-      testCode: paymentData.testCode // Passing manual test code
+      testCode: paymentData.testCode 
     };
 
     try {
+      setLoading(true);
       await fetch(SCRIPT_URL, {
         method: 'POST',
         mode: 'no-cors', 
         body: JSON.stringify(updatePayload)
       });
-      alert("Updated successfully!");
+      alert("Update Success! Sheet will refresh shortly.");
       setSelectedPatient(null);
-      fetchData(); 
+      setRefreshKey(old => old + 1);
     } catch (error) {
-      alert("Update failed!");
+      alert("Network Error: Update Failed.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -121,255 +163,246 @@ const AdminDashboard = () => {
     const net = total - disc;
     const pending = net - paid;
     
-    const originalOrderID = patient["Booking ID"]; 
-    const receiptIndex = bookings.findIndex(b => b["Booking ID"] === originalOrderID);
-    const receiptNumber = 1000 + (bookings.length - receiptIndex);
-    const displayReceiptNo = `TY-${receiptNumber}/26`;
+    const receiptNumber = 1000 + (bookings.length - bookings.findIndex(b => b["Booking ID"] === patient["Booking ID"]));
+    const displayReceiptNo = `TY-${receiptNumber}/2026`;
 
+    // PDF Header Styling
     doc.setFillColor(30, 58, 138); 
     doc.rect(0, 0, 210, 45, 'F');
 
     if (logoBase64 && logoBase64.length > 100) {
-        try { 
-            doc.addImage(logoBase64, 'PNG', 12, 5, 35, 35); 
-        } catch(e){ console.error("Logo Error", e); }
+        try { doc.addImage(logoBase64, 'PNG', 12, 5, 35, 35); } catch(e){ console.warn("Logo skipping..."); }
     }
     
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(22);
     doc.setFont("helvetica", "bold");
     doc.text("TESTYAAN", 50, 20);
-    
     doc.setFontSize(9);
-    doc.setFont("helvetica", "normal");
-    doc.text("Pathology & Diagnostics | NABL Certified Labs", 50, 27);
-    doc.text("Ph: +91 8130484197 | Email: Helpline.Testyaan@gmail.com", 50, 33);
-    doc.text("Web: www.testyaan.online", 50, 38);
+    doc.text("Advanced Diagnostics & Research Center", 50, 27);
+    doc.text("Email: Helpline.Testyaan@gmail.com | Ph: +91 8130484197", 50, 33);
 
-    doc.setTextColor(0);
+    doc.setTextColor(0, 0, 0);
     doc.setFontSize(10);
     doc.text(`Receipt No: ${displayReceiptNo}`, 15, 55);
-    doc.text(`Date: ${new Date().toLocaleDateString('en-GB')}`, 160, 55);
-    
-    doc.setDrawColor(230);
+    doc.text(`Generated Date: ${new Date().toLocaleDateString('en-GB')}`, 155, 55);
+    doc.setDrawColor(200);
     doc.line(15, 60, 195, 60);
 
     doc.setFont("helvetica", "bold");
-    doc.text("PATIENT DETAILS", 15, 70);
-    doc.text("COLLECTION INFO", 120, 70);
-    
+    doc.text("PATIENT INFORMATION", 15, 70);
     doc.setFont("helvetica", "normal");
     doc.text(`Name: ${patient["Patient Name"]}`, 15, 78);
-    doc.text(`Age/Sex: ${patient["Age"] || '30'} / ${patient["Gender"] || 'Male'}`, 15, 84);
-    doc.text(`Mobile: ${patient["Mobile Number"]}`, 15, 90);
-
-    doc.text(`Lab: ${patient["Lab Name"]}`, 120, 78);
-    doc.text(`Collection Date: ${patient["Collection Date"]}`, 120, 84);
-    doc.text(`Order ID: ${originalOrderID}`, 120, 90);
+    doc.text(`Contact: ${patient["Mobile Number"]}`, 15, 84);
+    doc.text(`Address: ${patient["Full Address"] || 'N/A'}`, 15, 90);
 
     autoTable(doc, {
       startY: 100,
-      head: [['Sl No.', 'Test Description', 'Amount (INR)']],
-      body: [
-        ['1', patient["Test Name"], total.toFixed(2)],
-      ],
-      theme: 'grid',
-      headStyles: { fillColor: [241, 245, 249], textColor: [0,0,0], fontStyle: 'bold' },
-      styles: { cellPadding: 5, fontSize: 10 },
-      columnStyles: { 2: { halign: 'right' } }
+      head: [['Sl.', 'Service/Test Description', 'Base Amount']],
+      body: [['1', patient["Test Name"], total.toFixed(2)]],
+      theme: 'striped',
+      headStyles: { fillColor: [30, 58, 138] }
     });
 
-    const finalY = doc.lastAutoTable.finalY + 10;
-    const rightCol = 195;
-    const labelCol = 140;
-
+    const finalY = doc.lastAutoTable.finalY + 15;
     doc.setFont("helvetica", "bold");
-    doc.text("Gross Total:", labelCol, finalY);
-    doc.text(`${total.toFixed(2)}`, rightCol, finalY, { align: 'right' });
-
-    doc.setFont("helvetica", "normal");
-    doc.text("Discount:", labelCol, finalY + 8);
-    doc.text(`- ${disc.toFixed(2)}`, rightCol, finalY + 8, { align: 'right' });
-
-    doc.setFont("helvetica", "bold");
-    doc.text("Net Amount:", labelCol, finalY + 16);
-    doc.text(`${net.toFixed(2)}`, rightCol, finalY + 16, { align: 'right' });
-
-    doc.setFont("helvetica", "normal");
-    doc.text("Paid Amount:", labelCol, finalY + 24);
-    doc.text(`${paid.toFixed(2)}`, rightCol, finalY + 24, { align: 'right' });
-
-    doc.setDrawColor(30, 58, 138);
-    doc.line(135, finalY + 28, 195, finalY + 28);
-
+    doc.text(`Net Payable: INR ${net.toFixed(2)}`, 140, finalY);
+    doc.text(`Paid: INR ${paid.toFixed(2)}`, 140, finalY + 7);
+    
     if(pending > 0) {
         doc.setTextColor(200, 0, 0);
-        doc.text("Balance Due:", labelCol, finalY + 35);
-        doc.text(`${pending.toFixed(2)}`, rightCol, finalY + 35, { align: 'right' });
-    } else {
-        doc.setTextColor(0, 128, 0);
-        doc.text("Status: FULLY PAID", labelCol, finalY + 35);
+        doc.text(`Balance Due: INR ${pending.toFixed(2)}`, 140, finalY + 14);
     }
 
-    doc.setTextColor(150);
-    doc.setFontSize(8);
-    doc.text("This is a computer generated invoice. No signature required.", 105, 285, { align: 'center' });
-    
-    doc.save(`Bill_${patient["Patient Name"]}.pdf`);
+    doc.save(`TestYaan_Bill_${patient["Patient Name"]}.pdf`);
   };
 
+  // --- FILTERING LOGIC ---
   const filteredBookings = bookings.filter(b => {
-    const matchesSearch = b["Patient Name"]?.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          b["Mobile Number"]?.includes(searchTerm);
+    const searchLow = searchTerm.toLowerCase();
+    const matchesSearch = b["Patient Name"]?.toLowerCase().includes(searchLow) || b["Mobile Number"]?.includes(searchTerm);
     if (!startDate || !endDate) return matchesSearch;
     const bDate = new Date(b["Collection Date"]);
-    const sDate = new Date(startDate);
-    const eDate = new Date(endDate);
-    return matchesSearch && (bDate >= sDate && bDate <= eDate);
+    return matchesSearch && (bDate >= new Date(startDate) && bDate <= new Date(endDate));
   });
+
+  const filteredRegs = registrations.filter(r => 
+    r.name?.toLowerCase().includes(searchTerm.toLowerCase()) || r.phone?.includes(searchTerm)
+  );
 
   const totalRevenue = filteredBookings.reduce((acc, b) => acc + parseFloat(b["Final Amount"] || 0), 0);
 
+  // --- RENDER: LOGIN ---
   if (!isAuthenticated) {
     return (
       <div style={loginContainerStyle}>
         <div style={loginBoxStyle}>
-          <h2 style={{ color: '#1e3a8a', textAlign: 'center', marginBottom: '20px' }}>Admin Login</h2>
+          <div style={{textAlign: 'center', marginBottom: '25px'}}>
+            <img src={logoData} alt="Logo" style={{height: '50px'}} />
+            <h2 style={{ color: '#1e3a8a', marginTop: '10px' }}>Admin Access</h2>
+          </div>
           <form onSubmit={handleLogin}>
-            <input type="text" placeholder="User ID" style={inputStyle} onChange={(e) => setLoginDetails({...loginDetails, userid: e.target.value})} required />
-            <input type="password" placeholder="Password" style={inputStyle} onChange={(e) => setLoginDetails({...loginDetails, password: e.target.value})} required />
-            <button type="submit" style={btnStyle}>Enter Dashboard</button>
+            <label style={labelStyle}>Staff ID</label>
+            <input type="text" placeholder="Enter ID" style={inputStyle} onChange={(e) => setLoginDetails({...loginDetails, userid: e.target.value})} />
+            <label style={labelStyle}>Security Password</label>
+            <input type="password" placeholder="••••••••" style={inputStyle} onChange={(e) => setLoginDetails({...loginDetails, password: e.target.value})} />
+            <button type="submit" style={btnStyle}>Authenticate</button>
           </form>
+          <p style={{fontSize: '11px', textAlign: 'center', color: '#64748b', marginTop: '20px'}}>© 2026 TestYaan Diagnostics. Unauthorized access is prohibited.</p>
         </div>
       </div>
     );
   }
 
+  // --- RENDER: MAIN DASHBOARD ---
   return (
     <div style={mainContainerStyle}>
-      {/* CSS for Responsiveness and Mobile Views */}
       <style>{`
+        .tab-btn { padding: 12px 25px; border: none; cursor: pointer; font-weight: 800; border-radius: 12px; transition: 0.4s; font-size: 14px; }
+        .active-tab { background: #1e3a8a; color: white; box-shadow: 0 5px 15px rgba(30,58,138,0.3); }
+        .inactive-tab { background: #fff; color: #64748b; border: 1px solid #e2e8f0; }
+        .hover-row:hover { background-color: #f8fafc !important; }
         @media (max-width: 768px) {
-          .header-flex { flex-direction: column; text-align: center; gap: 15px; }
-          .stats-grid { grid-template-columns: 1fr !important; }
-          .filter-panel { flex-direction: column; padding: 15px !important; }
-          .filter-item { width: 100% !important; min-width: 100% !important; }
+          .header-flex { flex-direction: column; gap: 15px; }
           .hide-mobile { display: none; }
-          .modal-box { width: 95% !important; padding: 15px !important; margin: 10px; }
-          .table-container { border-radius: 8px !important; }
-          .td-cell { padding: 10px 5px !important; font-size: 12px !important; }
-          .action-btns { flex-direction: column; gap: 5px; }
+          .stats-grid { grid-template-columns: 1fr !important; }
         }
       `}</style>
 
-      <div className="header-flex" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
+      {/* Header Section */}
+      <div className="header-flex" style={headerContainerStyle}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-           <img src={logoData} alt="TestYaan" style={{ height: '50px' }} />
+           <img src={logoData} alt="Logo" style={{ height: '45px' }} />
            <div>
-              <h1 style={{ color: '#1e3a8a', margin: 0, fontSize: '1.5rem' }}>Control Center</h1>
-              <p className="hide-mobile" style={{ color: '#64748b', margin: 0 }}>Manage patient bookings and payments</p>
+             <h1 style={{ color: '#1e3a8a', margin: 0, fontSize: '1.6rem', fontWeight: '900' }}>Control Center</h1>
+             <span style={{fontSize: '12px', color: '#16a34a', fontWeight: 'bold'}}>● System Online</span>
            </div>
         </div>
-        <button onClick={handleLogout} style={logoutBtnStyle}>Logout</button>
-      </div>
-
-      <div className="stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', marginBottom: '30px' }}>
-        <div style={statCardStyle}>
-          <small style={{color: '#64748b'}}>Total Bookings</small>
-          <h2 style={{margin: '5px 0', color: '#1e3a8a'}}>{filteredBookings.length}</h2>
-        </div>
-        <div style={statCardStyle}>
-          <small style={{color: '#64748b'}}>Gross Revenue</small>
-          <h2 style={{margin: '5px 0', color: '#16a34a'}}>₹{totalRevenue.toLocaleString()}</h2>
+        <div style={{ display: 'flex', gap: '12px' }}>
+           <button onClick={() => setRefreshKey(k => k + 1)} style={refreshBtnStyle}>{loading ? 'Syncing...' : 'Sync Data'}</button>
+           <button onClick={handleLogout} style={logoutBtnStyle}>Logout Session</button>
         </div>
       </div>
 
+      {/* Navigation Tabs */}
+      <div style={{ display: 'flex', gap: '15px', marginBottom: '25px' }}>
+        <button className={`tab-btn ${activeTab === 'bookings' ? 'active-tab' : 'inactive-tab'}`} onClick={() => setActiveTab('bookings')}>Patient Bookings</button>
+        <button className={`tab-btn ${activeTab === 'registrations' ? 'active-tab' : 'inactive-tab'}`} onClick={() => setActiveTab('registrations')}>15% Discount Users</button>
+      </div>
+
+      {/* Dynamic Content */}
+      {activeTab === 'bookings' && (
+        <div className="stats-grid" style={statsGridStyle}>
+          <div style={statCardStyle}><small style={statLabelStyle}>TOTAL ORDERS</small><h2 style={statValueStyle}>{filteredBookings.length}</h2></div>
+          <div style={statCardStyle}><small style={statLabelStyle}>GROSS REVENUE</small><h2 style={{...statValueStyle, color: '#16a34a'}}>₹{totalRevenue.toLocaleString()}</h2></div>
+          <div style={statCardStyle}><small style={statLabelStyle}>AVG. ORDER VALUE</small><h2 style={statValueStyle}>₹{(totalRevenue/(filteredBookings.length || 1)).toFixed(0)}</h2></div>
+        </div>
+      )}
+
+      {/* Filter Panel */}
       <div className="filter-panel" style={filterPanelStyle}>
-        <div className="filter-item" style={{ flex: 1, minWidth: '250px' }}>
-            <label style={labelStyle}>Search Patient</label>
-            <input 
-              type="text" placeholder="Name or Mobile..." 
-              style={{ ...inputStyle, marginBottom: 0 }} 
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+        <div style={{flex: 2, minWidth: '250px'}}>
+            <label style={labelStyle}>Global Search</label>
+            <input type="text" placeholder="Search by name, phone or ID..." style={{...inputStyle, marginBottom: 0}} onChange={(e) => setSearchTerm(e.target.value)} />
         </div>
-        <div style={{display: 'flex', gap: '10px', flex: 1}}>
-          <div style={{flex: 1}}>
-              <label style={labelStyle}>From</label>
-              <input type="date" style={{ ...inputStyle, marginBottom: 0 }} onChange={(e) => setStartDate(e.target.value)} />
+        {activeTab === 'bookings' && (
+          <div style={{display: 'flex', gap: '10px', flex: 1.5}}>
+            <div style={{flex: 1}}><label style={labelStyle}>Start Date</label><input type="date" style={{...inputStyle, marginBottom: 0}} onChange={(e) => setStartDate(e.target.value)} /></div>
+            <div style={{flex: 1}}><label style={labelStyle}>End Date</label><input type="date" style={{...inputStyle, marginBottom: 0}} onChange={(e) => setEndDate(e.target.value)} /></div>
           </div>
-          <div style={{flex: 1}}>
-              <label style={labelStyle}>To</label>
-              <input type="date" style={{ ...inputStyle, marginBottom: 0 }} onChange={(e) => setEndDate(e.target.value)} />
-          </div>
-        </div>
+        )}
       </div>
 
+      {/* Data Table */}
       <div className="table-container" style={tableContainerStyle}>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead style={{ background: '#1e3a8a', color: 'white' }}>
-            <tr>
-              <th style={thStyle}>ID</th>
-              <th style={thStyle} className="hide-mobile">Date</th>
-              <th style={thStyle}>Patient</th>
-              <th style={thStyle} className="hide-mobile">Test Details</th>
-              <th style={thStyle}>Payment</th>
-              <th style={thStyle}>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredBookings.map((b, i) => (
-              <tr key={i} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                <td className="td-cell" style={{ ...tdStyle, fontWeight: 'bold', color: '#1e3a8a' }}>
-                    #{b["Booking ID"] ? b["Booking ID"] : `ORD-${i}`}
-                </td>
-                <td className="td-cell hide-mobile" style={tdStyle}>{b["Collection Date"]}</td>
-                <td className="td-cell" style={tdStyle}>
-                  <strong style={{ color: '#0f172a' }}>{b["Patient Name"]}</strong><br/>
-                  <small style={{ color: '#64748b' }}>{b["Mobile Number"]}</small>
-                </td>
-                <td className="td-cell hide-mobile" style={tdStyle}>{b["Test Name"]}<br/><small style={{ color: '#1e40af' }}>Code: {b["Test Code"] || 'N/A'}</small></td>
-                <td className="td-cell" style={tdStyle}><span style={{ fontWeight: '700' }}>₹{b["Final Amount"]}</span></td>
-                <td className="td-cell" style={tdStyle}>
-                  <div className="action-btns" style={{display: 'flex'}}>
-                    <button onClick={() => openEditModal(b)} style={editBtnStyle}>✎</button>
-                    <button onClick={() => downloadBill(b)} style={billBtnStyle}>PDF</button>
-                  </div>
-                </td>
+        {activeTab === 'bookings' ? (
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead style={{ background: '#1e3a8a', color: 'white' }}>
+              <tr>
+                <th style={thStyle}>BOOKING ID</th>
+                <th style={thStyle}>PATIENT INFO</th>
+                <th style={thStyle} className="hide-mobile">TEST DESCRIPTION</th>
+                <th style={thStyle}>BILLING</th>
+                <th style={thStyle}>ACTIONS</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {filteredBookings.map((b, i) => (
+                <tr key={i} className="hover-row" style={{ borderBottom: '1px solid #f1f5f9', transition: '0.2s' }}>
+                  <td style={{...tdStyle, fontWeight: 'bold', color: '#1e3a8a'}}>#{b["Booking ID"] || 'N/A'}</td>
+                  <td style={tdStyle}><strong>{b["Patient Name"]}</strong><br/><small style={{color: '#64748b'}}>{b["Mobile Number"]}</small></td>
+                  <td style={tdStyle} className="hide-mobile">{b["Test Name"]}<br/><small style={{color: '#1e3a8a'}}>Lab: {b["Lab Name"]}</small></td>
+                  <td style={tdStyle}><strong>₹{b["Final Amount"]}</strong><br/><small style={{color: '#16a34a'}}>Paid: ₹{b["Paid Amount"] || 0}</small></td>
+                  <td style={tdStyle}>
+                    <div style={{display: 'flex', gap: '8px'}}>
+                        <button onClick={() => openEditModal(b)} style={editBtnStyle} title="Edit Details">✎</button>
+                        <button onClick={() => downloadBill(b)} style={billBtnStyle} title="Generate PDF">PDF</button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead style={{ background: '#ffbf00', color: '#000' }}>
+              <tr>
+                <th style={thStyle}>PATIENT NAME</th>
+                <th style={thStyle}>PHONE NUMBER</th>
+                <th style={thStyle}>COUPON CODE</th>
+                <th style={thStyle}>REG. DATE</th>
+                <th style={thStyle}>STATUS</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredRegs.map((r, i) => (
+                <tr key={i} className="hover-row" style={{ borderBottom: '1px solid #f1f5f9' }}>
+                  <td style={tdStyle}><strong>{r.name}</strong><br/><small>{r.email}</small></td>
+                  <td style={tdStyle}>{r.phone}</td>
+                  <td style={{...tdStyle, fontWeight: 'bold', color: '#1e3a8a', letterSpacing: '1px'}}>{r.code}</td>
+                  <td style={tdStyle}>{new Date(r.timestamp).toLocaleDateString()}</td>
+                  <td style={tdStyle}><span style={badgeStyle}>Active 15%</span></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
 
+      {/* Edit Modal Overlay */}
       {selectedPatient && (
         <div style={modalOverlayStyle}>
           <div className="modal-box" style={modalContentStyle}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px' }}>
-                <h3 style={{ margin: 0 }}>Edit Booking</h3>
-                <button onClick={() => setSelectedPatient(null)} style={{ border: 'none', background: 'none', fontSize: '20px', cursor: 'pointer' }}>✕</button>
+            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px'}}>
+                <h3 style={{margin: 0, color: '#1e3a8a'}}>Modify Record</h3>
+                <button onClick={() => setSelectedPatient(null)} style={{background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer'}}>×</button>
             </div>
-            <div style={{maxHeight: '70vh', overflowY: 'auto', paddingRight: '5px'}}>
-                <label style={labelStyle}>Patient Name:</label>
+            <div style={{maxHeight: '65vh', overflowY: 'auto', paddingRight: '10px'}}>
+                <label style={labelStyle}>Patient Name</label>
                 <input type="text" style={inputStyle} value={paymentData.pName} onChange={(e) => setPaymentData({...paymentData, pName: e.target.value})} />
                 
-                <label style={labelStyle}>Manual Test Code:</label>
+                <label style={labelStyle}>Internal Test Code</label>
                 <input type="text" style={inputStyle} value={paymentData.testCode} onChange={(e) => setPaymentData({...paymentData, testCode: e.target.value})} />
+                
+                <div style={{display: 'flex', gap: '15px'}}>
+                    <div style={{flex: 1}}>
+                        <label style={labelStyle}>Discount (₹)</label>
+                        <input type="number" style={inputStyle} value={paymentData.discount} onChange={(e) => setPaymentData({...paymentData, discount: e.target.value})} />
+                    </div>
+                    <div style={{flex: 1}}>
+                        <label style={labelStyle}>Amount Paid (₹)</label>
+                        <input type="number" style={inputStyle} value={paymentData.paid} onChange={(e) => setPaymentData({...paymentData, paid: e.target.value})} />
+                    </div>
+                </div>
 
-                <label style={labelStyle}>Discount (₹):</label>
-                <input type="number" style={inputStyle} value={paymentData.discount} onChange={(e) => setPaymentData({...paymentData, discount: e.target.value})} />
-                
-                <label style={labelStyle}>Amount Paid (₹):</label>
-                <input type="number" style={inputStyle} value={paymentData.paid} onChange={(e) => setPaymentData({...paymentData, paid: e.target.value})} />
-                
-                <div style={{ background: '#f8fafc', padding: '12px', borderRadius: '10px', marginTop: '10px', border: '1px dashed #cbd5e1' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px' }}>
-                    <span>Pending:</span>
-                    <strong style={{ color: 'red' }}>₹{(parseFloat(selectedPatient["Final Amount"]) - (parseFloat(paymentData.discount) || 0) - (parseFloat(paymentData.paid) || 0)).toFixed(2)}</strong>
-                  </div>
+                <div style={summaryBoxStyle}>
+                    <div style={{display: 'flex', justifyContent: 'space-between'}}>
+                        <span>Final Payable:</span>
+                        <strong>₹{(parseFloat(selectedPatient["Final Amount"]) - (parseFloat(paymentData.discount) || 0)).toFixed(2)}</strong>
+                    </div>
                 </div>
             </div>
-            <button onClick={handleUpdatePayment} style={btnStyle}>Save Changes</button>
+            <button onClick={handleUpdatePayment} style={btnStyle}>Commit Changes</button>
           </div>
         </div>
       )}
@@ -377,22 +410,29 @@ const AdminDashboard = () => {
   );
 };
 
-// Styles Objects
-const mainContainerStyle = { padding: '20px', backgroundColor: '#f1f5f9', minHeight: '100vh' };
-const filterPanelStyle = { display: 'flex', flexWrap: 'wrap', gap: '15px', marginBottom: '20px', backgroundColor: 'white', padding: '20px', borderRadius: '12px', boxShadow: '0 2px 10px rgba(0,0,0,0.05)' };
-const tableContainerStyle = { overflowX: 'auto', background: 'white', borderRadius: '16px', boxShadow: '0 4px 15px rgba(0,0,0,0.05)' };
-const statCardStyle = { background: 'white', padding: '20px', borderRadius: '16px', boxShadow: '0 4px 10px rgba(0,0,0,0.03)', border: '1px solid #e2e8f0' };
-const labelStyle = { fontSize: '10px', fontWeight: 'bold', color: '#64748b', textTransform: 'uppercase', marginBottom: '4px', display: 'block' };
-const thStyle = { padding: '15px', textAlign: 'left', fontSize: '13px' };
-const tdStyle = { padding: '15px', fontSize: '13px' };
-const inputStyle = { width: '100%', padding: '10px', marginTop: '5px', marginBottom: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box', outline: 'none' };
-const btnStyle = { width: '100%', marginTop: '15px', padding: '14px', background: '#1e3a8a', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer' };
-const logoutBtnStyle = { background: '#ef4444', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '10px', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px' };
-const editBtnStyle = { background: '#f1f5f9', color: '#1e3a8a', border: '1px solid #e2e8f0', padding: '8px 12px', borderRadius: '8px', marginRight: '5px', cursor: 'pointer' };
-const billBtnStyle = { background: '#16a34a', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '8px', cursor: 'pointer' };
-const modalOverlayStyle = { position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.6)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 };
-const modalContentStyle = { background: 'white', padding: '25px', borderRadius: '20px', width: '100%', maxWidth: '400px' };
-const loginContainerStyle = { height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', background: '#e2e8f0' };
-const loginBoxStyle = { background: 'white', padding: '40px', borderRadius: '24px', width: '90%', maxWidth: '360px' };
+// --- STYLES OBJECTS (EXPANDED FOR LENGTH & CLARITY) ---
+const mainContainerStyle = { padding: '30px', backgroundColor: '#f8fafc', minHeight: '100vh', fontFamily: "'Inter', sans-serif" };
+const headerContainerStyle = { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px', backgroundColor: '#fff', padding: '20px', borderRadius: '15px', boxShadow: '0 2px 10px rgba(0,0,0,0.02)' };
+const filterPanelStyle = { display: 'flex', flexWrap: 'wrap', gap: '20px', marginBottom: '25px', backgroundColor: 'white', padding: '20px', borderRadius: '15px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' };
+const tableContainerStyle = { overflowX: 'auto', background: 'white', borderRadius: '20px', boxShadow: '0 10px 25px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0' };
+const statsGridStyle = { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '20px', marginBottom: '30px' };
+const statCardStyle = { background: 'white', padding: '25px', borderRadius: '20px', boxShadow: '0 4px 12px rgba(0,0,0,0.03)', border: '1px solid #f1f5f9', textAlign: 'center' };
+const statLabelStyle = { fontSize: '11px', fontWeight: '900', color: '#64748b', letterSpacing: '1px' };
+const statValueStyle = { margin: '10px 0 0 0', color: '#1e3a8a', fontSize: '1.8rem', fontWeight: '800' };
+const labelStyle = { fontSize: '11px', fontWeight: 'bold', color: '#475569', textTransform: 'uppercase', marginBottom: '6px', display: 'block' };
+const thStyle = { padding: '18px 20px', textAlign: 'left', fontSize: '12px', letterSpacing: '0.5px' };
+const tdStyle = { padding: '18px 20px', fontSize: '13px', color: '#1e293b' };
+const inputStyle = { width: '100%', padding: '12px', marginTop: '5px', marginBottom: '15px', borderRadius: '10px', border: '1px solid #cbd5e1', fontSize: '14px', transition: '0.3s', outlineColor: '#1e3a8a' };
+const btnStyle = { width: '100%', marginTop: '20px', padding: '15px', background: '#1e3a8a', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer', fontSize: '15px' };
+const logoutBtnStyle = { background: '#ef4444', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '10px', cursor: 'pointer', fontWeight: '800', fontSize: '13px' };
+const refreshBtnStyle = { background: '#16a34a', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '10px', cursor: 'pointer', fontWeight: '800', fontSize: '13px' };
+const editBtnStyle = { background: '#f1f5f9', color: '#1e3a8a', border: '1px solid #e2e8f0', padding: '10px', borderRadius: '10px', cursor: 'pointer' };
+const billBtnStyle = { background: '#16a34a', color: 'white', border: 'none', padding: '10px 15px', borderRadius: '10px', cursor: 'pointer', fontWeight: 'bold' };
+const modalOverlayStyle = { position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(15, 23, 42, 0.6)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, backdropFilter: 'blur(4px)' };
+const modalContentStyle = { background: 'white', padding: '30px', borderRadius: '25px', width: '95%', maxWidth: '450px', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)' };
+const loginContainerStyle = { height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', background: '#f1f5f9' };
+const loginBoxStyle = { background: 'white', padding: '45px', borderRadius: '30px', width: '90%', maxWidth: '400px', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)' };
+const badgeStyle = { backgroundColor: '#dcfce7', color: '#166534', padding: '4px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold' };
+const summaryBoxStyle = { background: '#f8fafc', padding: '15px', borderRadius: '12px', marginTop: '15px', border: '1px dashed #cbd5e1' };
 
 export default AdminDashboard;
