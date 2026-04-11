@@ -99,11 +99,11 @@ const Register = () => {
     };
 
     try {
-      /**
+      /** 
        * BACKEND ENDPOINT (Google Apps Script)
        * This script now performs a VLOOKUP on the Phone column.
        */
-      const scriptEndpoint = 'https://script.google.com/macros/s/AKfycbyvOjZ4-cQ4ZmhOz72ddrRtluwTGKTf4MNGN0ObZqRzeBBxmcQb2WijHZvr8gk320kmJA/exec';
+      const scriptEndpoint = 'https://script.google.com/macros/s/AKfycbywGQySXu4O3yg-S7wCGhBTTtLo9LKaNtG7C4JBumvrwQN92BCb7jCno2PzHc4cg42mRg/exec';
 
       /**
        * Fetching with no-cors. 
