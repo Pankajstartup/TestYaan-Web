@@ -115,7 +115,7 @@ function BookingModal({ isOpen, onClose, testName, price, labName }) {
       // WhatsApp Message Logic
       const msg = `*Booking Confirmed! ✅*%0A%0A*ID:* ${bookingId}%0A*Patient:* ${formData.pPrefix} ${formData.pName}%0A*Gender:* ${formData.pGender}%0A*Test:* ${testName}%0A*Lab:* ${labName}%0A*Final Price:* ₹${finalPrice}%0A*Address:* ${formData.pAddress}`;
       
-      window.open(`https://wa.me/918130484197?text=${msg}`, '_blank');
+      window.open(`https://wa.me/919873271763?text=${msg}`, '_blank');
       setTimeout(() => {
         window.open(`https://wa.me/91${formData.pMobile}?text=${msg}`, '_blank');
       }, 1000);
