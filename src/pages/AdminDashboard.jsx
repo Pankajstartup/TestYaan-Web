@@ -180,7 +180,7 @@ const AdminDashboard = () => {
     doc.text("TESTYAAN", 50, 20);
     doc.setFontSize(9);
     doc.text("Advanced Diagnostics & Research Center", 50, 27);
-    doc.text("Email: Helpline.Testyaan@gmail.com | Ph: +91 8130484197", 50, 33);
+    doc.text("Email: Helpline.Testyaan@gmail.com | Ph: +91 9873271763", 50, 33);
 
     doc.setTextColor(0, 0, 0);
     doc.setFontSize(10);
