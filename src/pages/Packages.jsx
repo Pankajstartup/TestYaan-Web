@@ -87,7 +87,7 @@ const Packages = () => {
     <div style={{ backgroundColor: '#f8fafc', minHeight: '100vh', paddingBottom: '60px' }}>
       
       <SEO 
-        title="Full Body Checkup Packages Delhi NCR - Save 70%" 
+        title="TestYaan     Full Body Checkup Packages Delhi NCR - Save 70%" 
         description="Book affordable health checkup packages in Delhi, Tuglakabad & NCR. Compare Thyrocare, Dr Lal Pathlabs and more. Free home sample collection included."
         path="/packages"
         testsData={allPackages}

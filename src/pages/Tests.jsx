@@ -99,7 +99,7 @@ const Tests = () => {
     <div style={{ backgroundColor: '#f8fafc', minHeight: '100vh' }}>
       
       <SEO 
-        title="Book Blood Tests & Diagnostics Online in Delhi NCR" 
+        title="TestYaan          Book Blood Tests & Diagnostics Online in Delhi NCR" 
         description="Book CBC, Lipid, Thyroid, HbA1c and all individual lab tests at lowest prices in Delhi-NCR. Free Home Collection."
         path="/tests"
         testsData={allTests}
