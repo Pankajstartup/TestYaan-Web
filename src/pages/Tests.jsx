@@ -1,234 +1,216 @@
 import React, { useState, useEffect } from 'react';
-import Papa from 'papaparse'; 
-import CompareModal from '../components/CompareModal';
+import Papa from 'papaparse';
 import BookingModal from '../components/BookingModal';
-import { Helmet } from 'react-helmet-async';
-import SEO from '../components/SEO'; // SEO Component
+import CompareModal from '../components/CompareModal';
+import SEO from '../components/SEO';
 
-const colors = { 
-  primary: '#1e40af', 
-  secondary: '#3b82f6', 
-  accent: '#ffbf00', 
-  bg: '#ffffff', 
-  text: '#1e293b' 
-};
-
-function Tests() {
-  const [allTests, setAllTests] = useState([]); 
+const Tests = () => {
+  const [allTests, setAllTests] = useState([]);
   const [filteredTests, setFilteredTests] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedLab, setSelectedLab] = useState("All"); 
-  const [isLoading, setIsLoading] = useState(true);
-  const [compareList, setCompareList] = useState([]);
-  const [isCompareOpen, setIsCompareOpen] = useState(false);
-  const [isBookingOpen, setIsBookingOpen] = useState(false);
-  const [testToBook, setTestToBook] = useState(null);
+  const [activeLab, setActiveLab] = useState("All");
 
-  // --- 1. DATA FETCHING (Logic Safe) ---
+  const [selectedTest, setSelectedTest] = useState(null);
+  const [isBookingOpen, setIsBookingOpen] = useState(false);
+
+  const [compareList, setCompareList] = useState([]);
+  const [showCompareOverlay, setShowCompareOverlay] = useState(false);
+
+  // Dynamic Price Fetcher (Space & Case Proof)
+  const getPrice = (item) => {
+    if (!item) return 'N/A';
+    for (let key in item) {
+      if (item[key] !== undefined && item[key] !== null && item[key] !== '') {
+        const cleanKey = key.trim().toUpperCase();
+        if (cleanKey === 'RATE' || cleanKey === 'PRICE' || cleanKey === 'MRP') {
+          return item[key].toString().trim();
+        }
+      }
+    }
+    return 'N/A';
+  };
+
   useEffect(() => {
     const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vShYhNLxqm5dPsxN42c-unJ1ByWLnU3DmduiBdPkafMj_3NOH_AZohRJtZLLDvW76jfd_uL0VlvNlVx/pub?output=csv";
-    fetch(sheetUrl)
-      .then(res => res.text())
-      .then(csv => {
-        Papa.parse(csv, {
-          header: true,
-          skipEmptyLines: true,
-          complete: (res) => {
-            const onlyTests = res.data.filter(item => 
-              item.Type && item.Type.trim().toLowerCase() === 'test'
-            );
-            setAllTests(onlyTests);
-            setFilteredTests(onlyTests);
-            setIsLoading(false);
-          }
-        });
-      })
-      .catch(err => {
-        console.error("Error:", err);
-        setIsLoading(false);
+    fetch(sheetUrl).then(res => res.text()).then(csv => {
+      Papa.parse(csv, { 
+        header: true, 
+        skipEmptyLines: true,
+        transformHeader: header => header.trim(),
+        complete: (res) => {
+          // Exclude Packages to show only Tests
+          const testsData = res.data.filter(item => item['Test Name'] && item.Type?.trim() !== 'Package');
+          setAllTests(testsData);
+          setFilteredTests(testsData);
+        }
       });
+    });
   }, []);
 
-  // --- 2. FIXED SEARCH & FILTER LOGIC ---
   useEffect(() => {
-    const filtered = allTests.filter(item => {
-      const s = searchTerm.toLowerCase().trim();
-      const tName = (item['Test Name'] || "").toLowerCase();
-      const lName = (item['Lab Name'] || "").toLowerCase();
-      
-      const matchesSearch = tName.includes(s) || lName.includes(s);
-      const matchesLab = selectedLab === "All" || item['Lab Name'] === selectedLab;
-      
-      return matchesSearch && matchesLab;
-    });
-    setFilteredTests(filtered);
-  }, [searchTerm, selectedLab, allTests]);
+    let result = allTests;
+    if (activeLab !== "All") {
+      result = result.filter(test => {
+        const labVal = test['Lab Name'] || test['lab'] || test['Lab'] || "";
+        return labVal.toLowerCase().includes(activeLab.toLowerCase());
+      });
+    }
+    if (searchTerm) {
+      result = result.filter(test => 
+        test['Test Name']?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (test['Parameter'] && test['Parameter'].toLowerCase().includes(searchTerm.toLowerCase()))
+      );
+    }
+    setFilteredTests(result);
+  }, [searchTerm, activeLab, allTests]);
 
-  // --- 3. COMPARE HANDLERS ---
+  const openBooking = (test) => {
+    setSelectedTest(test);
+    setIsBookingOpen(true);
+  };
+
   const handleCompareClick = (test, isChecked) => {
     if (isChecked) {
-      if (compareList.length >= 3) return alert("Max 3 tests allowed!");
+      if (compareList.length >= 3) return alert("Maximum 3 tests compare kar sakte hain!");
       setCompareList([...compareList, test]);
     } else {
       setCompareList(compareList.filter(t => t['Test Name'] !== test['Test Name']));
     }
   };
 
-  const handleBooking = (test) => {
-    setTestToBook(test);
-    setIsBookingOpen(true);
+  const removeCompareItem = (name) => {
+    setCompareList(compareList.filter(t => t['Test Name'] !== name));
   };
 
-  const labOptions = ["All", ...Array.from(new Set(allTests.map(t => t['Lab Name']))).filter(Boolean)];
+  const labs = ["All", "Redcliffe Labs", "Thyrocare", "Dr Lal Pathlabs", "Metropolis"];
 
   return (
     <div style={{ backgroundColor: '#f8fafc', minHeight: '100vh' }}>
       
-      {/* --- RANK 1 SEO ENGINES --- */}
       <SEO 
-        title="Book Blood Tests Online - Compare Prices & Save 70%" 
-        description="Book CBC, KFT, LFT, Lipid Profile and more. Cheapest prices in Delhi NCR with home sample collection. Compare Dr Lal Pathlabs, Thyrocare and top NABL labs." 
+        title="Book Blood Tests & Diagnostics Online in Delhi NCR" 
+        description="Book CBC, Lipid, Thyroid, HbA1c and all individual lab tests at lowest prices in Delhi-NCR. Free Home Collection."
         path="/tests"
         testsData={allTests}
       />
 
-      <Helmet>
-        {/* Schema markup for Google Rich Results */}
-        <script type="application/ld+json">
-          {JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "MedicalBusiness",
-            "name": "TestYaan",
-            "description": "Book diagnostic tests online at discounted prices in Delhi NCR.",
-            "address": {
-              "@type": "PostalAddress",
-              "addressLocality": "Tuglakabad",
-              "addressRegion": "Delhi",
-              "addressCountry": "IN"
-            },
-            "priceRange": "₹₹",
-            "hasOfferCatalog": {
-              "@type": "OfferCatalog",
-              "name": "Diagnostic Tests",
-              "itemListElement": allTests.slice(0, 10).map((t, i) => ({
-                "@type": "Offer",
-                "itemOffered": {
-                  "@type": "Service",
-                  "name": t['Test Name']
-                },
-                "price": t['MRP'],
-                "priceCurrency": "INR"
-              }))
-            }
-          })}
-        </script>
-      </Helmet>
-
-      {/* Invisible H1 for Ranking Power */}
-      <h1 style={{ position: 'absolute', width: '1px', height: '1px', padding: '0', margin: '-1px', overflow: 'hidden', clip: 'rect(0,0,0,0)', border: '0' }}>
-        Cheap Blood Tests in Delhi NCR, Home Sample Collection Tuglakabad, Best Pathology Lab Prices
-      </h1>
-
-      {/* SECTION 1: HERO & SEARCH */}
+      {/* Hero Section */}
       <section className="universal-hero">
-        <div style={{ maxWidth: '1200px', margin: '0 auto', position: 'relative', zIndex: 10 }}>
-          <div className="city-badge">✨ Trusted Pathology Partner in Delhi-NCR</div>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', position: 'relative', zIndex: 2 }}>
+          <div className="city-badge">💫 Trusted Pathology Partner in Delhi-NCR</div>
           <h2 className="hero-title">Book Individual <br/>Lab Tests Online</h2>
           
           <div className="hero-search-wrapper">
             <input 
               type="text" 
               placeholder="Search for tests (e.g. CBC, Vitamin D, Thyroid)..." 
-              value={searchTerm}
+              style={{ color: '#333' }}
               onChange={(e) => setSearchTerm(e.target.value)}
-              autoFocus
+              value={searchTerm}
             />
             <button className="hero-search-button">FIND TEST</button>
           </div>
         </div>
-        <div style={{ position: 'absolute', top: '-10%', right: '-5%', width: '350px', height: '350px', background: 'rgba(255,255,255,0.05)', borderRadius: '50%', filter: 'blur(40px)' }}></div>
-        <div style={{ position: 'absolute', bottom: '-20%', left: '-5%', width: '250px', height: '250px', background: 'rgba(255,255,255,0.05)', borderRadius: '50%', filter: 'blur(40px)' }}></div>
       </section>
 
-      {/* SECTION 2: LAB FILTERS */}
-      <div style={{ padding: '40px 20px 20px', display: 'flex', gap: '12px', overflowX: 'auto', maxWidth: '1200px', margin: '0 auto', scrollbarWidth: 'none' }}>
-        {labOptions.map(lab => (
+      {/* Lab Filter Tabs */}
+      <div style={{ display: 'flex', gap: '12px', padding: '30px 20px', overflowX: 'auto', maxWidth: '1200px', margin: '0 auto' }}>
+        {labs.map(lab => (
           <button 
-            key={lab} 
-            onClick={() => setSelectedLab(lab)}
-            style={{ 
-              padding: '12px 28px', borderRadius: '50px', border: '1px solid #e2e8f0',
-              background: selectedLab === lab ? '#1e40af' : 'white',
-              color: selectedLab === lab ? 'white' : '#64748b',
-              cursor: 'pointer', fontWeight: '700', flexShrink: 0, transition: '0.3s',
-              boxShadow: selectedLab === lab ? '0 10px 20px rgba(30, 64, 175, 0.2)' : 'none'
+            key={lab}
+            onClick={() => setActiveLab(lab)}
+            style={{
+              padding: '10px 22px', borderRadius: '50px', fontWeight: '600', fontSize: '14px', cursor: 'pointer', flexShrink: 0, transition: '0.3s',
+              border: '1px solid #e2e8f0',
+              backgroundColor: activeLab === lab ? '#E31E25' : 'white',
+              color: activeLab === lab ? 'white' : '#64748b'
             }}
-          >{lab}</button>
+          >
+            {lab}
+          </button>
         ))}
       </div>
 
-      {/* SECTION 3: CARDS GRID */}
-      <div className="universal-grid" style={{ paddingBottom: '120px' }}>
-        {isLoading ? (
-          <div style={{gridColumn: '1/-1', textAlign:'center', padding: '50px'}}>
-             <div className="loading-spinner" style={{ border: '4px solid #f3f3f3', borderTop: '4px solid #1e40af', borderRadius: '50%', width: '40px', height: '40px', animation: 'spin 1s linear infinite', margin: '0 auto' }}></div>
-             <p style={{marginTop: '15px', fontWeight: '600', color: '#64748b'}}>Loading Tests...</p>
-          </div>
-        ) : (
-          filteredTests.map((item, index) => (
-            <div key={index} className="modern-card hover-card">
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px', alignItems: 'center' }}>
-                <div style={{ background: '#f8fafc', padding: '8px', borderRadius: '12px' }}>
-                  <img src={`/lab-logos/${item['Lab Logo']}`} alt={`${item['Lab Name']} logo`} style={{ height: '24px', objectFit: 'contain' }} onError={(e) => e.target.src = '/lab-logos/default.png'} />
-                </div>
-                
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <label style={{ fontSize: '11px', fontWeight: '800', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', color: '#64748b', textTransform: 'uppercase' }}>
-                    <input type="checkbox" style={{ transform: 'scale(1.2)' }} checked={compareList.some(t => t['Test Name'] === item['Test Name'])} onChange={(e) => handleCompareClick(item, e.target.checked)} />
-                    Compare
+      {/* Tests Grid */}
+      <div className="universal-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px', maxWidth: '1200px', margin: '0 auto', padding: '0 20px 60px' }}>
+        {filteredTests.map((test, i) => {
+          const testName = test['Test Name'] || test['name'] || test['Test'] || 'Diagnostic Test';
+          const labName = test['Lab Name'] || test['lab'] || 'Certified Lab';
+          const price = getPrice(test);
+
+          return (
+            <div key={i} className="modern-card hover-card" style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '16px', padding: '20px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                  <span style={{ backgroundColor: '#e0f2fe', color: '#0369a1', padding: '4px 10px', borderRadius: '20px', fontSize: '10px', fontWeight: '800' }}>
+                    {test['Type'] || 'TEST'}
+                  </span>
+                  
+                  <label style={{ fontSize: '12px', color: '#64748b', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontWeight: '600' }}>
+                    <input 
+                      type="checkbox" 
+                      checked={compareList.some(t => t['Test Name'] === testName)} 
+                      onChange={(e) => handleCompareClick(test, e.target.checked)} 
+                    /> COMPARE
                   </label>
                 </div>
+
+                <h3 style={{ fontSize: '1.2rem', color: '#0f172a', fontWeight: '800', marginBottom: '5px' }}>{testName}</h3>
+                
+                <div style={{ display: 'flex', gap: '8px', marginBottom: '15px', flexWrap: 'wrap' }}>
+                  {test['Fasting Status'] && (
+                    <span style={{ fontSize: '11px', color: '#dc2626', background: '#fee2e2', padding: '2px 8px', borderRadius: '5px', fontWeight: 'bold' }}>
+                      {test['Fasting Status']}
+                    </span>
+                  )}
+                  <span style={{ fontSize: '11px', color: '#1e40af', background: '#dbeafe', padding: '2px 8px', borderRadius: '5px', fontWeight: 'bold' }}>
+                    {labName}
+                  </span>
+                </div>
               </div>
 
-              <h3 style={{ fontSize: '1.25rem', fontWeight: '800', color: '#0f172a', marginBottom: '8px', lineHeight: '1.3' }}>{item['Test Name']}</h3>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '15px' }}>
-                  <span style={{ fontSize: '11px', color: '#dc2626', fontWeight: '800', background: '#fee2e2', padding: '3px 10px', borderRadius: '6px' }}>
-                    {item['Fasting Status'] || 'Non-Fasting'}
-                  </span>
-                  <span style={{ fontSize: '11px', color: '#1e40af', fontWeight: '800', background: '#e0e7ff', padding: '3px 10px', borderRadius: '6px' }}>
-                    {item['Lab Name']}
-                  </span>
-              </div>
-              
-              <div style={{ marginTop: 'auto', paddingTop: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #f1f5f9' }}>
+              <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: '15px', marginTop: '15px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
-                  <p style={{ fontSize: '11px', color: '#94a3b8', margin: 0, fontWeight: '700' }}>Starting Price</p>
-                  <span style={{ fontSize: '1.7rem', fontWeight: '900', color: '#1e40af' }}>₹{item['MRP']}</span>
+                  <div style={{ fontSize: '11px', color: '#64748b' }}>Starting Price</div>
+                  <div style={{ fontSize: '1.6rem', fontWeight: '900', color: '#E31E25' }}>₹{price}</div>
                 </div>
-                <button onClick={() => handleBooking(item)} className="confirm-btn" style={{ width: 'auto', padding: '12px 25px' }}>Book Now</button>
+                <button onClick={() => openBooking(test)} className="confirm-btn" style={{ padding: '10px 20px', fontSize: '13px', width: 'auto', background: '#E31E25', color: 'white', border: 'none', borderRadius: '10px', fontWeight: 'bold', cursor: 'pointer' }}>
+                  Book Now
+                </button>
               </div>
             </div>
-          ))
-        )}
+          );
+        })}
       </div>
 
-      {/* SECTION 4: COMPARE BAR & MODALS */}
-      {compareList.length > 0 && !isCompareOpen && (
-        <div style={{ position: 'fixed', bottom: '30px', left: '50%', transform: 'translateX(-50%)', background: '#0f172a', color: 'white', padding: '15px 35px', borderRadius: '100px', display: 'flex', gap: '25px', alignItems: 'center', zIndex: 5000, boxShadow: '0 20px 40px rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.1)' }}>
-          <span style={{fontWeight: '800', letterSpacing: '0.5px'}}>{compareList.length} Tests Selected</span>
-          <button onClick={() => setIsCompareOpen(true)} className="confirm-btn" style={{ background: '#fbbf24', color: '#000', width: 'auto', padding: '8px 25px' }}>Compare Now</button>
+      {/* Compare Overlay */}
+      {compareList.length > 0 && !showCompareOverlay && (
+        <div style={{ position: 'fixed', bottom: '25px', left: '50%', transform: 'translateX(-50%)', background: '#E31E25', color: 'white', padding: '15px 30px', borderRadius: '50px', display: 'flex', gap: '20px', alignItems: 'center', boxShadow: '0 15px 35px rgba(0,0,0,0.2)', zIndex: 4000 }}>
+          <span style={{fontWeight: '700'}}>{compareList.length} Tests Selected</span>
+          <button onClick={() => setShowCompareOverlay(true)} className="confirm-btn" style={{ background: '#ffbf00', color: '#1e3a8a', padding: '8px 20px', width: 'auto', boxShadow: 'none' }}>Compare Now</button>
         </div>
       )}
 
-      {isCompareOpen && <CompareModal compareList={compareList} onClose={() => setIsCompareOpen(false)} removeCompareItem={(n) => setCompareList(compareList.filter(t => t['Test Name'] !== n))} />}
-      
-      {isBookingOpen && testToBook && (
-        <BookingModal isOpen={isBookingOpen} onClose={() => setIsBookingOpen(false)} testName={testToBook['Test Name']} price={testToBook['MRP']} labName={testToBook['Lab Name']} />
+      {showCompareOverlay && (
+        <CompareModal 
+          compareList={compareList} 
+          onClose={() => setShowCompareOverlay(false)} 
+          removeCompareItem={removeCompareItem} 
+        />
       )}
 
-      <style>{` @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } } `}</style>
+      {/* Booking Modal */}
+      {isBookingOpen && selectedTest && (
+        <BookingModal 
+          isOpen={isBookingOpen} 
+          onClose={() => setIsBookingOpen(false)} 
+          testName={selectedTest['Test Name']} 
+          price={getPrice(selectedTest)} 
+          labName={selectedTest['Lab Name']} 
+        />
+      )}
     </div>
   );
-}
+};
 
 export default Tests;
