@@ -8,14 +8,14 @@ function LabPage() {
   const [labTests, setLabTests] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Helper to extract rate/price/mrp dynamically
+  // Dynamic Price Fetcher (Case & Space Proof)
   const getPrice = (item) => {
     if (!item) return 'N/A';
     for (let key in item) {
-      const cleanKey = key.trim().toUpperCase();
-      if (cleanKey === 'RATE' || cleanKey === 'PRICE' || cleanKey === 'MRP') {
-        if (item[key] && item[key].trim() !== '') {
-          return item[key].trim();
+      if (item[key] !== undefined && item[key] !== null && item[key] !== '') {
+        const cleanKey = key.trim().toUpperCase();
+        if (cleanKey === 'RATE' || cleanKey === 'PRICE' || cleanKey === 'MRP') {
+          return item[key].toString().trim();
         }
       }
     }
@@ -31,13 +31,13 @@ function LabPage() {
         Papa.parse(csv, {
           header: true,
           skipEmptyLines: true,
-          transformHeader: header => header.trim(), // Headers se extra spaces hatayega
+          transformHeader: header => header.trim(),
           complete: (results) => {
             const filtered = results.data.filter(test => {
-              const labFieldValue = test['Lab Name'] || test['lab'] || test['Lab'] || "";
-              if (!labFieldValue) return false;
+              const labNameVal = test['Lab Name'] || test['lab'] || test['Lab'] || "";
+              if (!labNameVal) return false;
 
-              const sheetLab = labFieldValue.toLowerCase();
+              const sheetLab = labNameVal.toLowerCase();
               const urlLab = currentLabId.toLowerCase();
 
               if (urlLab.includes('lal')) return sheetLab.includes('lal');
@@ -74,7 +74,7 @@ function LabPage() {
         <div className="test-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '25px', marginTop: '30px' }}>
           {labTests.length > 0 ? (
             labTests.map((test, index) => {
-              const testName = test['Test Name'] || test['name'] || test['Test'];
+              const testName = test['Test Name'] || test['name'] || test['Test'] || 'Diagnostic Test';
               const labName = test['Lab Name'] || test['lab'] || currentLabId;
               const logoUrl = test['Lab Logo'] || test['logoUrl'];
               const price = getPrice(test);
