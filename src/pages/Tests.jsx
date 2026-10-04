@@ -16,50 +16,54 @@ const Tests = () => {
   const [compareList, setCompareList] = useState([]);
   const [showCompareOverlay, setShowCompareOverlay] = useState(false);
 
-  // Dynamic Price Fetcher (Space & Case Proof)
-  const getPrice = (item) => {
-    if (!item) return 'N/A';
-    for (let key in item) {
-      if (item[key] !== undefined && item[key] !== null && item[key] !== '') {
-        const cleanKey = key.trim().toUpperCase();
-        if (cleanKey === 'RATE' || cleanKey === 'PRICE' || cleanKey === 'MRP') {
-          return item[key].toString().trim();
-        }
-      }
-    }
-    return 'N/A';
-  };
-
   useEffect(() => {
+    // Spreadsheet CSV URL
     const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vShYhNLxqm5dPsxN42c-unJ1ByWLnU3DmduiBdPkafMj_3NOH_AZohRJtZLLDvW76jfd_uL0VlvNlVx/pub?output=csv";
-    fetch(sheetUrl).then(res => res.text()).then(csv => {
-      Papa.parse(csv, { 
-        header: true, 
-        skipEmptyLines: true,
-        transformHeader: header => header.trim(),
-        complete: (res) => {
-          // Exclude Packages to show only Tests
-          const testsData = res.data.filter(item => item['Test Name'] && item.Type?.trim() !== 'Package');
-          setAllTests(testsData);
-          setFilteredTests(testsData);
-        }
+    
+    fetch(sheetUrl)
+      .then(res => res.text())
+      .then(csv => {
+        Papa.parse(csv, { 
+          header: true, 
+          skipEmptyLines: true,
+          transformHeader: header => header.trim().toLowerCase(), // ALL HEADERS TO LOWERCASE
+          complete: (res) => {
+            // Normalize all row keys to lowercase for 100% safe property reading
+            const normalizedData = res.data.map(row => {
+              const newRow = {};
+              for (let key in row) {
+                newRow[key.trim().toLowerCase()] = row[key] ? row[key].trim() : '';
+              }
+              return newRow;
+            });
+
+            // Filter out empty rows and keep non-packages
+            const testsData = normalizedData.filter(item => {
+              const name = item['test name'] || item['testname'] || item['name'];
+              return name && name !== '';
+            });
+
+            setAllTests(testsData);
+            setFilteredTests(testsData);
+          }
+        });
       });
-    });
   }, []);
 
   useEffect(() => {
     let result = allTests;
     if (activeLab !== "All") {
       result = result.filter(test => {
-        const labVal = test['Lab Name'] || test['lab'] || test['Lab'] || "";
+        const labVal = test['lab name'] || test['labname'] || test['lab'] || "";
         return labVal.toLowerCase().includes(activeLab.toLowerCase());
       });
     }
     if (searchTerm) {
-      result = result.filter(test => 
-        test['Test Name']?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (test['Parameter'] && test['Parameter'].toLowerCase().includes(searchTerm.toLowerCase()))
-      );
+      result = result.filter(test => {
+        const testName = test['test name'] || test['testname'] || test['name'] || "";
+        const param = test['parameter'] || "";
+        return testName.toLowerCase().includes(searchTerm.toLowerCase()) || param.toLowerCase().includes(searchTerm.toLowerCase());
+      });
     }
     setFilteredTests(result);
   }, [searchTerm, activeLab, allTests]);
@@ -70,16 +74,23 @@ const Tests = () => {
   };
 
   const handleCompareClick = (test, isChecked) => {
+    const testName = test['test name'] || test['testname'] || test['name'];
     if (isChecked) {
       if (compareList.length >= 3) return alert("Maximum 3 tests compare kar sakte hain!");
       setCompareList([...compareList, test]);
     } else {
-      setCompareList(compareList.filter(t => t['Test Name'] !== test['Test Name']));
+      setCompareList(compareList.filter(t => (t['test name'] || t['testname'] || t['name']) !== testName));
     }
   };
 
   const removeCompareItem = (name) => {
-    setCompareList(compareList.filter(t => t['Test Name'] !== name));
+    setCompareList(compareList.filter(t => (t['test name'] || t['testname'] || t['name']) !== name));
+  };
+
+  // Helper to extract Price safely
+  const getDisplayPrice = (test) => {
+    const p = test['rate'] || test['price'] || test['mrp'] || test['starting price'];
+    return (p && p !== '') ? p : 'N/A';
   };
 
   const labs = ["All", "Redcliffe Labs", "Thyrocare", "Dr Lal Pathlabs", "Metropolis"];
@@ -134,22 +145,24 @@ const Tests = () => {
       {/* Tests Grid */}
       <div className="universal-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px', maxWidth: '1200px', margin: '0 auto', padding: '0 20px 60px' }}>
         {filteredTests.map((test, i) => {
-          const testName = test['Test Name'] || test['name'] || test['Test'] || 'Diagnostic Test';
-          const labName = test['Lab Name'] || test['lab'] || 'Certified Lab';
-          const price = getPrice(test);
+          const testName = test['test name'] || test['testname'] || test['name'] || 'Diagnostic Test';
+          const labName = test['lab name'] || test['labname'] || test['lab'] || 'Certified Lab';
+          const fastingStatus = test['fasting status'] || test['fasting'] || '';
+          const testType = test['type'] || 'TEST';
+          const price = getDisplayPrice(test);
 
           return (
             <div key={i} className="modern-card hover-card" style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '16px', padding: '20px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
                   <span style={{ backgroundColor: '#e0f2fe', color: '#0369a1', padding: '4px 10px', borderRadius: '20px', fontSize: '10px', fontWeight: '800' }}>
-                    {test['Type'] || 'TEST'}
+                    {testType.toUpperCase()}
                   </span>
                   
                   <label style={{ fontSize: '12px', color: '#64748b', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontWeight: '600' }}>
                     <input 
                       type="checkbox" 
-                      checked={compareList.some(t => t['Test Name'] === testName)} 
+                      checked={compareList.some(t => (t['test name'] || t['testname'] || t['name']) === testName)} 
                       onChange={(e) => handleCompareClick(test, e.target.checked)} 
                     /> COMPARE
                   </label>
@@ -158,9 +171,9 @@ const Tests = () => {
                 <h3 style={{ fontSize: '1.2rem', color: '#0f172a', fontWeight: '800', marginBottom: '5px' }}>{testName}</h3>
                 
                 <div style={{ display: 'flex', gap: '8px', marginBottom: '15px', flexWrap: 'wrap' }}>
-                  {test['Fasting Status'] && (
+                  {fastingStatus && (
                     <span style={{ fontSize: '11px', color: '#dc2626', background: '#fee2e2', padding: '2px 8px', borderRadius: '5px', fontWeight: 'bold' }}>
-                      {test['Fasting Status']}
+                      {fastingStatus}
                     </span>
                   )}
                   <span style={{ fontSize: '11px', color: '#1e40af', background: '#dbeafe', padding: '2px 8px', borderRadius: '5px', fontWeight: 'bold' }}>
@@ -204,9 +217,9 @@ const Tests = () => {
         <BookingModal 
           isOpen={isBookingOpen} 
           onClose={() => setIsBookingOpen(false)} 
-          testName={selectedTest['Test Name']} 
-          price={getPrice(selectedTest)} 
-          labName={selectedTest['Lab Name']} 
+          testName={selectedTest['test name'] || selectedTest['name']} 
+          price={getDisplayPrice(selectedTest)} 
+          labName={selectedTest['lab name'] || selectedTest['lab']} 
         />
       )}
     </div>
