@@ -5,6 +5,23 @@ import CompareModal from '../components/CompareModal';
 import SEO from '../components/SEO';
 import { Helmet } from 'react-helmet-async';
 
+const featureBadgeStyle = {
+  background: 'white',
+  padding: '8px 14px',
+  borderRadius: '12px',
+  display: 'flex',
+  alignItems: 'center',
+  gap: '8px',
+  border: '1px solid #e2e8f0',
+  boxShadow: '0 2px 5px rgba(0,0,0,0.03)'
+};
+
+const featureTextStyle = {
+  fontSize: '12px',
+  fontWeight: '700',
+  color: '#334155'
+};
+
 const Home = () => {
   const [displayPackages, setDisplayPackages] = useState([]);
   const [allData, setAllData] = useState([]); 
@@ -122,52 +139,138 @@ const Home = () => {
         Online Lab Test Booking Delhi, Best Diagnostic Center Tuglakabad, Home Blood Test Collection NCR
       </h1>
 
-      {/* --- HERO SECTION --- */}
-      <section className="universal-hero">
-        <div style={{ maxWidth: '1200px', margin: '0 auto', position: 'relative', zIndex: 2 }}>
-          <h2 className="hero-title">
-            Compare & Book Lab Tests <br/>
-            <span style={{ color: '#ffbf00' }}>Delhi-NCR</span>
-          </h2>
-          <div className="city-badge">AVAILABLE IN DELHI-NCR</div>
-          <p style={{ margin: '10px 0 30px', fontSize: '1.1rem', opacity: 0.9 }}>
-            NABL Certified Labs | Free Home Collection | Lowest Price Guarantee
-          </p>
+      {/* --- HERO SECTION (EXACT REFERENCE DESIGN) --- */}
+      <section style={{ backgroundColor: '#f0f7ff', padding: '40px 20px 50px', position: 'relative', overflow: 'hidden' }}>
+        <div style={{ maxWidth: '1280px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '30px', flexWrap: 'wrap-reverse' }}>
           
-          <div style={{ maxWidth: '600px', margin: '0 auto', position: 'relative' }}>
-            <div style={{ display: 'flex', background: 'white', borderRadius: '50px', padding: '6px', boxShadow: '0 15px 35px rgba(0,0,0,0.2)' }}>
-              <input 
-                type="text" 
-                placeholder="Search for Tests or Packages (e.g. CBC, Lipid...)" 
-                style={{ flex: 1, border: 'none', padding: '14px 25px', borderRadius: '50px', outline: 'none', color: '#333', fontSize: '16px' }} 
-                value={searchTerm}
-                onChange={handleSearch}
-              />
-              <button style={{ backgroundColor: '#ffbf00', border: 'none', borderRadius: '50px', padding: '0 25px', cursor: 'pointer', fontSize: '18px' }}>🔍</button>
+          {/* LEFT SIDE CONTENT */}
+          <div style={{ flex: '1 1 550px', textAlign: 'left' }}>
+            <span style={{ fontSize: '13px', fontWeight: '800', color: '#64748b', letterSpacing: '1px', textTransform: 'uppercase' }}>
+              COMPARE & BOOK LAB TESTS
+            </span>
+            
+            <h1 style={{ fontSize: '3rem', fontWeight: '900', color: '#0f172a', margin: '10px 0', lineHeight: '1.1' }}>
+              Your Health, <br/>
+              <span style={{ color: '#E31E25' }}>Our Priority</span>
+            </h1>
+
+            <p style={{ color: '#475569', fontSize: '15px', fontWeight: '600', marginBottom: '25px' }}>
+              NABL Certified Labs | Free Home Collection | Lowest Price Guarantee
+            </p>
+
+            {/* 4 FEATURE BADGES */}
+            <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap', marginBottom: '30px' }}>
+              <div style={featureBadgeStyle}>
+                <span style={{ fontSize: '18px' }}>🛡️</span>
+                <span style={featureTextStyle}>NABL Accredited Labs</span>
+              </div>
+              <div style={featureBadgeStyle}>
+                <span style={{ fontSize: '18px' }}>🏠</span>
+                <span style={featureTextStyle}>Free Home Collection</span>
+              </div>
+              <div style={featureBadgeStyle}>
+                <span style={{ fontSize: '18px' }}>🏷️</span>
+                <span style={featureTextStyle}>Lowest Price Guarantee</span>
+              </div>
+              <div style={featureBadgeStyle}>
+                <span style={{ fontSize: '18px' }}>📋</span>
+                <span style={featureTextStyle}>Fast & Accurate Reports</span>
+              </div>
             </div>
 
-            {showSearchDropdown && searchResults.length > 0 && (
-              <div className="search-dropdown" style={{ position: 'absolute', top: '105%', left: 0, right: 0, backgroundColor: 'white', borderRadius: '15px', overflow: 'hidden', boxShadow: '0 10px 25px rgba(0,0,0,0.2)', zIndex: 99999, maxHeight: '400px', overflowY: 'visible', border: '1px solid #e2e8f0' }}>
-                {searchResults.map((item, i) => (
-                  <div key={i} style={{ padding: '12px 20px', borderBottom: '1px solid #f1f5f9', cursor: 'pointer', textAlign: 'left' }} onClick={() => openBooking(item)}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <div>
-                        <span style={item['Type'] === 'Package' ? { fontSize: '10px', background: '#fef3c7', color: '#92400e', padding: '2px 8px', borderRadius: '5px', fontWeight: 'bold' } : { fontSize: '10px', background: '#e0f2fe', color: '#0369a1', padding: '2px 8px', borderRadius: '5px', fontWeight: 'bold' }}>
-                          {item['Type'] || 'Test'}
-                        </span>
-                        <div style={{ fontWeight: '700', marginTop: '4px', color: '#1e293b' }}>{item['Test Name']}</div>
-                        <div style={{ fontSize: '11px', color: '#64748b' }}>By {item['Lab Name']}</div>
-                      </div>
-                      <div style={{ textAlign: 'right' }}>
-                        <div style={{ color: '#1e3a8a', fontWeight: '900', fontSize: '14px' }}>₹{getPrice(item)}</div>
-                        <div style={{ fontSize: '10px', color: '#dc2626' }}>{item['Fasting Status']}</div>
-                      </div>
-                    </div>
-                  </div>
+            {/* SEARCH BAR & POPULAR SEARCHES */}
+            <div style={{ position: 'relative', maxWidth: '650px' }}>
+              <div style={{ display: 'flex', background: 'white', borderRadius: '50px', padding: '6px 10px', boxShadow: '0 10px 30px rgba(0,0,0,0.08)', border: '1px solid #e2e8f0', alignItems: 'center' }}>
+                <span style={{ paddingLeft: '15px', fontSize: '18px', color: '#94a3b8' }}>🔍</span>
+                <input 
+                  type="text" 
+                  placeholder="Search for Tests or Packages (e.g. CBC, Lipid Profile, Thyroid...)" 
+                  style={{ flex: 1, border: 'none', padding: '12px 15px', outline: 'none', color: '#333', fontSize: '15px' }} 
+                  value={searchTerm}
+                  onChange={handleSearch}
+                />
+                <button style={{ backgroundColor: '#E31E25', color: 'white', border: 'none', borderRadius: '50px', padding: '12px 30px', fontWeight: 'bold', cursor: 'pointer', fontSize: '15px' }}>
+                  Search
+                </button>
+              </div>
+
+              {/* POPULAR SEARCH TAGS */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '15px', flexWrap: 'wrap', fontSize: '13px' }}>
+                <span style={{ fontWeight: '700', color: '#475569' }}>Popular Searches:</span>
+                {['CBC', 'Lipid Profile', 'Thyroid', 'Vitamin D', 'HbA1c', 'Liver Function'].map((tag) => (
+                  <span 
+                    key={tag} 
+                    onClick={() => { setSearchTerm(tag); handleSearch({ target: { value: tag } }); }}
+                    style={{ background: 'white', padding: '4px 12px', borderRadius: '20px', border: '1px solid #cbd5e1', cursor: 'pointer', color: '#334155', fontWeight: '600' }}
+                  >
+                    {tag}
+                  </span>
                 ))}
               </div>
-            )}
+
+              {/* DROPDOWN */}
+              {showSearchDropdown && searchResults.length > 0 && (
+                <div className="search-dropdown" style={{ position: 'absolute', top: '105%', left: 0, right: 0, backgroundColor: 'white', borderRadius: '15px', overflow: 'hidden', boxShadow: '0 10px 25px rgba(0,0,0,0.2)', zIndex: 99999, maxHeight: '400px', overflowY: 'visible', border: '1px solid #e2e8f0' }}>
+                  {searchResults.map((item, i) => (
+                    <div key={i} style={{ padding: '12px 20px', borderBottom: '1px solid #f1f5f9', cursor: 'pointer', textAlign: 'left' }} onClick={() => openBooking(item)}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div>
+                          <span style={item['Type'] === 'Package' ? { fontSize: '10px', background: '#fef3c7', color: '#92400e', padding: '2px 8px', borderRadius: '5px', fontWeight: 'bold' } : { fontSize: '10px', background: '#e0f2fe', color: '#0369a1', padding: '2px 8px', borderRadius: '5px', fontWeight: 'bold' }}>
+                            {item['Type'] || 'Test'}
+                          </span>
+                          <div style={{ fontWeight: '700', marginTop: '4px', color: '#1e293b' }}>{item['Test Name']}</div>
+                          <div style={{ fontSize: '11px', color: '#64748b' }}>By {item['Lab Name']}</div>
+                        </div>
+                        <div style={{ textAlign: 'right' }}>
+                          <div style={{ color: '#E31E25', fontWeight: '900', fontSize: '14px' }}>₹{getPrice(item)}</div>
+                          <div style={{ fontSize: '10px', color: '#dc2626' }}>{item['Fasting Status']}</div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
+
+          {/* RIGHT SIDE DOCTOR IMAGE */}
+          <div style={{ flex: '1 1 420px', display: 'flex', justifyContent: 'center', position: 'relative' }}>
+            <div style={{ position: 'relative', width: '100%', maxWidth: '450px' }}>
+              <img 
+                src="https://images.unsplash.com/photo-1594824813566-888553a1d94f?auto=format&fit=crop&w=800&q=80" 
+                alt="TestYaan Certified Doctor Sample Collection" 
+                style={{ 
+                  width: '100%', 
+                  height: '380px', 
+                  borderRadius: '24px', 
+                  objectFit: 'cover', 
+                  boxShadow: '0 20px 40px rgba(0,0,0,0.12)',
+                  border: '4px solid #ffffff'
+                }}
+              />
+              
+              {/* FLOATING TEXT BADGE ON IMAGE */}
+              <div style={{
+                position: 'absolute',
+                bottom: '20px',
+                left: '-15px',
+                background: 'white',
+                padding: '10px 18px',
+                borderRadius: '16px',
+                boxShadow: '0 10px 25px rgba(0,0,0,0.15)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px'
+              }}>
+                <span style={{ fontSize: '20px' }}>🩸</span>
+                <div>
+                  <div style={{ fontSize: '12px', fontWeight: '800', color: '#1e293b' }}>Healthy Today</div>
+                  <div style={{ fontSize: '11px', color: '#E31E25', fontWeight: '700' }}>Brighter Tomorrow</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
       </section>
 
@@ -226,7 +329,7 @@ const Home = () => {
 
       {/* --- FLOATING COMPARE BAR & MODALS --- */}
       {compareList.length > 0 && !showCompareOverlay && (
-        <div style={{ position: 'fixed', bottom: '25px', left: '50%', transform: 'translateX(-50%)', background: '#1e3a8a', color: 'white', padding: '15px 30px', borderRadius: '50px', display: 'flex', gap: '20px', alignItems: 'center', boxShadow: '0 15px 35px rgba(0,0,0,0.3)', zIndex: 4000 }}>
+        <div style={{ position: 'fixed', bottom: '25px', left: '50%', transform: 'translateX(-50%)', background: '#E31E25', color: 'white', padding: '15px 30px', borderRadius: '50px', display: 'flex', gap: '20px', alignItems: 'center', boxShadow: '0 15px 35px rgba(0,0,0,0.3)', zIndex: 4000 }}>
           <span style={{fontWeight: '700'}}>{compareList.length} Tests Selected</span>
           <button onClick={() => setShowCompareOverlay(true)} className="confirm-btn" style={{ background: '#ffbf00', color: '#1e3a8a', padding: '8px 20px', width: 'auto', boxShadow: 'none' }}>Compare Now</button>
         </div>
@@ -273,7 +376,7 @@ const Home = () => {
         @media (min-width: 1024px) { .test-grid-system { grid-template-columns: repeat(4, 1fr); } }
         @media (min-width: 1440px) { .test-grid-system { grid-template-columns: repeat(5, 1fr); } }
         .test-card-advanced { background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 18px; display: flex; flex-direction: column; transition: all 0.3s ease; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
-        .test-card-advanced:hover { transform: translateY(-5px); box-shadow: 0 12px 24px rgba(0,0,0,0.1); border-color: #3b82f6; }
+        .test-card-advanced:hover { transform: translateY(-5px); box-shadow: 0 12px 24px rgba(0,0,0,0.1); border-color: #E31E25; }
         .package-tag { background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 800; }
         .compare-checkbox { font-size: 12px; color: #64748b; display: flex; align-items: center; gap: 5px; cursor: pointer; }
         .card-title { font-size: 1.1rem; font-weight: 800; color: #1e293b; margin: 12px 0 4px; line-height: 1.3; height: 2.6em; overflow: hidden; }
