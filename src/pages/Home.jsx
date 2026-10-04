@@ -27,6 +27,12 @@ const Home = () => {
     { name: "Apollo", logo: "https://www.apollodiagnostics.in/assets/images/logo.png" }
   ];
 
+  // Helper function to safely get price/rate from item
+  const getPrice = (item) => {
+    if (!item) return 'N/A';
+    return item['RATE'] || item['price'] || item['rate'] || item['MRP'] || item['Mrp'] || 'N/A';
+  };
+
   useEffect(() => {
     const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vShYhNLxqm5dPsxN42c-unJ1ByWLnU3DmduiBdPkafMj_3NOH_AZohRJtZLLDvW76jfd_uL0VlvNlVx/pub?output=csv";
     fetch(sheetUrl).then(res => res.text()).then(csv => {
@@ -100,7 +106,7 @@ const Home = () => {
             "logo": "https://testyaan.online/favicon.png",
             "contactPoint": {
               "@type": "ContactPoint",
-              "telephone": "+91-YOUR-NUMBER",
+              "telephone": "+91-8130484197",
               "contactType": "customer service"
             },
             "location": {
@@ -111,7 +117,7 @@ const Home = () => {
         </script>
       </Helmet>
 
-      {/* Invisible H1 for Home Page Power */}
+      {/* Invisible H1 for SEO Power */}
       <h1 style={{ position: 'absolute', width: '1px', height: '1px', padding: '0', margin: '-1px', overflow: 'hidden', clip: 'rect(0,0,0,0)', border: '0' }}>
         Online Lab Test Booking Delhi, Best Diagnostic Center Tuglakabad, Home Blood Test Collection NCR
       </h1>
@@ -153,7 +159,7 @@ const Home = () => {
                         <div style={{ fontSize: '11px', color: '#64748b' }}>By {item['Lab Name']}</div>
                       </div>
                       <div style={{ textAlign: 'right' }}>
-                        <div style={{ color: '#1e3a8a', fontWeight: '900', fontSize: '14px' }}>₹{item['MRP']}</div>
+                        <div style={{ color: '#1e3a8a', fontWeight: '900', fontSize: '14px' }}>₹{getPrice(item)}</div>
                         <div style={{ fontSize: '10px', color: '#dc2626' }}>{item['Fasting Status']}</div>
                       </div>
                     </div>
@@ -165,7 +171,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Grid and Sliders remain same as your original code... */}
+      {/* --- PACKAGES GRID SECTION --- */}
       <section style={{ padding: '60px 20px', backgroundColor: '#f8fafc' }}>
         <h2 style={{ fontSize: '2.2rem', color: '#1e3a8a', fontWeight: '800', textAlign: 'center', marginBottom: '40px' }}>Top Health Packages</h2>
         
@@ -192,7 +198,7 @@ const Home = () => {
 
               <div className="card-footer">
                 <div className="price-box">
-                    <span className="mrp-text">₹{pkg['MRP']}</span>
+                    <span className="mrp-text">₹{getPrice(pkg)}</span>
                 </div>
                 <div className="button-group">
                   <button onClick={() => openParams(pkg)} className="details-btn">Details</button>
@@ -204,7 +210,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Logos and Modals remain same as your code... */}
+      {/* --- PARTNERS SLIDER --- */}
       <section style={{ padding: '60px 0', background: '#ffffff', borderTop: '1px solid #e2e8f0' }}>
           <h2 style={{ textAlign: 'center', color: '#1e3a8a', marginBottom: '40px', fontWeight: '800' }}>Our Associated Partners</h2>
           <div className="logos-slider">
@@ -218,7 +224,7 @@ const Home = () => {
           </div>
       </section>
 
-      {/* Floating Bar and Modals... */}
+      {/* --- FLOATING COMPARE BAR & MODALS --- */}
       {compareList.length > 0 && !showCompareOverlay && (
         <div style={{ position: 'fixed', bottom: '25px', left: '50%', transform: 'translateX(-50%)', background: '#1e3a8a', color: 'white', padding: '15px 30px', borderRadius: '50px', display: 'flex', gap: '20px', alignItems: 'center', boxShadow: '0 15px 35px rgba(0,0,0,0.3)', zIndex: 4000 }}>
           <span style={{fontWeight: '700'}}>{compareList.length} Tests Selected</span>
@@ -256,7 +262,7 @@ const Home = () => {
           isOpen={isBookingOpen} 
           onClose={() => setIsBookingOpen(false)} 
           testName={selectedPkg['Test Name']} 
-          price={selectedPkg['MRP']} 
+          price={getPrice(selectedPkg)} 
           labName={selectedPkg['Lab Name']} 
         />
       )}
@@ -274,10 +280,10 @@ const Home = () => {
         .card-lab { font-size: 12px; color: #64748b; margin-bottom: 12px; }
         .fasting-info { font-size: 12px; color: #dc2626; font-weight: 600; margin: 0; }
         .card-footer { margin-top: auto; padding-top: 15px; border-top: 1px solid #f1f5f9; }
-        .mrp-text { font-size: 1.5rem; font-weight: 900; color: #1e3a8a; }
+        .mrp-text { font-size: 1.5rem; font-weight: 900; color: #E31E25; }
         .button-group { display: flex; gap: 8px; margin-top: 12px; }
         .details-btn { flex: 1; padding: 8px; border-radius: 10px; border: 1px solid #e2e8f0; background: white; cursor: pointer; font-weight: 700; font-size: 12px; }
-        .book-btn { flex: 1; padding: 8px; border-radius: 10px; background: #1e3a8a; color: white; border: none; cursor: pointer; font-weight: 700; font-size: 12px; }
+        .book-btn { flex: 1; padding: 8px; border-radius: 10px; background: #E31E25; color: white; border: none; cursor: pointer; font-weight: 700; font-size: 12px; }
         @keyframes scroll { 0% { transform: translateX(0); } 100% { transform: translateX(calc(-200px * 5)); } }
         .logos-slider { overflow: hidden; position: relative; width: 100%; }
         .logos-track { display: flex; width: calc(200px * 10); animation: scroll 25s linear infinite; }
