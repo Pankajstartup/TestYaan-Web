@@ -18,20 +18,32 @@ const Packages = () => {
   const [compareList, setCompareList] = useState([]);
   const [showCompareOverlay, setShowCompareOverlay] = useState(false);
 
-  // Helper function to extract price safely from any column name
   const getPrice = (item) => {
     if (!item) return 'N/A';
-    return item['RATE'] || item['price'] || item['rate'] || item['MRP'] || item['Mrp'] || 'N/A';
+    for (let key in item) {
+      if (item[key] !== undefined && item[key] !== null && item[key] !== '') {
+        const cleanKey = key.trim().toUpperCase();
+        if (cleanKey === 'RATE' || cleanKey === 'PRICE' || cleanKey === 'MRP') {
+          return item[key].toString().trim();
+        }
+      }
+    }
+    return 'N/A';
   };
 
   useEffect(() => {
     const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vShYhNLxqm5dPsxN42c-unJ1ByWLnU3DmduiBdPkafMj_3NOH_AZohRJtZLLDvW76jfd_uL0VlvNlVx/pub?output=csv";
     fetch(sheetUrl).then(res => res.text()).then(csv => {
-      Papa.parse(csv, { header: true, complete: (res) => {
+      Papa.parse(csv, { 
+        header: true,
+        skipEmptyLines: true,
+        transformHeader: header => header.trim(),
+        complete: (res) => {
           const pkgs = res.data.filter(item => item.Type?.trim() === 'Package');
           setAllPackages(pkgs);
           setFilteredPackages(pkgs);
-      }});
+        }
+      });
     });
   }, []);
 
@@ -72,9 +84,8 @@ const Packages = () => {
   const labs = ["All", "Thyrocare", "Dr Lal Pathlabs", "Metropolis", "Redcliffe Labs"];
 
   return (
-    <div style={{ backgroundColor: '#f8fafc', minHeight: '100vh' }}>
+    <div style={{ backgroundColor: '#f8fafc', minHeight: '100vh', paddingBottom: '60px' }}>
       
-      {/* RANK 1 SEO ENGINES */}
       <SEO 
         title="Full Body Checkup Packages Delhi NCR - Save 70%" 
         description="Book affordable health checkup packages in Delhi, Tuglakabad & NCR. Compare Thyrocare, Dr Lal Pathlabs and more. Free home sample collection included."
@@ -98,12 +109,7 @@ const Packages = () => {
         </script>
       </Helmet>
 
-      {/* Invisible SEO Content for Google */}
-      <h1 style={{ position: 'absolute', width: '1px', height: '1px', padding: '0', margin: '-1px', overflow: 'hidden', clip: 'rect(0,0,0,0)', border: '0' }}>
-        Best Health Checkup Packages in Delhi, Full Body Test Tuglakabad, Cheap Diagnostic Packages NCR
-      </h1>
-
-      {/* 1. HERO SECTION */}
+      {/* Hero Section */}
       <section className="universal-hero">
         <div style={{ maxWidth: '1200px', margin: '0 auto', position: 'relative', zIndex: 2 }}>
           <div className="city-badge">🛡️ Complete Health Protection in Delhi-NCR</div>
@@ -120,11 +126,10 @@ const Packages = () => {
             <button className="hero-search-button">FIND</button>
           </div>
         </div>
-        <div style={{ position: 'absolute', top: '10%', left: '5%', width: '150px', height: '150px', background: 'rgba(255,255,255,0.1)', borderRadius: '50%' }}></div>
       </section>
 
-      {/* 2. LAB FILTERS */}
-      <div style={{ display: 'flex', gap: '12px', padding: '30px 20px', overflowX: 'auto', maxWidth: '1200px', margin: '0 auto' }}>
+      {/* Lab Filters */}
+      <div style={{ display: 'flex', gap: '12px', padding: '30px 20px', overflowX: 'auto', maxWidth: '1300px', margin: '0 auto' }}>
         {labs.map(lab => (
           <button 
             key={lab}
@@ -141,44 +146,46 @@ const Packages = () => {
         ))}
       </div>
 
-      {/* 3. CARDS GRID */}
-      <div className="universal-grid">
+      {/* 4 CARDS PER ROW GRID */}
+      <div className="package-grid-container">
         {filteredPackages.map((pkg, i) => (
-          <div key={i} className="modern-card hover-card">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
-              <span style={{ backgroundColor: '#fef3c7', color: '#92400e', padding: '4px 10px', borderRadius: '20px', fontSize: '10px', fontWeight: '800' }}>PACKAGE</span>
-              
-              <label style={{ fontSize: '12px', color: '#64748b', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontWeight: '600' }}>
-                <input 
-                  type="checkbox" 
-                  checked={compareList.some(t => t['Test Name'] === pkg['Test Name'])} 
-                  onChange={(e) => handleCompareClick(pkg, e.target.checked)} 
-                /> Compare
-              </label>
+          <div key={i} className="package-card-custom">
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                <span style={{ backgroundColor: '#fef3c7', color: '#92400e', padding: '4px 10px', borderRadius: '20px', fontSize: '10px', fontWeight: '800' }}>PACKAGE</span>
+                
+                <label style={{ fontSize: '12px', color: '#64748b', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontWeight: '600' }}>
+                  <input 
+                    type="checkbox" 
+                    checked={compareList.some(t => t['Test Name'] === pkg['Test Name'])} 
+                    onChange={(e) => handleCompareClick(pkg, e.target.checked)} 
+                  /> Compare
+                </label>
+              </div>
+
+              <h3 style={{ fontSize: '1.1rem', color: '#0f172a', fontWeight: '800', marginBottom: '6px', height: '2.6em', overflow: 'hidden', lineHeight: '1.3' }}>{pkg['Test Name']}</h3>
+              <p style={{ color: '#64748b', fontSize: '13px', marginBottom: '8px' }}>By {pkg['Lab Name']}</p>
+              {pkg['Fasting Status'] && (
+                <p style={{ fontSize: '12px', color: '#dc2626', fontWeight: '700', marginBottom: '15px' }}>🕒 {pkg['Fasting Status']}</p>
+              )}
             </div>
 
-            <h3 style={{ fontSize: '1.3rem', color: '#0f172a', fontWeight: '800', marginBottom: '5px' }}>{pkg['Test Name']}</h3>
-            <p style={{ color: '#64748b', fontSize: '14px', marginBottom: '10px' }}>Lab: {pkg['Lab Name']}</p>
-            <p style={{ fontSize: '12px', color: '#dc2626', fontWeight: '700', marginBottom: '15px' }}>🕒 {pkg['Fasting Status']}</p>
-            
-            <div style={{ flexGrow: 1 }}></div>
-
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto' }}>
-              <span style={{ fontSize: '1.7rem', fontWeight: '900', color: '#E31E25' }}>₹{getPrice(pkg)}</span>
-              <div style={{ display: 'flex', gap: '8px' }}>
-                <button onClick={() => openParams(pkg)} className="btn-secondary" style={{ padding: '8px 12px', borderRadius: '10px', border: '1px solid #e2e8f0', cursor: 'pointer', fontWeight: 'bold', fontSize: '12px' }}>Details</button>
-                <button onClick={() => openBooking(pkg)} className="confirm-btn" style={{ padding: '8px 12px', fontSize: '12px', width: 'auto', background: '#E31E25' }}>Book Now</button>
+            <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: '15px', marginTop: '15px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '1.5rem', fontWeight: '900', color: '#E31E25' }}>₹{getPrice(pkg)}</span>
+              <div style={{ display: 'flex', gap: '6px' }}>
+                <button onClick={() => openParams(pkg)} style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontWeight: 'bold', fontSize: '12px' }}>Details</button>
+                <button onClick={() => openBooking(pkg)} style={{ padding: '8px 12px', borderRadius: '8px', border: 'none', background: '#E31E25', color: '#fff', cursor: 'pointer', fontWeight: 'bold', fontSize: '12px' }}>Book</button>
               </div>
             </div>
           </div>
         ))}
       </div>
 
-      {/* Floating Bar and Modals */}
+      {/* Floating Compare Bar and Modals */}
       {compareList.length > 0 && !showCompareOverlay && (
         <div style={{ position: 'fixed', bottom: '25px', left: '50%', transform: 'translateX(-50%)', background: '#E31E25', color: 'white', padding: '15px 30px', borderRadius: '50px', display: 'flex', gap: '20px', alignItems: 'center', boxShadow: '0 15px 35px rgba(0,0,0,0.2)', zIndex: 4000 }}>
           <span style={{fontWeight: '700'}}>{compareList.length} Packages Selected</span>
-          <button onClick={() => setShowCompareOverlay(true)} className="confirm-btn" style={{ background: '#ffbf00', color: '#1e3a8a', padding: '8px 20px', width: 'auto', boxShadow: 'none' }}>Compare Now</button>
+          <button onClick={() => setShowCompareOverlay(true)} style={{ background: '#ffbf00', color: '#1e3a8a', border: 'none', padding: '8px 20px', borderRadius: '25px', fontWeight: 'bold', cursor: 'pointer' }}>Compare Now</button>
         </div>
       )}
 
@@ -192,7 +199,7 @@ const Packages = () => {
 
       {showParamModal && selectedPkg && (
         <div className="modal-overlay" onClick={() => setShowParamModal(false)}>
-          <div className="modal-content-wrapper" onClick={e => e.stopPropagation()}>
+          <div className="modal-content-wrapper" onClick={e => e.stopPropagation()} style={{ padding: '30px', borderRadius: '20px', maxWidth: '500px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
               <h2 style={{ fontSize: '1.4rem', color: '#1e3a8a', margin: 0 }}>Package Details</h2>
               <button onClick={() => setShowParamModal(false)} style={{ background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer', color: '#64748b' }}>✕</button>
@@ -202,7 +209,7 @@ const Packages = () => {
               <strong>Tests Included:</strong><br/>
               {selectedPkg['Parameter'] || "Details updated soon."}
             </div>
-            <button onClick={() => {setShowParamModal(false); openBooking(selectedPkg);}} className="confirm-btn" style={{ marginTop: '20px', background: '#E31E25' }}>Book This Package</button>
+            <button onClick={() => {setShowParamModal(false); openBooking(selectedPkg);}} style={{ marginTop: '20px', width: '100%', padding: '12px', background: '#E31E25', color: 'white', border: 'none', borderRadius: '10px', fontWeight: 'bold', cursor: 'pointer' }}>Book This Package</button>
           </div>
         </div>
       )}
@@ -216,6 +223,44 @@ const Packages = () => {
           labName={selectedPkg['Lab Name']} 
         />
       )}
+
+      {/* Dynamic Responsive 4-Column Grid Styles */}
+      <style>{`
+        .package-grid-container {
+          display: grid;
+          gap: 20px;
+          max-width: 1300px;
+          margin: 0 auto;
+          padding: 0 20px;
+          grid-template-columns: repeat(1, 1fr);
+        }
+        @media (min-width: 640px) {
+          .package-grid-container {
+            grid-template-columns: repeat(2, 1fr);
+          }
+        }
+        @media (min-width: 1024px) {
+          .package-grid-container {
+            grid-template-columns: repeat(4, 1fr);
+          }
+        }
+        .package-card-custom {
+          background: white;
+          border: 1px solid #e2e8f0;
+          border-radius: 16px;
+          padding: 18px;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+        .package-card-custom:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+          border-color: #E31E25;
+        }
+      `}</style>
     </div>
   );
 };
