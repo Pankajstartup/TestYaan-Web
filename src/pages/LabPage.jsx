@@ -9,9 +9,15 @@ function LabPage() {
   const [labTests, setLabTests] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Helper function to safely extract price/rate from sheet
+  const getPrice = (item) => {
+    if (!item) return 'N/A';
+    return item['RATE'] || item['price'] || item['rate'] || item['MRP'] || item['Mrp'] || 'N/A';
+  };
+
   useEffect(() => {
-    // Apka Spreadsheet CSV Link
-    const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSbxApGB2BZluOJ4nO9PXtMN2cRnibZE0dgcLQajFRQB1dkdpV1kdMild2-22tXEjEyipkdo8_dPcOx/pub?gid=0&single=true&output=csv";
+    // Spreadsheet CSV Link
+    const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vShYhNLxqm5dPsxN42c-unJ1ByWLnU3DmduiBdPkafMj_3NOH_AZohRJtZLLDvW76jfd_uL0VlvNlVx/pub?output=csv";
 
     fetch(sheetUrl)
       .then(res => res.text())
@@ -21,27 +27,22 @@ function LabPage() {
           skipEmptyLines: true,
           complete: (results) => {
             const filtered = results.data.filter(test => {
-              if (!test.lab) return false;
+              const labFieldValue = test['Lab Name'] || test.lab || "";
+              if (!labFieldValue) return false;
 
-              const sheetLab = test.lab.toLowerCase(); // Sheet me jo likha hai
-              const urlLab = currentLabId.toLowerCase(); // URL me jo hai (lalpath, metropolis, drdang)
+              const sheetLab = labFieldValue.toLowerCase();
+              const urlLab = currentLabId.toLowerCase();
 
-              // 1. Lal PathLabs Logic
               if (urlLab.includes('lal')) {
                 return sheetLab.includes('lal');
               }
-
-              // 2. Metropolis Logic (Handle spelling 'metropolish')
               if (urlLab.includes('metropolis')) {
                 return sheetLab.includes('metropolis') || sheetLab.includes('metropolish');
               }
-
-              // 3. Dr. Dang Logic
               if (urlLab.includes('dang')) {
                 return sheetLab.includes('dang');
               }
 
-              // Default: Agar koi aur lab ho
               return sheetLab.includes(urlLab);
             });
             
@@ -58,11 +59,11 @@ function LabPage() {
 
   return (
     <div className="lab-page" style={{ padding: '40px 20px', maxWidth: '1200px', margin: '0 auto' }}>
-      <Link to="/" style={{ textDecoration: 'none', color: '#0056b3', fontWeight: 'bold' }}>
+      <Link to="/" style={{ textDecoration: 'none', color: '#E31E25', fontWeight: 'bold' }}>
         ← Back to Home
       </Link>
       
-      <h2 style={{ marginTop: '30px', color: '#333', borderBottom: '2px solid #0056b3', paddingBottom: '10px' }}>
+      <h2 style={{ marginTop: '30px', color: '#333', borderBottom: '2px solid #E31E25', paddingBottom: '10px' }}>
         Tests at {currentLabId.toUpperCase()}
       </h2>
 
@@ -71,13 +72,13 @@ function LabPage() {
       ) : (
         <div className="test-grid" style={{ display: 'flex', flexWrap: 'wrap', gap: '25px', justifyContent: 'center', marginTop: '30px' }}>
           {labTests.length > 0 ? (
-            labTests.map(test => (
+            labTests.map((test, index) => (
               <LabCard 
-                key={test.id} 
-                name={test.name} 
-                price={test.price} 
-                lab={test.lab} 
-                logoUrl={test.logoUrl}
+                key={index} 
+                name={test['Test Name'] || test.name} 
+                price={getPrice(test)} 
+                lab={test['Lab Name'] || test.lab} 
+                logoUrl={test['Lab Logo'] || test.logoUrl}
               />
             ))
           ) : (

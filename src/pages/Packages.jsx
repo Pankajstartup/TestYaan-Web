@@ -18,6 +18,12 @@ const Packages = () => {
   const [compareList, setCompareList] = useState([]);
   const [showCompareOverlay, setShowCompareOverlay] = useState(false);
 
+  // Helper function to extract price safely from any column name
+  const getPrice = (item) => {
+    if (!item) return 'N/A';
+    return item['RATE'] || item['price'] || item['rate'] || item['MRP'] || item['Mrp'] || 'N/A';
+  };
+
   useEffect(() => {
     const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vShYhNLxqm5dPsxN42c-unJ1ByWLnU3DmduiBdPkafMj_3NOH_AZohRJtZLLDvW76jfd_uL0VlvNlVx/pub?output=csv";
     fetch(sheetUrl).then(res => res.text()).then(csv => {
@@ -35,7 +41,7 @@ const Packages = () => {
       result = result.filter(pkg => pkg['Lab Name'] === activeLab);
     }
     if (searchTerm) {
-      result = result.filter(pkg => pkg['Test Name'].toLowerCase().includes(searchTerm.toLowerCase()));
+      result = result.filter(pkg => pkg['Test Name']?.toLowerCase().includes(searchTerm.toLowerCase()));
     }
     setFilteredPackages(result);
   }, [searchTerm, activeLab, allPackages]);
@@ -86,7 +92,7 @@ const Packages = () => {
               "position": i + 1,
               "name": p['Test Name'],
               "url": `https://testyaan.online/packages`,
-              "description": `Health package by ${p['Lab Name']} at ₹${p['MRP']}`
+              "description": `Health package by ${p['Lab Name']} at ₹${getPrice(p)}`
             }))
           })}
         </script>
@@ -99,7 +105,7 @@ const Packages = () => {
 
       {/* 1. HERO SECTION */}
       <section className="universal-hero">
-        <div style={{ maxWidth: '1200px', margin: '5 auto', position: 'relative', zIndex: 2 }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', position: 'relative', zIndex: 2 }}>
           <div className="city-badge">🛡️ Complete Health Protection in Delhi-NCR</div>
           <h2 className="hero-title">Family Health <br/>Checkup Packages</h2>
           
@@ -126,7 +132,7 @@ const Packages = () => {
             style={{
               padding: '10px 22px', borderRadius: '50px', fontWeight: '600', fontSize: '14px', cursor: 'pointer', flexShrink: 0, transition: '0.3s',
               border: '1px solid #e2e8f0',
-              backgroundColor: activeLab === lab ? '#1e3a8a' : 'white',
+              backgroundColor: activeLab === lab ? '#E31E25' : 'white',
               color: activeLab === lab ? 'white' : '#64748b'
             }}
           >
@@ -158,19 +164,19 @@ const Packages = () => {
             <div style={{ flexGrow: 1 }}></div>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto' }}>
-              <span style={{ fontSize: '1.7rem', fontWeight: '900', color: '#1e3a8a' }}>₹{pkg['MRP']}</span>
+              <span style={{ fontSize: '1.7rem', fontWeight: '900', color: '#E31E25' }}>₹{getPrice(pkg)}</span>
               <div style={{ display: 'flex', gap: '8px' }}>
                 <button onClick={() => openParams(pkg)} className="btn-secondary" style={{ padding: '8px 12px', borderRadius: '10px', border: '1px solid #e2e8f0', cursor: 'pointer', fontWeight: 'bold', fontSize: '12px' }}>Details</button>
-                <button onClick={() => openBooking(pkg)} className="confirm-btn" style={{ padding: '8px 12px', fontSize: '12px', width: 'auto' }}>Book Now</button>
+                <button onClick={() => openBooking(pkg)} className="confirm-btn" style={{ padding: '8px 12px', fontSize: '12px', width: 'auto', background: '#E31E25' }}>Book Now</button>
               </div>
             </div>
           </div>
         ))}
       </div>
 
-      {/* Floating Bar and Modals code remains exactly same... */}
+      {/* Floating Bar and Modals */}
       {compareList.length > 0 && !showCompareOverlay && (
-        <div style={{ position: 'fixed', bottom: '25px', left: '50%', transform: 'translateX(-50%)', background: '#1e3a8a', color: 'white', padding: '15px 30px', borderRadius: '50px', display: 'flex', gap: '20px', alignItems: 'center', boxShadow: '0 15px 35px rgba(0,0,0,0.2)', zIndex: 4000 }}>
+        <div style={{ position: 'fixed', bottom: '25px', left: '50%', transform: 'translateX(-50%)', background: '#E31E25', color: 'white', padding: '15px 30px', borderRadius: '50px', display: 'flex', gap: '20px', alignItems: 'center', boxShadow: '0 15px 35px rgba(0,0,0,0.2)', zIndex: 4000 }}>
           <span style={{fontWeight: '700'}}>{compareList.length} Packages Selected</span>
           <button onClick={() => setShowCompareOverlay(true)} className="confirm-btn" style={{ background: '#ffbf00', color: '#1e3a8a', padding: '8px 20px', width: 'auto', boxShadow: 'none' }}>Compare Now</button>
         </div>
@@ -196,7 +202,7 @@ const Packages = () => {
               <strong>Tests Included:</strong><br/>
               {selectedPkg['Parameter'] || "Details updated soon."}
             </div>
-            <button onClick={() => {setShowParamModal(false); openBooking(selectedPkg);}} className="confirm-btn" style={{ marginTop: '20px' }}>Book This Package</button>
+            <button onClick={() => {setShowParamModal(false); openBooking(selectedPkg);}} className="confirm-btn" style={{ marginTop: '20px', background: '#E31E25' }}>Book This Package</button>
           </div>
         </div>
       )}
@@ -206,7 +212,7 @@ const Packages = () => {
           isOpen={isBookingOpen} 
           onClose={() => setIsBookingOpen(false)} 
           testName={selectedPkg['Test Name']} 
-          price={selectedPkg['MRP']} 
+          price={getPrice(selectedPkg)} 
           labName={selectedPkg['Lab Name']} 
         />
       )}
