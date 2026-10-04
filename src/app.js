@@ -1,67 +1,64 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async'; 
 import Home from './pages/Home';
 import Tests from './pages/Tests';
 import Packages from './pages/Packages'; 
-import './App.css';
+import './style.css';
 import AdminDashboard from './pages/AdminDashboard';
 import PrivacyPolicy from './pages/PrivacyPolicy'; 
 import ContactUs from './pages/ContactUs';
 import Register from './pages/Register';
 
-/**
- * TESTYAAN MAIN APPLICATION COMPONENT
- * Features: Modern Navigation, Multi-page Routing, Global Registration Modal
- * Verified Line Count: 140+ Lines
- */
-
 function App() {
   return (
     <HelmetProvider>
       <Router>
-        <div style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', overflowX: 'hidden' }}>
+        <div className="app-container">
           
-          {/* --- GLOBAL COMPONENTS --- */}
-          {/* Ye Modal puri website par har page par dikhega */}
+          {/* GLOBAL COMPONENTS */}
           <Register /> 
 
-          {/* --- MODERN ONE-LINE NAVIGATION BAR --- */}
-          <nav style={navStyle} className="main-navbar">
-            {/* 1. LEFT: BRAND LOGO */}
-            <div style={logoContainer}>
+          {/* TOP ANNOUNCEMENT BAR */}
+          <div className="top-bar">
+            <div>⚡ Get Up to 70% Off on NABL Accredited Lab Tests in Delhi-NCR</div>
+            <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
+              <a href="tel:+918130484197">
+                📞 Helpline: +91 8130484197
+              </a>
+            </div>
+          </div>
+
+          {/* MAIN NAVIGATION BAR */}
+          <nav className="main-navbar">
+            <div style={{ display: 'flex', alignItems: 'center' }}>
               <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
                 <img 
                   src="/logo.png" 
                   alt="TestYaan Logo" 
-                  style={{ height: '60px', width: 'auto' }} 
+                  style={{ height: '55px', width: 'auto' }} 
                   className="main-logo"
                   onError={(e) => { e.target.src = "https://via.placeholder.com/150?text=TestYaan"; }}
                 />
               </Link>
             </div>
             
-            {/* 2. CENTER: PRIMARY NAVIGATION LINKS */}
-            <div style={navLinks} className="navLinks">
-              <Link to="/" style={linkStyle} className="nav-item">Home</Link>
-              <Link to="/tests" style={linkStyle} className="nav-item">Lab Tests</Link>
-              <Link to="/packages" style={linkStyle} className="nav-item">Health Packages</Link>
+            <div className="nav-links">
+              <Link to="/" className="nav-item">Home</Link>
+              <Link to="/tests" className="nav-item">Lab Tests</Link>
+              <Link to="/packages" className="nav-item">Health Packages</Link>
+              <Link to="/contact" className="nav-item">Contact Us</Link>
             </div>
 
-            {/* 3. RIGHT: SUPPORT & CALL TO ACTION */}
-            <div style={rightSection} className="nav-right">
-              <div style={contactStyle} className="hide-mobile">
-                 <span style={{fontSize: '18px'}}>📞</span>
-                 <span style={{ fontWeight: '700', color: '#1e3a8a' }}>+91 8130484197</span>
-              </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }} className="nav-right">
               <Link to="/tests" style={{ textDecoration: 'none' }}>
-                <button style={ctaButtonStyle} className="cta-btn">Book Now</button>
+                <button className="cta-btn">Book Test Now</button>
               </Link>
             </div>
           </nav>
 
-          {/* --- MAIN CONTENT AREA: APPLICATION ROUTES --- */}
-          <div className="content-wrapper" style={{ minHeight: '80vh' }}>
+          {/* MAIN CONTENT ROUTES */}
+          <div className="content-wrapper">
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/tests" element={<Tests />} />
@@ -69,45 +66,46 @@ function App() {
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="/contact" element={<ContactUs />} />
-              {/* Catch-all route to redirect users back to Home */}
               <Route path="*" element={<Home />} />
             </Routes>
           </div>
 
-          {/* --- SITE FOOTER SECTION --- */}
-          <footer id="contact-section" style={footerStyle}>
-            <div style={footerContentGrid}>
-              
-              {/* Brand Identity in Footer */}
-              <div style={{ flex: 1, minWidth: '250px' }}>
+          {/* FOOTER */}
+          <footer id="contact-section" className="main-footer-style">
+            <div className="footer-content-grid">
+              <div style={{ flex: '1 1 300px' }}>
                 <img 
                   src="/logo.png" 
                   alt="TestYaan Footer Logo" 
                   style={{ height: '45px', marginBottom: '15px', filter: 'brightness(0) invert(1)' }} 
                 />
-                <p style={{ opacity: 0.8, lineHeight: '1.7', fontSize: '14px' }}>
+                <p style={{ opacity: 0.85, lineHeight: '1.7', fontSize: '14px' }}>
                   Delhi-NCR's premier digital health platform. We simplify diagnostics by 
                   allowing users to compare prices and book NABL certified lab tests online.
                 </p>
               </div>
 
-              {/* Quick Contact Information */}
-              <div style={{ flex: 1, minWidth: '200px' }}>
-                <h3 style={{ marginBottom: '20px', borderBottom: '2px solid #ffbf00', display: 'inline-block' }}>Contact Details</h3>
-                <p style={footerLinkStyle}>📍 Tuglakabad, New Delhi - 110044</p>
-                <p style={footerLinkStyle}>📧 Helpline.Testyaan@gmail.com</p>
-                <p style={footerLinkStyle}>📞 +91 8130484197</p>
+              <div style={{ flex: '1 1 180px' }}>
+                <h3 className="footer-header-style">Quick Links</h3>
+                <p><Link to="/tests" className="footer-bottom-link">All Lab Tests</Link></p>
+                <p><Link to="/packages" className="footer-bottom-link">Popular Packages</Link></p>
+                <p><Link to="/privacy" className="footer-bottom-link">Privacy Policy</Link></p>
+              </div>
+
+              <div style={{ flex: '1 1 250px' }}>
+                <h3 className="footer-header-style">Contact Details</h3>
+                <p className="footer-link-item">📍 Tuglakabad, New Delhi - 110044</p>
+                <p className="footer-link-item">📧 Helpline.Testyaan@gmail.com</p>
+                <p className="footer-link-item">📞 +91 8130484197</p>
               </div>
             </div>
             
-            {/* Legal and Copyright Bar */}
-            <div style={copyrightBarStyle}>
+            <div className="copyright-bar">
               <div>© 2026 TestYaan Diagnostics & Research. All Rights Reserved.</div>
-              
               <div style={{ marginTop: '12px', display: 'flex', gap: '20px', justifyContent: 'center' }}>
-                <Link to="/privacy" style={footerBottomLink}>Privacy Policy</Link>
-                <Link to="/contact" style={footerBottomLink}>Contact Us</Link>
-                <Link to="/admin" style={footerBottomLink}>Admin Login</Link>
+                <Link to="/privacy" className="footer-bottom-link">Privacy Policy</Link>
+                <Link to="/contact" className="footer-bottom-link">Contact Us</Link>
+                <Link to="/admin" className="footer-bottom-link">Admin Login</Link>
               </div>
             </div>
           </footer>
@@ -117,53 +115,5 @@ function App() {
     </HelmetProvider>
   );
 }
-
-/* --- ADVANCED UI STYLING OBJECTS --- */
-const navStyle = { 
-  display: 'flex', 
-  justifyContent: 'space-between', 
-  alignItems: 'center', 
-  padding: '12px 50px', 
-  backgroundColor: 'rgba(255,255,255,0.98)', 
-  backdropFilter: 'blur(15px)',
-  boxShadow: '0 4px 30px rgba(0,0,0,0.06)', 
-  position: 'sticky', 
-  top: 0, 
-  zIndex: 2000,
-  borderBottom: '1px solid #e2e8f0'
-};
-
-const logoContainer = { display: 'flex', alignItems: 'center', transition: '0.3s' };
-const navLinks = { display: 'flex', gap: '40px' };
-const linkStyle = { 
-  textDecoration: 'none', 
-  color: '#334155', 
-  fontWeight: '700', 
-  fontSize: '15px',
-  transition: '0.2s ease-in-out',
-  letterSpacing: '0.4px'
-};
-
-const rightSection = { display: 'flex', alignItems: 'center', gap: '30px' };
-const contactStyle = { display: 'flex', alignItems: 'center', gap: '10px', fontSize: '15px' };
-
-const ctaButtonStyle = { 
-  backgroundColor: '#1e3a8a', 
-  color: 'white', 
-  border: 'none', 
-  padding: '14px 32px', 
-  borderRadius: '12px', 
-  fontWeight: '800', 
-  cursor: 'pointer',
-  fontSize: '14px',
-  boxShadow: '0 8px 20px rgba(30, 58, 138, 0.25)',
-  transition: '0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
-};
-
-const footerStyle = { backgroundColor: '#1e3a8a', color: 'white', padding: '70px 50px 40px', marginTop: '0' };
-const footerContentGrid = { maxWidth: '1200px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '50px' };
-const footerLinkStyle = { marginBottom: '12px', fontSize: '14px', opacity: 0.9, display: 'flex', alignItems: 'center' };
-const copyrightBarStyle = { textAlign: 'center', marginTop: '60px', borderTop: '1px solid rgba(255,255,255,0.15)', paddingTop: '25px', fontSize: '13px', opacity: 0.7 };
-const footerBottomLink = { color: 'white', textDecoration: 'none', opacity: '0.9', fontWeight: '500' };
 
 export default App;
