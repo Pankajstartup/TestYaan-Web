@@ -12,8 +12,6 @@ import {
   Bell,
   ChevronDown
 } from 'lucide-react';
-// Yahan logo import kiya gaya hai
-import { logoData } from '../LogoData'; 
 
 const Navbar = ({ user = { name: 'Admin', role: 'Pathology Lab' } }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -31,22 +29,23 @@ const Navbar = ({ user = { name: 'Admin', role: 'Pathology Lab' } }) => {
   return (
     <nav className="bg-white border-b border-gray-200 fixed w-full z-30 top-0 shadow-sm">
       <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-20"> {/* Height increased for brand feel */}
+        <div className="flex justify-between h-20">
           <div className="flex">
             <div className="flex-shrink-0 flex items-center">
-              {/* Logo section updated for a professional brand look */}
               <Link to="/admin/dashboard" className="flex items-center gap-4 group transition-all">
                 <div className="bg-white p-1.5 rounded-xl shadow-md border border-gray-100 group-hover:scale-105 transition-transform duration-300">
+                  {/* Public folder wala logo.png use kiya gaya hai */}
                   <img 
-                    src={logoData} 
+                    src="/logo.png" 
                     alt="TestYaan Logo" 
                     className="h-12 w-auto object-contain" 
                     style={{ minWidth: '130px' }}
+                    onError={(e) => { e.target.src = "https://via.placeholder.com/150x50?text=TestYaan"; }}
                   />
                 </div>
                 <div className="hidden md:flex flex-col">
                   <span className="text-2xl font-black tracking-tighter text-slate-800 leading-none">
-                    TEST<span className="text-blue-600">YAAN</span>
+                    TEST<span className="text-red-600">YAAN</span>
                   </span>
                   <span className="text-[10px] uppercase tracking-[0.3em] font-bold text-gray-400 mt-1">
                     Pathology & Diagnostics
@@ -67,8 +66,8 @@ const Navbar = ({ user = { name: 'Admin', role: 'Pathology Lab' } }) => {
                     to={item.href}
                     className={`inline-flex items-center px-1 pt-1 text-sm font-semibold border-b-2 transition-colors ${
                       isActive 
-                        ? 'border-blue-600 text-blue-600' 
-                        : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-blue-500'
+                        ? 'border-red-600 text-red-600' 
+                        : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-red-500'
                     }`}
                   >
                     <Icon className="w-4 h-4 mr-2" />
@@ -88,11 +87,11 @@ const Navbar = ({ user = { name: 'Admin', role: 'Pathology Lab' } }) => {
               <input
                 type="text"
                 placeholder="Search patient/order..."
-                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg leading-5 bg-gray-50 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all sm:text-sm"
+                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg leading-5 bg-gray-50 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-500 transition-all sm:text-sm"
               />
             </div>
             
-            <button className="p-2 rounded-full text-gray-400 hover:bg-gray-100 hover:text-blue-600 transition-colors relative">
+            <button className="p-2 rounded-full text-gray-400 hover:bg-gray-100 hover:text-red-600 transition-colors relative">
               <Bell className="h-6 w-6" />
               <span className="absolute top-2 right-2 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-white"></span>
             </button>
@@ -100,9 +99,9 @@ const Navbar = ({ user = { name: 'Admin', role: 'Pathology Lab' } }) => {
             <div className="relative">
               <button
                 onClick={() => setIsProfileOpen(!isProfileOpen)}
-                className="flex items-center p-1 bg-gray-50 rounded-full border border-gray-200 hover:border-blue-300 transition-all focus:outline-none"
+                className="flex items-center p-1 bg-gray-50 rounded-full border border-gray-200 hover:border-red-300 transition-all focus:outline-none"
               >
-                <div className="h-9 w-9 rounded-full bg-gradient-to-tr from-blue-600 to-blue-400 flex items-center justify-center text-white font-bold shadow-sm">
+                <div className="h-9 w-9 rounded-full bg-gradient-to-tr from-red-600 to-red-400 flex items-center justify-center text-white font-bold shadow-sm">
                   {user.name[0]}
                 </div>
                 <div className="hidden md:block text-left ml-3 mr-1">
@@ -118,14 +117,12 @@ const Navbar = ({ user = { name: 'Admin', role: 'Pathology Lab' } }) => {
               Logout
             </button>
           </div>
-          
-          <h1 className="text-5xl font-bold text-red-600">TestYaan Setup Done!</h1>
 
           {/* Mobile menu button */}
           <div className="flex items-center lg:hidden">
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="inline-flex items-center justify-center p-2 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 focus:outline-none"
+              className="inline-flex items-center justify-center p-2 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 focus:outline-none"
             >
               {isOpen ? <X className="block h-6 w-6" /> : <Menu className="block h-6 w-6" />}
             </button>
