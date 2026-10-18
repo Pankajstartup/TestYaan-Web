@@ -27,12 +27,12 @@ const Home = () => {
   const [showCompareOverlay, setShowCompareOverlay] = useState(false);
 
   const labPartners = [
-    { name: "All Labs", logo: "🏥" },
-    { name: "Thyrocare", logo: "https://www.thyrocare.com/assets/images/logo.png" },
-    { name: "Dr Lal PathLabs", logo: "https://www.lalpathlabs.com/images/logo.png" },
-    { name: "Metropolis", logo: "https://www.metropolisindia.com/assets/images/logo.png" },
-    { name: "SRL Diagnostics", logo: "https://www.srlworld.com/assets/images/logo.png" },
-    { name: "Apollo", logo: "https://www.apollodiagnostics.in/assets/images/logo.png" }
+    { name: "All Labs", icon: "🏥" },
+    { name: "Thyrocare", icon: "🔴" },
+    { name: "Dr Lal PathLabs", icon: "🔵" },
+    { name: "Metropolis", icon: "🟢" },
+    { name: "SRL Diagnostics", icon: "🟡" },
+    { name: "Apollo", icon: "🟣" }
   ];
 
   const diseasesList = [
@@ -49,7 +49,6 @@ const Home = () => {
 
   const categoriesList = ['All', 'Male', 'Female', 'Senior Citizen', 'Adult', 'Child'];
 
-  // Case-Insensitive Column Value Extraction
   const getColValue = (item, keyName) => {
     if (!item) return '';
     const keys = Object.keys(item);
@@ -73,16 +72,13 @@ const Home = () => {
     });
   }, []);
 
-  // Filter Data Logic Across Labs, Categories, and Diseases
   const filterData = (data, lab, category, disease) => {
     let filtered = data;
 
-    // Filter by Lab
     if (lab !== 'All') {
       filtered = filtered.filter(item => getColValue(item, 'Lab Name').toLowerCase().includes(lab.toLowerCase()));
     }
 
-    // Filter Flyers for Slider
     const flyers = filtered.filter(item => {
       const flyerView = getColValue(item, 'FlyerView');
       const flyerImg = getColValue(item, 'FlyerImage');
@@ -91,7 +87,6 @@ const Home = () => {
     setFlyerPackages(flyers.length > 0 ? flyers : filtered.filter(item => getColValue(item, 'Type')?.trim() === 'Package').slice(0, 5));
     setCurrentSlide(0);
 
-    // Packages Grid Filtering
     let pkgs = filtered.filter(item => {
       const type = getColValue(item, 'Type');
       return type ? type.trim().toLowerCase() === 'package' : true;
@@ -121,7 +116,6 @@ const Home = () => {
     setDisplayPackages(pkgs.slice(0, 12));
   };
 
-  // Hero Slider Auto-Rotate Effect (Every 4.5 Seconds)
   useEffect(() => {
     if (flyerPackages.length <= 1) return;
     const interval = setInterval(() => {
@@ -191,12 +185,11 @@ const Home = () => {
   };
 
   return (
-    <div style={{ overflowX: 'hidden', backgroundColor: '#f8fafc' }}>
+    <div style={{ overflowX: 'hidden', backgroundColor: '#f1f5f9', fontFamily: 'Inter, system-ui, sans-serif' }}>
       
-      {/* HOME PAGE SEO ENGINES */}
       <SEO 
-        title="TestYaan | Multi-Lab Diagnostics Aggregator Delhi-NCR"
-        description="Compare and Book Blood Tests and Health Packages across NABL Certified Labs in Delhi-NCR. Compare Prices of Thyrocare, Dr Lal, SRL, Metropolis & Book Online."
+        title="TestYaan | Multi-Lab Health Aggregator & Comparison"
+        description="Compare and Book Blood Tests and Health Packages across NABL Accredited Labs in Delhi-NCR."
         path="/"
         testsData={allData.slice(0, 20)}
       />
@@ -206,69 +199,64 @@ const Home = () => {
           {JSON.stringify({
             "@context": "https://schema.org",
             "@type": "MedicalOrganization",
-            "name": "TestYaan Aggregator",
-            "url": "https://testyaan.online",
-            "logo": "https://testyaan.online/favicon.png",
-            "description": "Multi-Lab Diagnostics Comparison & Booking Marketplace"
+            "name": "TestYaan Marketplace",
+            "url": "https://testyaan.online"
           })}
         </script>
       </Helmet>
 
-      <h1 style={{ position: 'absolute', width: '1px', height: '1px', padding: '0', margin: '-1px', overflow: 'hidden', clip: 'rect(0,0,0,0)', border: '0' }}>
-        Compare & Book Tests Across All NABL Certified Labs in Delhi NCR - TestYaan Marketplace
-      </h1>
-
-      {/* --- TOP BRAND LAB SELECTOR BAR --- */}
-      <div style={{ background: '#ffffff', padding: '12px 15px', borderBottom: '1px solid #e2e8f0', boxShadow: '0 2px 10px rgba(0,0,0,0.03)' }}>
-        <div style={{ maxWidth: '1280px', margin: '0 auto', display: 'flex', alignItems: 'center', gap: '12px', overflowX: 'auto', paddingBottom: '4px' }}>
-          <span style={{ fontWeight: '800', fontSize: '12px', color: '#64748b', textTransform: 'uppercase', whiteSpace: 'nowrap', marginRight: '5px' }}>
-            Select Preferred Lab:
+      {/* --- GOIBIBO STYLE LAB SELECTION STRIP --- */}
+      <div style={{ background: '#0a192f', padding: '14px 20px', boxShadow: '0 4px 20px rgba(0,0,0,0.15)' }}>
+        <div style={{ maxWidth: '1280px', margin: '0 auto', display: 'flex', alignItems: 'center', gap: '14px', overflowX: 'auto' }}>
+          <span style={{ fontWeight: '800', fontSize: '11px', color: '#94a3b8', letterSpacing: '1px', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
+            Choose Certified Lab:
           </span>
-          {labPartners.map((partner) => (
-            <button
-              key={partner.name}
-              onClick={() => handleLabChange(partner.name === 'All Labs' ? 'All' : partner.name)}
-              style={{
-                background: (selectedLab === 'All' && partner.name === 'All Labs') || selectedLab === partner.name ? '#1e3a8a' : '#f1f5f9',
-                color: (selectedLab === 'All' && partner.name === 'All Labs') || selectedLab === partner.name ? 'white' : '#334155',
-                border: '1px solid #cbd5e1',
-                borderRadius: '25px',
-                padding: '6px 16px',
-                fontSize: '12px',
-                fontWeight: '700',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                whiteSpace: 'nowrap',
-                transition: 'all 0.2s ease'
-              }}
-            >
-              {typeof partner.logo === 'string' && partner.logo.startsWith('http') ? (
-                <img src={partner.logo} alt={partner.name} style={{ height: '18px', objectFit: 'contain' }} />
-              ) : (
-                <span>{partner.logo}</span>
-              )}
-              <span>{partner.name}</span>
-            </button>
-          ))}
+          {labPartners.map((partner) => {
+            const isSelected = (selectedLab === 'All' && partner.name === 'All Labs') || selectedLab === partner.name;
+            return (
+              <button
+                key={partner.name}
+                onClick={() => handleLabChange(partner.name === 'All Labs' ? 'All' : partner.name)}
+                style={{
+                  background: isSelected ? 'linear-gradient(135deg, #e11d48 0%, #be123c 100%)' : 'rgba(255,255,255,0.08)',
+                  color: 'white',
+                  border: isSelected ? '1px solid #fda4af' : '1px solid rgba(255,255,255,0.15)',
+                  borderRadius: '30px',
+                  padding: '8px 18px',
+                  fontSize: '13px',
+                  fontWeight: '700',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  whiteSpace: 'nowrap',
+                  boxShadow: isSelected ? '0 4px 15px rgba(225,29,72,0.4)' : 'none',
+                  transition: 'all 0.25s ease'
+                }}
+              >
+                <span>{partner.icon}</span>
+                <span>{partner.name}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      {/* --- HERO BANNER AUTO-SLIDER (DYNAMIC LAB FLYERS) --- */}
-      <section style={{ padding: '20px 15px', backgroundColor: '#eef2ff' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+      {/* --- PREMIUM AGODA/AMAZON STYLE HERO BANNER & SEARCH --- */}
+      <section style={{ background: 'linear-gradient(180deg, #0a192f 0%, #1e293b 100%)', padding: '30px 20px 50px', position: 'relative' }}>
+        <div style={{ maxWidth: '1240px', margin: '0 auto' }}>
           
+          {/* BANNER CAROUSEL */}
           {flyerPackages.length > 0 ? (
             <div 
               style={{ 
                 position: 'relative', 
                 borderRadius: '24px', 
                 overflow: 'hidden', 
-                boxShadow: '0 15px 35px rgba(0,0,0,0.1)', 
+                boxShadow: '0 20px 40px rgba(0,0,0,0.3)', 
                 cursor: 'pointer',
-                minHeight: '250px',
-                background: 'linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%)'
+                minHeight: '260px',
+                border: '1px solid rgba(255,255,255,0.1)'
               }}
               onClick={() => openParams(flyerPackages[currentSlide])}
             >
@@ -276,48 +264,56 @@ const Home = () => {
                 <img 
                   src={getColValue(flyerPackages[currentSlide], 'FlyerImage')} 
                   alt={getColValue(flyerPackages[currentSlide], 'Test Name')} 
-                  style={{ width: '100%', height: 'auto', maxHeight: '420px', objectFit: 'cover', display: 'block' }}
+                  style={{ width: '100%', height: 'auto', maxHeight: '400px', objectFit: 'cover', display: 'block' }}
                 />
               ) : (
-                /* Fallback Branded Card Design */
-                <div style={{ padding: '35px 30px', color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px' }}>
-                  <div style={{ maxWidth: '600px' }}>
-                    <span style={{ background: '#ffbf00', color: '#000', padding: '4px 10px', borderRadius: '6px', fontSize: '12px', fontWeight: 'bold' }}>
-                      FEATURED LAB OFFER
+                /* Premium Fallback Banner (Agoda Style Gradient) */
+                <div style={{ 
+                  padding: '40px 35px', 
+                  background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%)', 
+                  color: 'white', 
+                  display: 'flex', 
+                  justify: 'space-between', 
+                  alignItems: 'center', 
+                  flexWrap: 'wrap', 
+                  gap: '20px',
+                  borderRadius: '24px'
+                }}>
+                  <div style={{ maxWidth: '650px' }}>
+                    <span style={{ background: 'linear-gradient(90deg, #f59e0b, #fbbf24)', color: '#0f172a', padding: '5px 14px', borderRadius: '20px', fontSize: '12px', fontWeight: '900', letterSpacing: '0.5px' }}>
+                      ⚡ EXCLUSIVE MARKETPLACE OFFER
                     </span>
-                    <h2 style={{ fontSize: '2rem', margin: '12px 0 8px', fontWeight: '900', lineHeight: '1.2' }}>
+                    <h2 style={{ fontSize: '2.2rem', margin: '16px 0 10px', fontWeight: '900', lineHeight: '1.2', textShadow: '0 2px 10px rgba(0,0,0,0.2)' }}>
                       {getColValue(flyerPackages[currentSlide], 'Test Name')}
                     </h2>
-                    <p style={{ fontSize: '14px', opacity: '0.9', marginBottom: '18px' }}>
-                      Offered By: <strong>{getColValue(flyerPackages[currentSlide], 'Lab Name')}</strong> | NABL Certified
+                    <p style={{ fontSize: '15px', color: '#cbd5e1', marginBottom: '22px', fontWeight: '500' }}>
+                      Certified Lab Partner: <strong style={{ color: '#6366f1' }}>{getColValue(flyerPackages[currentSlide], 'Lab Name')}</strong> | NABL Accredited
                     </p>
-                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '15px', background: 'rgba(255,255,255,0.15)', padding: '8px 18px', borderRadius: '50px' }}>
-                      <span style={{ fontSize: '1.5rem', fontWeight: '900', color: '#ffbf00' }}>₹{getPrice(flyerPackages[currentSlide])}</span>
-                      <button style={{ background: '#E31E25', color: 'white', border: 'none', padding: '8px 20px', borderRadius: '30px', fontWeight: 'bold', cursor: 'pointer' }}>
-                        Book Now »
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '18px', background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(10px)', padding: '10px 22px', borderRadius: '50px', border: '1px solid rgba(255,255,255,0.2)' }}>
+                      <span style={{ fontSize: '1.8rem', fontWeight: '900', color: '#fbbf24' }}>₹{getPrice(flyerPackages[currentSlide])}</span>
+                      <button style={{ background: '#e11d48', color: 'white', border: 'none', padding: '10px 24px', borderRadius: '30px', fontWeight: '800', cursor: 'pointer', fontSize: '13px', boxShadow: '0 4px 15px rgba(225,29,72,0.4)' }}>
+                        Book Special Deal »
                       </button>
                     </div>
                   </div>
-                  <div style={{ fontSize: '90px', opacity: 0.2 }}>🩺</div>
+                  <div style={{ fontSize: '110px', opacity: 0.15, userSelect: 'none' }}>🩺</div>
                 </div>
               )}
             </div>
-          ) : (
-            <div style={{ padding: '40px', background: 'white', borderRadius: '24px', textAlign: 'center', color: '#64748b' }}>No lab flyers available for this selection.</div>
-          )}
+          ) : null}
 
-          {/* SLIDER DOT INDICATORS */}
+          {/* DOT INDICATORS */}
           {flyerPackages.length > 1 && (
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '12px' }}>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '16px' }}>
               {flyerPackages.map((_, idx) => (
                 <div 
                   key={idx} 
                   onClick={() => setCurrentSlide(idx)}
                   style={{ 
-                    width: currentSlide === idx ? '30px' : '10px', 
+                    width: currentSlide === idx ? '32px' : '10px', 
                     height: '8px', 
                     borderRadius: '10px', 
-                    background: currentSlide === idx ? '#E31E25' : '#cbd5e1', 
+                    background: currentSlide === idx ? '#e11d48' : 'rgba(255,255,255,0.3)', 
                     cursor: 'pointer',
                     transition: 'all 0.3s ease'
                   }}
@@ -326,37 +322,37 @@ const Home = () => {
             </div>
           )}
 
-          {/* SEARCH ENGINE UNDER SLIDER */}
-          <div style={{ position: 'relative', maxWidth: '720px', margin: '20px auto 0' }}>
-            <div style={{ display: 'flex', background: 'white', borderRadius: '50px', padding: '5px 8px', boxShadow: '0 8px 25px rgba(0,0,0,0.08)', border: '1px solid #cbd5e1', alignItems: 'center' }}>
-              <span style={{ paddingLeft: '15px', fontSize: '18px', color: '#94a3b8' }}>🔍</span>
+          {/* FLOATING MARKETPLACE SEARCH BAR */}
+          <div style={{ position: 'relative', maxWidth: '780px', margin: '30px auto 0' }}>
+            <div style={{ display: 'flex', background: 'white', borderRadius: '50px', padding: '6px 8px', boxShadow: '0 15px 35px rgba(0,0,0,0.25)', border: '2px solid #38bdf8', alignItems: 'center' }}>
+              <span style={{ paddingLeft: '18px', fontSize: '20px', color: '#0284c7' }}>🔍</span>
               <input 
                 type="text" 
-                placeholder="Search Tests, Packages or Labs (e.g. CBC, Thyrocare, Lipid...)" 
-                style={{ flex: 1, border: 'none', padding: '12px 12px', outline: 'none', color: '#333', fontSize: '15px' }} 
+                placeholder="Search Blood Tests, Packages or Diagnostic Labs (e.g. CBC, Thyrocare)..." 
+                style={{ flex: 1, border: 'none', padding: '14px 14px', outline: 'none', color: '#0f172a', fontSize: '15px', fontWeight: '600' }} 
                 value={searchTerm}
                 onChange={handleSearch}
               />
-              <button style={{ backgroundColor: '#E31E25', color: 'white', border: 'none', borderRadius: '50px', padding: '12px 28px', fontWeight: 'bold', cursor: 'pointer', fontSize: '15px' }}>
+              <button style={{ background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)', color: 'white', border: 'none', borderRadius: '50px', padding: '14px 32px', fontWeight: '800', cursor: 'pointer', fontSize: '15px', boxShadow: '0 4px 15px rgba(2,132,199,0.4)' }}>
                 Search
               </button>
             </div>
 
             {showSearchDropdown && searchResults.length > 0 && (
-              <div className="search-dropdown" style={{ position: 'absolute', top: '105%', left: 0, right: 0, backgroundColor: 'white', borderRadius: '15px', overflow: 'hidden', boxShadow: '0 10px 25px rgba(0,0,0,0.2)', zIndex: 99999, maxHeight: '350px', overflowY: 'auto', border: '1px solid #e2e8f0' }}>
+              <div className="search-dropdown" style={{ position: 'absolute', top: '108%', left: 0, right: 0, backgroundColor: 'white', borderRadius: '20px', overflow: 'hidden', boxShadow: '0 20px 40px rgba(0,0,0,0.3)', zIndex: 99999, maxHeight: '380px', overflowY: 'auto', border: '1px solid #cbd5e1' }}>
                 {searchResults.map((item, i) => (
-                  <div key={i} style={{ padding: '10px 15px', borderBottom: '1px solid #f1f5f9', cursor: 'pointer', textAlign: 'left' }} onClick={() => openBooking(item)}>
+                  <div key={i} style={{ padding: '12px 18px', borderBottom: '1px solid #f1f5f9', cursor: 'pointer', textAlign: 'left' }} onClick={() => openBooking(item)}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <div>
-                        <span style={getColValue(item, 'Type') === 'Package' ? { fontSize: '10px', background: '#fef3c7', color: '#92400e', padding: '2px 8px', borderRadius: '5px', fontWeight: 'bold' } : { fontSize: '10px', background: '#e0f2fe', color: '#0369a1', padding: '2px 8px', borderRadius: '5px', fontWeight: 'bold' }}>
+                        <span style={{ fontSize: '10px', background: '#e0f2fe', color: '#0369a1', padding: '2px 8px', borderRadius: '5px', fontWeight: '800' }}>
                           {getColValue(item, 'Type') || 'Test'}
                         </span>
-                        <div style={{ fontWeight: '700', marginTop: '2px', color: '#1e293b', fontSize: '13px' }}>{getColValue(item, 'Test Name')}</div>
-                        <div style={{ fontSize: '11px', color: '#64748b' }}>By {getColValue(item, 'Lab Name')}</div>
+                        <div style={{ fontWeight: '800', marginTop: '3px', color: '#0f172a', fontSize: '14px' }}>{getColValue(item, 'Test Name')}</div>
+                        <div style={{ fontSize: '12px', color: '#64748b' }}>Lab: {getColValue(item, 'Lab Name')}</div>
                       </div>
                       <div style={{ textAlign: 'right' }}>
-                        <div style={{ color: '#E31E25', fontWeight: '900', fontSize: '14px' }}>₹{getPrice(item)}</div>
-                        <div style={{ fontSize: '10px', color: '#dc2626' }}>{getColValue(item, 'Fasting Status')}</div>
+                        <div style={{ color: '#e11d48', fontWeight: '900', fontSize: '15px' }}>₹{getPrice(item)}</div>
+                        <div style={{ fontSize: '11px', color: '#059669', fontWeight: '700' }}>{getColValue(item, 'Fasting Status')}</div>
                       </div>
                     </div>
                   </div>
@@ -368,59 +364,68 @@ const Home = () => {
         </div>
       </section>
 
-      {/* --- BROWSE BY ORGAN / DISEASE SECTION --- */}
-      <section style={{ padding: '30px 20px 15px', backgroundColor: '#ffffff', borderBottom: '1px solid #e2e8f0' }}>
+      {/* --- ORGAN / CONDITION CARDS (AMAZON STYLE CATEGORIES) --- */}
+      <section style={{ padding: '40px 20px 20px', backgroundColor: '#ffffff', borderBottom: '1px solid #e2e8f0' }}>
         <div style={{ maxWidth: '1280px', margin: '0 auto', textAlign: 'center' }}>
-          <h2 style={{ fontSize: '1.6rem', color: '#1e3a8a', fontWeight: '800', marginBottom: '6px' }}>Filter Tests By Organ / Condition</h2>
-          <p style={{ color: '#64748b', fontSize: '13px', marginBottom: '20px' }}>Select an organ category to compare test rates across all labs</p>
+          <h2 style={{ fontSize: '1.8rem', color: '#0f172a', fontWeight: '900', marginBottom: '6px' }}>
+            Browse Tests By Organ / Health Condition
+          </h2>
+          <p style={{ color: '#64748b', fontSize: '14px', marginBottom: '28px' }}>Select an organ category to compare test rates across all labs</p>
           
-          <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap' }}>
-            {diseasesList.map(d => (
-              <button
-                key={d.name}
-                onClick={() => handleDiseaseChange(d.name)}
-                style={{
-                  background: activeDisease === d.name ? '#1e3a8a' : '#f8fafc',
-                  color: activeDisease === d.name ? 'white' : '#334155',
-                  border: '1px solid #cbd5e1',
-                  borderRadius: '12px',
-                  padding: '8px 16px',
-                  fontWeight: '700',
-                  fontSize: '13px',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  boxShadow: activeDisease === d.name ? '0 4px 12px rgba(30,58,138,0.2)' : 'none'
-                }}
-              >
-                <span>{d.icon}</span>
-                <span>{d.name}</span>
-              </button>
-            ))}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '14px', maxWidth: '1100px', margin: '0 auto' }}>
+            {diseasesList.map(d => {
+              const isActive = activeDisease === d.name;
+              return (
+                <div
+                  key={d.name}
+                  onClick={() => handleDiseaseChange(d.name)}
+                  style={{
+                    background: isActive ? 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)' : '#f8fafc',
+                    color: isActive ? 'white' : '#334155',
+                    border: isActive ? 'none' : '1px solid #e2e8f0',
+                    borderRadius: '18px',
+                    padding: '16px 10px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justify: 'center',
+                    gap: '8px',
+                    boxShadow: isActive ? '0 8px 20px rgba(2,132,199,0.3)' : '0 2px 5px rgba(0,0,0,0.02)',
+                    transition: 'all 0.25s ease'
+                  }}
+                  className="organ-card"
+                >
+                  <span style={{ fontSize: '28px' }}>{d.icon}</span>
+                  <span style={{ fontSize: '13px', fontWeight: '800' }}>{d.name}</span>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
 
-      {/* --- GENDER & AGE CATEGORY TABS + PACKAGES GRID --- */}
-      <section style={{ padding: '35px 20px 60px' }}>
+      {/* --- DEMOGRAPHIC PACKAGES GRID --- */}
+      <section style={{ padding: '45px 20px 70px' }}>
         <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
           
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginBottom: '30px', flexWrap: 'wrap' }}>
+          {/* Demographic Filter Tabs */}
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginBottom: '35px', flexWrap: 'wrap' }}>
             {categoriesList.map(cat => (
               <button
                 key={cat}
                 onClick={() => handleCategoryChange(cat)}
                 style={{
-                  background: activeCategory === cat ? '#E31E25' : 'white',
+                  background: activeCategory === cat ? '#e11d48' : 'white',
                   color: activeCategory === cat ? 'white' : '#475569',
-                  border: activeCategory === cat ? 'none' : '1px solid #e2e8f0',
-                  padding: '8px 18px',
-                  borderRadius: '20px',
-                  fontWeight: '700',
-                  fontSize: '12px',
+                  border: activeCategory === cat ? 'none' : '1px solid #cbd5e1',
+                  padding: '10px 22px',
+                  borderRadius: '30px',
+                  fontWeight: '800',
+                  fontSize: '13px',
                   cursor: 'pointer',
-                  boxShadow: activeCategory === cat ? '0 4px 12px rgba(227,30,37,0.2)' : 'none'
+                  boxShadow: activeCategory === cat ? '0 6px 18px rgba(225,29,72,0.3)' : 'none',
+                  transition: 'all 0.2s ease'
                 }}
               >
                 {cat === 'All' ? 'All Demographic Packages' : cat}
@@ -428,7 +433,7 @@ const Home = () => {
             ))}
           </div>
 
-          <h2 style={{ fontSize: '1.7rem', color: '#1e3a8a', fontWeight: '800', textAlign: 'center', marginBottom: '25px' }}>
+          <h2 style={{ fontSize: '1.8rem', color: '#0f172a', fontWeight: '900', textAlign: 'center', marginBottom: '30px' }}>
             {selectedLab !== 'All' ? `${selectedLab} Packages` : 'Top Health Packages Across Labs'}
           </h2>
 
@@ -451,7 +456,7 @@ const Home = () => {
                   </div>
 
                   <h3 className="card-title">{testName}</h3>
-                  <p className="card-lab">Lab: {labName}</p>
+                  <p className="card-lab">Lab: <strong>{labName}</strong></p>
                   
                   <div className="card-info">
                     <p className="fasting-info">🕒 {fasting || 'No Fasting Required'}</p>
@@ -475,9 +480,9 @@ const Home = () => {
 
       {/* --- FLOATING COMPARE BAR & MODALS --- */}
       {compareList.length > 0 && !showCompareOverlay && (
-        <div style={{ position: 'fixed', bottom: '25px', left: '50%', transform: 'translateX(-50%)', background: '#E31E25', color: 'white', padding: '14px 28px', borderRadius: '50px', display: 'flex', gap: '18px', alignItems: 'center', boxShadow: '0 15px 35px rgba(0,0,0,0.3)', zIndex: 4000 }}>
-          <span style={{fontWeight: '700'}}>{compareList.length} Tests Selected</span>
-          <button onClick={() => setShowCompareOverlay(true)} className="confirm-btn" style={{ background: '#ffbf00', color: '#1e3a8a', padding: '8px 20px', width: 'auto', boxShadow: 'none' }}>Compare Now</button>
+        <div style={{ position: 'fixed', bottom: '25px', left: '50%', transform: 'translateX(-50%)', background: '#e11d48', color: 'white', padding: '14px 28px', borderRadius: '50px', display: 'flex', gap: '18px', alignItems: 'center', boxShadow: '0 15px 35px rgba(225,29,72,0.4)', zIndex: 4000 }}>
+          <span style={{fontWeight: '800'}}>{compareList.length} Tests Selected</span>
+          <button onClick={() => setShowCompareOverlay(true)} className="confirm-btn" style={{ background: '#fbbf00', color: '#0f172a', padding: '8px 22px', width: 'auto', boxShadow: 'none', fontWeight: '900' }}>Compare Now</button>
         </div>
       )}
 
@@ -491,21 +496,21 @@ const Home = () => {
 
       {showParamModal && selectedPkg && (
         <div className="modal-overlay" onClick={() => setShowParamModal(false)}>
-          <div className="modal-content-wrapper" onClick={e => e.stopPropagation()} style={{ padding: '30px', borderRadius: '24px', maxWidth: '500px' }}>
+          <div className="modal-content-wrapper" onClick={e => e.stopPropagation()} style={{ padding: '30px', borderRadius: '24px', maxWidth: '520px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
-              <h2 style={{ fontSize: '1.4rem', color: '#1e3a8a', margin: 0 }}>Package Details</h2>
+              <h2 style={{ fontSize: '1.4rem', color: '#0f172a', margin: 0, fontWeight: '900' }}>Package Details</h2>
               <button onClick={() => setShowParamModal(false)} style={{ background: 'none', border: 'none', fontSize: '22px', cursor: 'pointer', color: '#64748b' }}>✕</button>
             </div>
-            <p style={{ fontWeight: '800', color: '#0f172a', marginBottom: '5px' }}>{getColValue(selectedPkg, 'Test Name')}</p>
-            <p style={{ fontSize: '12px', color: '#64748b', marginBottom: '15px' }}>By {getColValue(selectedPkg, 'Lab Name')}</p>
+            <p style={{ fontWeight: '800', color: '#0f172a', marginBottom: '4px', fontSize: '1.1rem' }}>{getColValue(selectedPkg, 'Test Name')}</p>
+            <p style={{ fontSize: '13px', color: '#0284c7', fontWeight: '700', marginBottom: '16px' }}>Certified Lab: {getColValue(selectedPkg, 'Lab Name')}</p>
             
-            <div style={{ backgroundColor: '#f8fafc', padding: '15px', borderRadius: '16px', fontSize: '14px', color: '#475569', maxHeight: '280px', overflowY: 'auto', lineHeight: '1.6', border: '1px solid #e2e8f0' }}>
-              <strong>Included Test Parameters:</strong><br/>
+            <div style={{ backgroundColor: '#f8fafc', padding: '16px', borderRadius: '16px', fontSize: '14px', color: '#334155', maxHeight: '280px', overflowY: 'auto', lineHeight: '1.6', border: '1px solid #e2e8f0' }}>
+              <strong>Included Parameters:</strong><br/>
               {getColValue(selectedPkg, 'Parameter') || "Parameters details updated soon."}
             </div>
             
-            <button onClick={() => {setShowParamModal(false); openBooking(selectedPkg);}} className="confirm-btn" style={{ marginTop: '20px', padding: '14px' }}>
-              Book Now (₹{getPrice(selectedPkg)})
+            <button onClick={() => {setShowParamModal(false); openBooking(selectedPkg);}} className="confirm-btn" style={{ marginTop: '20px', padding: '14px', background: '#e11d48', fontWeight: '800', fontSize: '15px' }}>
+              Book Now at ₹{getPrice(selectedPkg)}
             </button>
           </div>
         </div>
@@ -526,18 +531,19 @@ const Home = () => {
         @media (min-width: 768px) { .test-grid-system { grid-template-columns: repeat(2, 1fr); } }
         @media (min-width: 1024px) { .test-grid-system { grid-template-columns: repeat(4, 1fr); } }
         @media (min-width: 1440px) { .test-grid-system { grid-template-columns: repeat(5, 1fr); } }
-        .test-card-advanced { background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 18px; display: flex; flex-direction: column; transition: all 0.3s ease; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
-        .test-card-advanced:hover { transform: translateY(-5px); box-shadow: 0 12px 24px rgba(0,0,0,0.1); border-color: #E31E25; }
-        .package-tag { background: #e0f2fe; color: #0369a1; padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 800; }
-        .compare-checkbox { font-size: 12px; color: #64748b; display: flex; align-items: center; gap: 5px; cursor: pointer; }
-        .card-title { font-size: 1.1rem; font-weight: 800; color: #1e293b; margin: 12px 0 4px; line-height: 1.3; height: 2.6em; overflow: hidden; }
+        .test-card-advanced { background: white; border: 1px solid #e2e8f0; border-radius: 20px; padding: 20px; display: flex; flex-direction: column; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
+        .test-card-advanced:hover { transform: translateY(-6px); box-shadow: 0 15px 30px rgba(0,0,0,0.1); border-color: #38bdf8; }
+        .organ-card:hover { transform: translateY(-4px); border-color: #0284c7 !important; }
+        .package-tag { background: #e0f2fe; color: #0369a1; padding: 4px 10px; border-radius: 8px; font-size: 10px; font-weight: 800; }
+        .compare-checkbox { font-size: 12px; color: #64748b; display: flex; align-items: center; gap: 5px; cursor: pointer; font-weight: 600; }
+        .card-title { font-size: 1.1rem; font-weight: 800; color: #0f172a; margin: 12px 0 4px; line-height: 1.3; height: 2.6em; overflow: hidden; }
         .card-lab { font-size: 12px; color: #64748b; margin-bottom: 12px; }
-        .fasting-info { font-size: 12px; color: #dc2626; font-weight: 600; margin: 0; }
+        .fasting-info { font-size: 12px; color: #059669; font-weight: 700; margin: 0; }
         .card-footer { margin-top: auto; padding-top: 15px; border-top: 1px solid #f1f5f9; }
-        .mrp-text { font-size: 1.5rem; font-weight: 900; color: #E31E25; }
+        .mrp-text { font-size: 1.5rem; font-weight: 900; color: #e11d48; }
         .button-group { display: flex; gap: 8px; margin-top: 12px; }
-        .details-btn { flex: 1; padding: 8px; border-radius: 10px; border: 1px solid #e2e8f0; background: white; cursor: pointer; font-weight: 700; font-size: 12px; }
-        .book-btn { flex: 1; padding: 8px; border-radius: 10px; background: #E31E25; color: white; border: none; cursor: pointer; font-weight: 700; font-size: 12px; }
+        .details-btn { flex: 1; padding: 10px; border-radius: 12px; border: 1px solid #cbd5e1; background: white; cursor: pointer; font-weight: 700; font-size: 12px; color: #334155; }
+        .book-btn { flex: 1; padding: 10px; border-radius: 12px; background: #e11d48; color: white; border: none; cursor: pointer; font-weight: 800; font-size: 12px; boxShadow: 0 4px 12px rgba(225,29,72,0.3); }
       `}</style>
     </div>
   );
