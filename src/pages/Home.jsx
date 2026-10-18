@@ -5,28 +5,12 @@ import CompareModal from '../components/CompareModal';
 import SEO from '../components/SEO';
 import { Helmet } from 'react-helmet-async';
 
-const featureBadgeStyle = {
-  background: 'white',
-  padding: '6px 12px',
-  borderRadius: '10px',
-  display: 'flex',
-  alignItems: 'center',
-  gap: '6px',
-  border: '1px solid #e2e8f0',
-  boxShadow: '0 2px 4px rgba(0,0,0,0.03)'
-};
-
-const featureTextStyle = {
-  fontSize: '11px',
-  fontWeight: '700',
-  color: '#334155'
-};
-
 const Home = () => {
   const [allData, setAllData] = useState([]);
   const [displayPackages, setDisplayPackages] = useState([]);
   const [flyerPackages, setFlyerPackages] = useState([]);
-  
+  const [currentSlide, setCurrentSlide] = useState(0);
+
   const [activeCategory, setActiveCategory] = useState('All');
   const [activeDisease, setActiveDisease] = useState('All');
 
@@ -63,7 +47,7 @@ const Home = () => {
 
   const categoriesList = ['All', 'Male', 'Female', 'Senior Citizen', 'Adult', 'Child'];
 
-  // Helper function to safely get column value regardless of case
+  // Safe Case-Insensitive Column Extraction
   const getColValue = (item, keyName) => {
     if (!item) return '';
     const keys = Object.keys(item);
@@ -83,19 +67,27 @@ const Home = () => {
           const validData = res.data.filter(item => getColValue(item, 'Test Name'));
           setAllData(validData);
 
-          // Filter Flyers
+          // Extract Banner Flyers from Google Sheet
           const flyers = validData.filter(item => {
             const flyerView = getColValue(item, 'FlyerView');
             const flyerImg = getColValue(item, 'FlyerImage');
             return flyerView && flyerView.trim().toUpperCase() === 'YES' && flyerImg && flyerImg.trim().length > 5;
           });
+          
           setFlyerPackages(flyers.length > 0 ? flyers : validData.filter(item => getColValue(item, 'Type')?.trim() === 'Package').slice(0, 5));
-
-          // Filter Packages for main grid
           filterData(validData, 'All', 'All');
       }});
     });
   }, []);
+
+  // Hero Slider Auto-Rotate Effect (Every 4 Seconds)
+  useEffect(() => {
+    if (flyerPackages.length === 0) return;
+    const interval = setInterval(() => {
+      setCurrentSlide(prev => (prev + 1) % flyerPackages.length);
+    }, 4500);
+    return () => clearInterval(interval);
+  }, [flyerPackages]);
 
   const filterData = (data, category, disease) => {
     let filtered = data.filter(item => {
@@ -103,7 +95,6 @@ const Home = () => {
       return type ? type.trim().toLowerCase() === 'package' : true;
     });
 
-    // ShowOnHome check
     const homeOnly = filtered.filter(item => getColValue(item, 'ShowOnHome').trim().toUpperCase() === 'YES');
     if (homeOnly.length > 0) {
       filtered = homeOnly;
@@ -216,206 +207,136 @@ const Home = () => {
         Online Lab Test Booking Delhi, Best Diagnostic Center Tuglakabad, Home Blood Test Collection NCR
       </h1>
 
-      {/* --- HERO SECTION --- */}
-      <section style={{ backgroundColor: '#f0f7ff', padding: '25px 20px 30px', position: 'relative', overflow: 'hidden' }}>
-        <div style={{ maxWidth: '1280px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '20px', flexWrap: 'wrap' }}>
-          
-          <div style={{ flex: '1 1 500px', textAlign: 'left' }}>
-            <span style={{ fontSize: '11px', fontWeight: '800', color: '#64748b', letterSpacing: '1px', textTransform: 'uppercase' }}>
-              COMPARE & BOOK LAB TESTS
+      {/* --- TOP CATEGORY QUICK NAV BAR --- */}
+      <div style={{ background: '#008b8b', padding: '8px 15px', overflowX: 'auto', whiteSpace: 'nowrap' }}>
+        <div style={{ maxWidth: '1280px', margin: '0 auto', display: 'flex', gap: '20px', fontSize: '13px', fontWeight: '700', color: 'white' }}>
+          {diseasesList.map(d => (
+            <span 
+              key={d.name} 
+              onClick={() => handleDiseaseChange(d.name)}
+              style={{ cursor: 'pointer', opacity: activeDisease === d.name ? 1 : 0.8, textDecoration: activeDisease === d.name ? 'underline' : 'none' }}
+            >
+              {d.icon} {d.name}
             </span>
-            
-            <h1 style={{ fontSize: '2.4rem', fontWeight: '900', color: '#0f172a', margin: '6px 0', lineHeight: '1.1' }}>
-              Your Health, <br/>
-              <span style={{ color: '#E31E25' }}>Our Priority</span>
-            </h1>
-
-            <p style={{ color: '#475569', fontSize: '13px', fontWeight: '600', marginBottom: '16px' }}>
-              NABL Certified Labs | Free Home Collection | Lowest Price Guarantee
-            </p>
-
-            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '20px' }}>
-              <div style={featureBadgeStyle}><span>🛡️</span><span style={featureTextStyle}>NABL Accredited</span></div>
-              <div style={featureBadgeStyle}><span>🏠</span><span style={featureTextStyle}>Free Home Collection</span></div>
-              <div style={featureBadgeStyle}><span>🏷️</span><span style={featureTextStyle}>Lowest Price</span></div>
-              <div style={featureBadgeStyle}><span>📋</span><span style={featureTextStyle}>Fast Reports</span></div>
-            </div>
-
-            <div style={{ position: 'relative', maxWidth: '580px' }}>
-              <div style={{ display: 'flex', background: 'white', borderRadius: '50px', padding: '4px 6px', boxShadow: '0 8px 20px rgba(0,0,0,0.06)', border: '1px solid #e2e8f0', alignItems: 'center' }}>
-                <span style={{ paddingLeft: '12px', fontSize: '16px', color: '#94a3b8' }}>🔍</span>
-                <input 
-                  type="text" 
-                  placeholder="Search for Tests or Packages (e.g. CBC, Lipid Profile...)" 
-                  style={{ flex: 1, border: 'none', padding: '10px 10px', outline: 'none', color: '#333', fontSize: '14px' }} 
-                  value={searchTerm}
-                  onChange={handleSearch}
-                />
-                <button style={{ backgroundColor: '#E31E25', color: 'white', border: 'none', borderRadius: '50px', padding: '10px 22px', fontWeight: 'bold', cursor: 'pointer', fontSize: '14px' }}>
-                  Search
-                </button>
-              </div>
-
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '12px', flexWrap: 'wrap', fontSize: '12px' }}>
-                <span style={{ fontWeight: '700', color: '#475569' }}>Popular Searches:</span>
-                {['CBC', 'Lipid Profile', 'Thyroid', 'Vitamin D', 'HbA1c', 'Liver Function'].map((tag) => (
-                  <span 
-                    key={tag} 
-                    onClick={() => { setSearchTerm(tag); handleSearch({ target: { value: tag } }); }}
-                    style={{ background: 'white', padding: '3px 10px', borderRadius: '15px', border: '1px solid #cbd5e1', cursor: 'pointer', color: '#334155', fontWeight: '600' }}
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-
-              {showSearchDropdown && searchResults.length > 0 && (
-                <div className="search-dropdown" style={{ position: 'absolute', top: '105%', left: 0, right: 0, backgroundColor: 'white', borderRadius: '15px', overflow: 'hidden', boxShadow: '0 10px 25px rgba(0,0,0,0.2)', zIndex: 99999, maxHeight: '350px', overflowY: 'auto', border: '1px solid #e2e8f0' }}>
-                  {searchResults.map((item, i) => (
-                    <div key={i} style={{ padding: '10px 15px', borderBottom: '1px solid #f1f5f9', cursor: 'pointer', textAlign: 'left' }} onClick={() => openBooking(item)}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <div>
-                          <span style={getColValue(item, 'Type') === 'Package' ? { fontSize: '10px', background: '#fef3c7', color: '#92400e', padding: '2px 8px', borderRadius: '5px', fontWeight: 'bold' } : { fontSize: '10px', background: '#e0f2fe', color: '#0369a1', padding: '2px 8px', borderRadius: '5px', fontWeight: 'bold' }}>
-                            {getColValue(item, 'Type') || 'Test'}
-                          </span>
-                          <div style={{ fontWeight: '700', marginTop: '2px', color: '#1e293b', fontSize: '13px' }}>{getColValue(item, 'Test Name')}</div>
-                          <div style={{ fontSize: '11px', color: '#64748b' }}>By {getColValue(item, 'Lab Name')}</div>
-                        </div>
-                        <div style={{ textAlign: 'right' }}>
-                          <div style={{ color: '#E31E25', fontWeight: '900', fontSize: '14px' }}>₹{getPrice(item)}</div>
-                          <div style={{ fontSize: '10px', color: '#dc2626' }}>{getColValue(item, 'Fasting Status')}</div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div style={{ flex: '0 0 340px', display: 'flex', justifyContent: 'center' }}>
-            <div style={{
-              background: 'linear-gradient(135deg, #ffffff 0%, #eef2ff 100%)',
-              borderRadius: '20px',
-              padding: '20px',
-              border: '2px solid #e2e8f0',
-              boxShadow: '0 10px 25px rgba(0,0,0,0.06)',
-              textAlign: 'center',
-              width: '100%'
-            }}>
-              <div style={{ width: '90px', height: '90px', margin: '0 auto 10px', borderRadius: '50%', background: '#fee2e2', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '42px', border: '3px solid #E31E25' }}>
-                👩‍⚕️
-              </div>
-              <h3 style={{ fontSize: '1.1rem', fontWeight: '800', color: '#0f172a', margin: '0 0 4px' }}>
-                TestYaan Certified Team
-              </h3>
-              <p style={{ fontSize: '12px', color: '#64748b', margin: '0 0 12px', fontWeight: '600' }}>
-                Expert Blood Collection at Your Home
-              </p>
-              <div style={{ background: '#E31E25', color: 'white', padding: '8px 12px', borderRadius: '12px', fontSize: '11px', fontWeight: '800' }}>
-                ✨ Healthy Today, Brighter Tomorrow
-              </div>
-            </div>
-          </div>
-
+          ))}
         </div>
-      </section>
+      </div>
 
-      {/* --- POPULAR FLYERS HORIZONTAL CAROUSEL --- */}
-      {flyerPackages.length > 0 && (
-        <section style={{ padding: '30px 20px', backgroundColor: '#ffffff', borderBottom: '1px solid #e2e8f0' }}>
-          <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
-            <h2 style={{ fontSize: '1.6rem', color: '#1e3a8a', fontWeight: '800', marginBottom: '20px', textAlign: 'center' }}>
-              🔥 Trending Lab Packages & Offers
-            </h2>
-            <div style={{ display: 'flex', gap: '20px', overflowX: 'auto', paddingBottom: '15px', scrollSnapType: 'x mandatory' }}>
-              {flyerPackages.map((item, idx) => {
-                const imgUrl = getColValue(item, 'FlyerImage');
-                return (
-                  <div 
-                    key={idx} 
-                    onClick={() => openParams(item)} 
-                    style={{ 
-                      flex: '0 0 280px', 
-                      scrollSnapAlign: 'start', 
-                      borderRadius: '16px', 
-                      overflow: 'hidden', 
-                      boxShadow: '0 8px 20px rgba(0,0,0,0.08)', 
-                      cursor: 'pointer', 
-                      border: '1px solid #e2e8f0',
-                      transition: 'transform 0.3s ease',
-                      background: 'white'
-                    }}
-                    className="flyer-card-item"
-                  >
-                    {imgUrl ? (
-                      <img src={imgUrl} alt={getColValue(item, 'Test Name')} style={{ width: '100%', height: '220px', objectFit: 'cover' }} />
-                    ) : (
-                      <div style={{ padding: '20px', background: 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)', color: 'white', height: '220px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                        <div>
-                          <span style={{ fontSize: '10px', background: '#ffbf00', color: '#1e3a8a', padding: '2px 8px', borderRadius: '4px', fontWeight: 'bold' }}>OFFER</span>
-                          <h3 style={{ fontSize: '1.1rem', marginTop: '10px', fontWeight: '800' }}>{getColValue(item, 'Test Name')}</h3>
-                          <p style={{ fontSize: '12px', opacity: 0.9 }}>By {getColValue(item, 'Lab Name')}</p>
-                        </div>
-                        <div style={{ textAlign: 'right', fontWeight: '900', fontSize: '1.4rem', color: '#ffbf00' }}>
-                          ₹{getPrice(item)}
-                        </div>
-                      </div>
-                    )}
-                    <div style={{ padding: '12px 15px', background: '#fff', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ fontWeight: '700', fontSize: '13px', color: '#0f172a' }}>{getColValue(item, 'Test Name')}</span>
-                      <button style={{ background: '#E31E25', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '8px', fontSize: '11px', fontWeight: 'bold' }}>
-                        View Details
+      {/* --- HERO BANNER AUTO-SLIDER (REFERENCE MATCH) --- */}
+      <section style={{ padding: '20px 15px', backgroundColor: '#f0f7ff' }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', position: 'relative' }}>
+          
+          {flyerPackages.length > 0 ? (
+            <div 
+              style={{ 
+                position: 'relative', 
+                borderRadius: '24px', 
+                overflow: 'hidden', 
+                boxShadow: '0 15px 35px rgba(0,0,0,0.12)', 
+                cursor: 'pointer',
+                minHeight: '260px',
+                background: 'linear-gradient(135deg, #3d2218 0%, #1f100a 100%)'
+              }}
+              onClick={() => openParams(flyerPackages[currentSlide])}
+            >
+              {getColValue(flyerPackages[currentSlide], 'FlyerImage') ? (
+                <img 
+                  src={getColValue(flyerPackages[currentSlide], 'FlyerImage')} 
+                  alt={getColValue(flyerPackages[currentSlide], 'Test Name')} 
+                  style={{ width: '100%', height: 'auto', maxHeight: '420px', objectFit: 'cover', display: 'block' }}
+                />
+              ) : (
+                /* Fallback Flyer Card Design if Image URL is missing */
+                <div style={{ padding: '40px 30px', color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px' }}>
+                  <div style={{ maxWidth: '600px' }}>
+                    <span style={{ background: '#ffbf00', color: '#000', padding: '4px 10px', borderRadius: '6px', fontSize: '12px', fontWeight: 'bold' }}>SPECIAL PACKAGE</span>
+                    <h2 style={{ fontSize: '2.2rem', margin: '15px 0 10px', fontWeight: '900', lineHeight: '1.2' }}>
+                      {getColValue(flyerPackages[currentSlide], 'Test Name')}
+                    </h2>
+                    <p style={{ fontSize: '15px', opacity: '0.9', marginBottom: '20px' }}>
+                      By {getColValue(flyerPackages[currentSlide], 'Lab Name')} | Certified Laboratory
+                    </p>
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '15px', background: 'rgba(255,255,255,0.1)', padding: '10px 20px', borderRadius: '50px' }}>
+                      <span style={{ fontSize: '1.6rem', fontWeight: '900', color: '#ffbf00' }}>₹{getPrice(flyerPackages[currentSlide])}</span>
+                      <button style={{ background: '#white', color: '#1e3a8a', border: 'none', padding: '8px 20px', borderRadius: '30px', fontWeight: 'bold', cursor: 'pointer' }}>
+                        Book Now »
                       </button>
                     </div>
                   </div>
-                );
-              })}
+                  <div style={{ fontSize: '100px', opacity: 0.2 }}>🩺</div>
+                </div>
+              )}
             </div>
-          </div>
-        </section>
-      )}
+          ) : (
+            <div style={{ padding: '50px', background: 'white', borderRadius: '24px', textAlign: 'center' }}>Loading Flyers...</div>
+          )}
 
-      {/* --- BROWSE BY DISEASE / ORGAN SECTION --- */}
-      <section style={{ padding: '40px 20px 20px', backgroundColor: '#f8fafc' }}>
-        <div style={{ maxWidth: '1280px', margin: '0 auto', textAlign: 'center' }}>
-          <h2 style={{ fontSize: '1.8rem', color: '#1e3a8a', fontWeight: '800', marginBottom: '8px' }}>Browse Tests By Organ / Condition</h2>
-          <p style={{ color: '#64748b', fontSize: '14px', marginBottom: '25px' }}>Select an organ or disease category to see specialized lab tests</p>
-          
-          <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
-            {diseasesList.map(d => (
-              <button
-                key={d.name}
-                onClick={() => handleDiseaseChange(d.name)}
-                style={{
-                  background: activeDisease === d.name ? '#1e3a8a' : 'white',
-                  color: activeDisease === d.name ? 'white' : '#334155',
-                  border: '1px solid #cbd5e1',
-                  borderRadius: '12px',
-                  padding: '10px 18px',
-                  fontWeight: '700',
-                  fontSize: '13px',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  boxShadow: activeDisease === d.name ? '0 4px 12px rgba(30,58,138,0.2)' : 'none',
-                  transition: 'all 0.2s ease'
-                }}
-              >
-                <span>{d.icon}</span>
-                <span>{d.name}</span>
+          {/* DOTS NAVIGATION INDICATOR */}
+          {flyerPackages.length > 1 && (
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginTop: '15px' }}>
+              {flyerPackages.map((_, idx) => (
+                <div 
+                  key={idx} 
+                  onClick={() => setCurrentSlide(idx)}
+                  style={{ 
+                    width: currentSlide === idx ? '35px' : '12px', 
+                    height: '8px', 
+                    borderRadius: '10px', 
+                    background: currentSlide === idx ? '#008b8b' : '#cbd5e1', 
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease'
+                  }}
+                />
+              ))}
+            </div>
+          )}
+
+          {/* SEARCH BAR UNDER SLIDER */}
+          <div style={{ position: 'relative', maxWidth: '700px', margin: '20px auto 0' }}>
+            <div style={{ display: 'flex', background: 'white', borderRadius: '50px', padding: '5px 8px', boxShadow: '0 8px 20px rgba(0,0,0,0.06)', border: '1px solid #e2e8f0', alignItems: 'center' }}>
+              <span style={{ paddingLeft: '15px', fontSize: '18px', color: '#94a3b8' }}>🔍</span>
+              <input 
+                type="text" 
+                placeholder="Find your Package / Test / Scans (e.g. CBC, Thyroid...)" 
+                style={{ flex: 1, border: 'none', padding: '12px 12px', outline: 'none', color: '#333', fontSize: '15px' }} 
+                value={searchTerm}
+                onChange={handleSearch}
+              />
+              <button style={{ backgroundColor: '#008b8b', color: 'white', border: 'none', borderRadius: '50px', padding: '12px 28px', fontWeight: 'bold', cursor: 'pointer', fontSize: '15px' }}>
+                Search
               </button>
-            ))}
+            </div>
+
+            {showSearchDropdown && searchResults.length > 0 && (
+              <div className="search-dropdown" style={{ position: 'absolute', top: '105%', left: 0, right: 0, backgroundColor: 'white', borderRadius: '15px', overflow: 'hidden', boxShadow: '0 10px 25px rgba(0,0,0,0.2)', zIndex: 99999, maxHeight: '350px', overflowY: 'auto', border: '1px solid #e2e8f0' }}>
+                {searchResults.map((item, i) => (
+                  <div key={i} style={{ padding: '10px 15px', borderBottom: '1px solid #f1f5f9', cursor: 'pointer', textAlign: 'left' }} onClick={() => openBooking(item)}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div>
+                        <span style={getColValue(item, 'Type') === 'Package' ? { fontSize: '10px', background: '#fef3c7', color: '#92400e', padding: '2px 8px', borderRadius: '5px', fontWeight: 'bold' } : { fontSize: '10px', background: '#e0f2fe', color: '#0369a1', padding: '2px 8px', borderRadius: '5px', fontWeight: 'bold' }}>
+                          {getColValue(item, 'Type') || 'Test'}
+                        </span>
+                        <div style={{ fontWeight: '700', marginTop: '2px', color: '#1e293b', fontSize: '13px' }}>{getColValue(item, 'Test Name')}</div>
+                        <div style={{ fontSize: '11px', color: '#64748b' }}>By {getColValue(item, 'Lab Name')}</div>
+                      </div>
+                      <div style={{ textAlign: 'right' }}>
+                        <div style={{ color: '#E31E25', fontWeight: '900', fontSize: '14px' }}>₹{getPrice(item)}</div>
+                        <div style={{ fontSize: '10px', color: '#dc2626' }}>{getColValue(item, 'Fasting Status')}</div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
+
         </div>
       </section>
 
       {/* --- GENDER & AGE CATEGORY TABS + PACKAGES GRID --- */}
-      <section style={{ padding: '30px 20px 60px', backgroundColor: '#f8fafc' }}>
+      <section style={{ padding: '40px 20px 60px', backgroundColor: '#f8fafc' }}>
         <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
           
-          {/* Category Pills */}
           <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginBottom: '35px', flexWrap: 'wrap' }}>
             {categoriesList.map(cat => (
               <button
@@ -547,7 +468,6 @@ const Home = () => {
         @media (min-width: 1440px) { .test-grid-system { grid-template-columns: repeat(5, 1fr); } }
         .test-card-advanced { background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 18px; display: flex; flex-direction: column; transition: all 0.3s ease; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
         .test-card-advanced:hover { transform: translateY(-5px); box-shadow: 0 12px 24px rgba(0,0,0,0.1); border-color: #E31E25; }
-        .flyer-card-item:hover { transform: translateY(-5px); }
         .package-tag { background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 800; }
         .compare-checkbox { font-size: 12px; color: #64748b; display: flex; align-items: center; gap: 5px; cursor: pointer; }
         .card-title { font-size: 1.1rem; font-weight: 800; color: #1e293b; margin: 12px 0 4px; line-height: 1.3; height: 2.6em; overflow: hidden; }
