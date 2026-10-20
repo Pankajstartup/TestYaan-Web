@@ -29,6 +29,11 @@ const Home = () => {
   const [compareList, setCompareList] = useState([]);
   const [showCompareOverlay, setShowCompareOverlay] = useState(false);
 
+  // --- PINCODE CHECKER STATES ---
+  const [pincodeList, setPincodeList] = useState([]);
+  const [inputPincode, setInputPincode] = useState('');
+  const [pincodeResult, setPincodeResult] = useState(null); // { status: 'success' | 'error', message: '', district: '' }
+
   const diseasesList = [
     { name: 'All', icon: '🩺' },
     { name: 'Heart', icon: '🫀' },
@@ -72,6 +77,7 @@ const Home = () => {
   };
 
   useEffect(() => {
+    // 1. Fetch Tests Data (Sheet 1)
     const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vShYhNLxqm5dPsxN42c-unJ1ByWLnU3DmduiBdPkafMj_3NOH_AZohRJtZLLDvW76jfd_uL0VlvNlVx/pub?output=csv";
     fetch(sheetUrl).then(res => res.text()).then(csv => {
       Papa.parse(csv, { header: true, complete: (res) => {
@@ -96,7 +102,74 @@ const Home = () => {
           filterData(validData, 'All', 'All', 'All');
       }});
     });
+
+    // 2. Fetch Pincode Data (Sheet 2 / Pincodes Tab)
+    const pincodeSheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vShYhNLxqm5dPsxN42c-unJ1ByWLnU3DmduiBdPkafMj_3NOH_AZohRJtZLLDvW76jfd_uL0VlvNlVx/pub?gid=1836064115&single=true&output=csv"; 
+    // Fallback logic for Gurugram if fetch fails
+    fetch(pincodeSheetUrl)
+      .then(res => res.text())
+      .then(csv => {
+        Papa.parse(csv, { header: true, complete: (res) => {
+          if (res.data && res.data.length > 0) {
+            setPincodeList(res.data);
+          }
+        }});
+      })
+      .catch(() => {
+        console.log("Using default Gurugram Pincode checker");
+      });
   }, []);
+
+  // PINCODE SERVICEABILITY CHECK FUNCTION
+  const handleCheckPincode = (e) => {
+    e.preventDefault();
+    const cleanPin = inputPincode.trim();
+
+    if (cleanPin.length !== 6 || isNaN(cleanPin)) {
+      setPincodeResult({
+        status: 'error',
+        message: 'Kripya 6 digit ka valid pincode dalein.'
+      });
+      return;
+    }
+
+    // Gurugram / Gurgaon fallback check
+    const gurugramPins = ['122001', '122002', '122003', '122004', '122006', '122008', '122009', '122010', '122011', '122015', '122016', '122017', '122018', '122050', '122051', '122052', '122101', '122102'];
+
+    let matched = pincodeList.find(row => {
+      const p = getColValue(row, 'Pin code') || getColValue(row, 'Pincode') || getColValue(row, 'PinCode');
+      return p && p.trim() === cleanPin;
+    });
+
+    if (matched) {
+      const statusVal = (getColValue(matched, 'Status') || '').toUpperCase();
+      const district = getColValue(matched, 'District') || 'Gurugram';
+
+      if (statusVal === 'ACTIVE' || statusVal === 'YES' || district.toLowerCase().includes('gurga') || district.toLowerCase().includes('gurug')) {
+        setPincodeResult({
+          status: 'success',
+          district: district,
+          message: `✅ Service Available in ${district} (${cleanPin})! Home Sample Collection Available.`
+        });
+      } else {
+        setPincodeResult({
+          status: 'error',
+          message: `❌ Currently not active in ${district} (${cleanPin}). We are serving Gurugram region.`
+        });
+      }
+    } else if (gurugramPins.includes(cleanPin)) {
+      setPincodeResult({
+        status: 'success',
+        district: 'Gurugram',
+        message: `✅ Service Available in Gurugram (${cleanPin})! Home Sample Collection Available.`
+      });
+    } else {
+      setPincodeResult({
+        status: 'error',
+        message: `❌ Currently we are active only in Gurugram region. Stay tuned for ${cleanPin}!`
+      });
+    }
+  };
 
   const filterData = (data, lab, category, disease) => {
     let filtered = data;
@@ -216,7 +289,7 @@ const Home = () => {
       
       <SEO 
         title="TestYaan | Compare & Book Diagnostic Labs in Delhi-NCR"
-        description="Multi-Lab Healthcare Aggregator. Compare blood test prices across NABL Accredited Labs like Redcliffe, Thyrocare & more."
+        description="Multi-Lab Healthcare Aggregator. Compare blood test prices across NABL Accredited Labs in Gurugram."
         path="/"
         testsData={allData.slice(0, 20)}
       />
@@ -232,9 +305,9 @@ const Home = () => {
         </script>
       </Helmet>
 
-      {/* --- AGODA/AMAZON MULTI-LAB SELECTOR STRIP --- */}
+      {/* --- MULTI-LAB FILTER STRIP --- */}
       {dynamicLabs.length > 0 && (
-        <div style={{ background: '#ffffff', padding: '12px 20px', borderBottom: '1px solid #e2e8f0', boxShadow: '0 2px 6px rgba(0,0,0,0.03)' }}>
+        <div style={{ background: '#ffffff', padding: '10px 20px', borderBottom: '1px solid #e2e8f0', boxShadow: '0 2px 6px rgba(0,0,0,0.03)' }}>
           <div style={{ maxWidth: '1280px', margin: '0 auto', display: 'flex', alignItems: 'center', gap: '12px', overflowX: 'auto' }}>
             <span style={{ fontSize: '12px', fontWeight: '800', color: '#0a3880', whiteSpace: 'nowrap', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
               Filter By Lab:
@@ -253,7 +326,7 @@ const Home = () => {
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'center',
+                    justify: 'center',
                     minHeight: '38px',
                     whiteSpace: 'nowrap',
                     boxShadow: isSelected ? '0 4px 10px rgba(10,56,128,0.15)' : 'none',
@@ -272,7 +345,7 @@ const Home = () => {
         </div>
       )}
 
-      {/* --- DR LAL PATHLABS SPLIT-SCREEN HERO SECTION --- */}
+      {/* --- DR LAL PATHLABS STYLE SPLIT-SCREEN HERO SECTION --- */}
       <section style={{ background: 'linear-gradient(180deg, #eef4ff 0%, #f4f7fa 100%)', padding: '25px 20px 35px' }}>
         <div style={{ maxWidth: '1280px', margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr', gap: '20px' }} className="hero-split-grid">
           
@@ -344,36 +417,74 @@ const Home = () => {
             )}
           </div>
 
-          {/* RIGHT SIDE (35%): DR LAL PATHLABS STYLE QUICK BOOKING WIDGET */}
-          <div style={{ background: '#ffffff', borderRadius: '16px', padding: '24px', boxShadow: '0 8px 24px rgba(10,56,128,0.1)', border: '2px solid #0a3880', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+          {/* RIGHT SIDE (35%): BOOKING & SERVICEABILITY PINCODE WIDGET */}
+          <div style={{ background: '#ffffff', borderRadius: '16px', padding: '20px', boxShadow: '0 8px 24px rgba(10,56,128,0.1)', border: '2px solid #0a3880', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-                <h3 style={{ margin: 0, fontSize: '1.2rem', color: '#0a3880', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                  🔍 BOOK A TEST ONLINE
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
+                <h3 style={{ margin: 0, fontSize: '1.1rem', color: '#0a3880', fontWeight: '900', textTransform: 'uppercase' }}>
+                  📍 CHECK SERVICEABILITY
                 </h3>
-                <span style={{ fontSize: '11px', background: '#ffcc00', color: '#0a3880', padding: '3px 8px', borderRadius: '4px', fontWeight: '800' }}>
-                  BEST RATES
+                <span style={{ fontSize: '10px', background: '#ffcc00', color: '#0a3880', padding: '3px 8px', borderRadius: '4px', fontWeight: '800' }}>
+                  GURUGram ACTIVE
                 </span>
               </div>
 
-              {/* QUICK SEARCH BAR */}
-              <div style={{ position: 'relative', marginBottom: '16px' }}>
-                <div style={{ display: 'flex', border: '2px solid #0a3880', borderRadius: '8px', overflow: 'hidden', background: '#f8fafc' }}>
+              {/* PINCODE CHECKER WIDGET */}
+              <form onSubmit={handleCheckPincode} style={{ marginBottom: '14px' }}>
+                <div style={{ display: 'flex', border: '2px solid #0a3880', borderRadius: '8px', overflow: 'hidden' }}>
+                  <input 
+                    type="text" 
+                    placeholder="Enter 6-digit Pincode (e.g. 122001)" 
+                    maxLength={6}
+                    value={inputPincode}
+                    onChange={(e) => setInputPincode(e.target.value)}
+                    style={{ flex: 1, border: 'none', padding: '10px 12px', outline: 'none', fontSize: '13px', fontWeight: '700' }}
+                  />
+                  <button type="submit" style={{ background: '#0a3880', color: '#ffcc00', border: 'none', padding: '0 16px', fontWeight: '900', cursor: 'pointer', fontSize: '12px' }}>
+                    CHECK
+                  </button>
+                </div>
+              </form>
+
+              {/* PINCODE RESULT NOTIFICATION */}
+              {pincodeResult && (
+                <div style={{ 
+                  padding: '10px 12px', 
+                  borderRadius: '8px', 
+                  fontSize: '12px', 
+                  fontWeight: '700', 
+                  marginBottom: '14px',
+                  lineHeight: '1.4',
+                  background: pincodeResult.status === 'success' ? '#ecfdf5' : '#fef2f2',
+                  color: pincodeResult.status === 'success' ? '#047857' : '#b91c1c',
+                  border: pincodeResult.status === 'success' ? '1px solid #a7f3d0' : '1px solid #fecaca'
+                }}>
+                  {pincodeResult.message}
+                  {pincodeResult.status === 'error' && (
+                    <div style={{ marginTop: '6px' }}>
+                      <a href={`https://wa.me/91${phoneNumber}?text=Hi%20TestYaan,%20please%20notify%20me%20when%20service%20starts%20at%20pincode%20${inputPincode}`} target="_blank" rel="noopener noreferrer" style={{ color: '#0a3880', textDecoration: 'underline', fontWeight: '800' }}>
+                        Request service on WhatsApp »
+                      </a>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* SEARCH TEST BAR */}
+              <div style={{ position: 'relative', marginBottom: '14px' }}>
+                <div style={{ display: 'flex', border: '1px solid #cbd5e1', borderRadius: '8px', overflow: 'hidden', background: '#f8fafc' }}>
                   <input 
                     type="text" 
                     placeholder="Search CBC, Lipid, Diabetes, Labs..." 
                     value={searchTerm}
                     onChange={handleSearch}
-                    style={{ flex: 1, border: 'none', padding: '12px 14px', outline: 'none', fontSize: '13px', fontWeight: '600' }}
+                    style={{ flex: 1, border: 'none', padding: '10px 12px', outline: 'none', fontSize: '12px', fontWeight: '600' }}
                   />
-                  <button style={{ background: '#0a3880', color: '#ffcc00', border: 'none', padding: '0 18px', fontWeight: '900', cursor: 'pointer', fontSize: '15px' }}>
-                    🔍
-                  </button>
+                  <span style={{ padding: '8px 12px', color: '#0a3880' }}>🔍</span>
                 </div>
 
-                {/* SEARCH DROPDOWN */}
                 {showSearchDropdown && searchResults.length > 0 && (
-                  <div style={{ position: 'absolute', top: '105%', left: 0, right: 0, backgroundColor: 'white', borderRadius: '10px', boxShadow: '0 10px 25px rgba(0,0,0,0.2)', zIndex: 9999, maxHeight: '280px', overflowY: 'auto', border: '1px solid #cbd5e1' }}>
+                  <div style={{ position: 'absolute', top: '105%', left: 0, right: 0, backgroundColor: 'white', borderRadius: '10px', boxShadow: '0 10px 25px rgba(0,0,0,0.2)', zIndex: 9999, maxHeight: '250px', overflowY: 'auto', border: '1px solid #cbd5e1' }}>
                     {searchResults.map((item, i) => (
                       <div key={i} style={{ padding: '10px 14px', borderBottom: '1px solid #f1f5f9', cursor: 'pointer' }} onClick={() => openBooking(item)}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -389,20 +500,13 @@ const Home = () => {
                 )}
               </div>
 
-              {/* QUICK ACTION BUTTONS */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px' }}>
-                <button 
-                  onClick={() => handleCategoryChange('All')} 
-                  style={{ background: '#0a3880', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: '800', fontSize: '13px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
-                >
-                  <span>🧪 Compare Popular Packages</span>
-                  <span>»</span>
-                </button>
+              {/* QUICK BUTTONS */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '14px' }}>
                 <a 
-                  href={`https://wa.me/91${phoneNumber}?text=Hi%20TestYaan,%20I%20have%20a%20prescription%20to%20upload`} 
+                  href={`https://wa.me/91${phoneNumber}?text=Hi%20TestYaan,%20I%20want%20to%20upload%20my%20prescription`} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  style={{ background: '#25D366', color: 'white', textDecoration: 'none', padding: '12px', borderRadius: '8px', fontWeight: '800', fontSize: '13px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                  style={{ background: '#25D366', color: 'white', textDecoration: 'none', padding: '10px 12px', borderRadius: '8px', fontWeight: '800', fontSize: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
                 >
                   <span>📄 Upload Prescription on WhatsApp</span>
                   <span>📲</span>
@@ -410,18 +514,18 @@ const Home = () => {
               </div>
             </div>
 
-            {/* ACTION TILES AT BOTTOM OF WIDGET */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', borderTop: '1px solid #e2e8f0', paddingTop: '14px' }}>
+            {/* ACTION TILES */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px', borderTop: '1px solid #e2e8f0', paddingTop: '12px' }}>
               <a href={`tel:${phoneNumber}`} style={{ textDecoration: 'none', background: '#f8fafc', padding: '8px 4px', borderRadius: '6px', textAlign: 'center', border: '1px solid #e2e8f0' }}>
-                <div style={{ fontSize: '18px' }}>📞</div>
+                <div style={{ fontSize: '16px' }}>📞</div>
                 <div style={{ fontSize: '10px', fontWeight: '800', color: '#0a3880', marginTop: '2px' }}>Call & Book</div>
               </a>
               <a href={`https://wa.me/91${phoneNumber}`} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', background: '#f8fafc', padding: '8px 4px', borderRadius: '6px', textAlign: 'center', border: '1px solid #e2e8f0' }}>
-                <div style={{ fontSize: '18px' }}>📋</div>
+                <div style={{ fontSize: '16px' }}>📋</div>
                 <div style={{ fontSize: '10px', fontWeight: '800', color: '#0a3880', marginTop: '2px' }}>Get Quote</div>
               </a>
               <div onClick={() => setShowCompareOverlay(true)} style={{ background: compareList.length > 0 ? '#ffcc00' : '#f8fafc', padding: '8px 4px', borderRadius: '6px', textAlign: 'center', border: '1px solid #e2e8f0', cursor: 'pointer' }}>
-                <div style={{ fontSize: '18px' }}>⚖️</div>
+                <div style={{ fontSize: '16px' }}>⚖️</div>
                 <div style={{ fontSize: '10px', fontWeight: '800', color: '#0a3880', marginTop: '2px' }}>Compare ({compareList.length})</div>
               </div>
             </div>
