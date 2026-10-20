@@ -23,8 +23,8 @@ function App() {
           <div className="top-bar">
             <div>⚡ Get Up to 70% Off on NABL Accredited Lab Tests in Delhi-NCR</div>
             <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
-              <a href="tel:+918130484197">
-                📞 Helpline: +91 8130484197
+              <a href="tel:+91987321763">
+                📞 Helpline: +91 9873271763
               </a>
             </div>
           </div>
@@ -94,9 +94,9 @@ function App() {
 
               <div style={{ flex: '1 1 250px' }}>
                 <h3 className="footer-header-style">Contact Details</h3>
-                <p className="footer-link-item">📍 Tuglakabad, New Delhi - 110044</p>
+                <p className="footer-link-item">📍 Faridabad, Haryana</p>
                 <p className="footer-link-item">📧 Helpline.Testyaan@gmail.com</p>
-                <p className="footer-link-item">📞 +91 8130484197</p>
+                <p className="footer-link-item">📞 +91 9873271763</p>
               </div>
             </div>
             

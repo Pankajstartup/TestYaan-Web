@@ -97,7 +97,7 @@ function LabPage() {
                   </div>
 
                   <a 
-                    href={`https://wa.me/918130484197?text=Hi,%20I%20want%20to%20book%20${encodeURIComponent(testName)}%20from%20${encodeURIComponent(labName)}`}
+                    href={`https://wa.me/919873271763?text=Hi,%20I%20want%20to%20book%20${encodeURIComponent(testName)}%20from%20${encodeURIComponent(labName)}`}
                     target="_blank"
                     rel="noreferrer"
                     style={{ textDecoration: 'none' }}

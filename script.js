@@ -66,7 +66,7 @@ document.getElementById('bookingForm').onsubmit = function(e) {
         body: JSON.stringify(orderData)
     })
     .then(() => {
-        let myNumber = "918130484197"; 
+        let myNumber = "919873271763"; 
         let message = `*New Lab Test Booking!*%0A%0A` +
             `*Patient Name:* ${orderData.name}%0A` +
             `*Mobile:* ${orderData.mobile}%0A` +
