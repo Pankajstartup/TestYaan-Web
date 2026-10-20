@@ -56,15 +56,21 @@ const Home = () => {
     return getColValue(item, 'RATE') || getColValue(item, 'price') || getColValue(item, 'rate') || getColValue(item, 'MRP') || 'N/A';
   };
 
-  // Render Lab Logo Dynamically
-  const renderLabLogo = (item, height = '24px') => {
+  // Render Full Lab Logo Image Dynamically
+  const renderLabLogo = (item, height = '32px') => {
     const logoUrl = getColValue(item, 'Lab Logo') || getColValue(item, 'LabLogo');
     const labName = getColValue(item, 'Lab Name');
     
     if (logoUrl && logoUrl.trim().length > 5) {
-      return <img src={logoUrl} alt={labName} style={{ height, objectFit: 'contain' }} />;
+      return (
+        <img 
+          src={logoUrl} 
+          alt={labName} 
+          style={{ height, maxWidth: '140px', objectFit: 'contain', display: 'block' }} 
+        />
+      );
     }
-    return <span style={{ fontWeight: '800', color: '#00205b', fontSize: '13px' }}>🏥 {labName}</span>;
+    return <span style={{ fontWeight: '800', color: '#00205b', fontSize: '14px' }}>🏥 {labName}</span>;
   };
 
   useEffect(() => {
@@ -90,8 +96,6 @@ const Home = () => {
           });
           setDynamicLabs(labsList);
 
-          // Default selected lab to first available or 'All'
-          const initialLab = labsList.length > 0 ? labsList[0].name : 'All';
           filterData(validData, 'All', 'All', 'All');
       }});
     });
@@ -231,7 +235,7 @@ const Home = () => {
         </script>
       </Helmet>
 
-      {/* --- TOP DYNAMIC LAB STRIP (ONLY LABS FROM SHEET, NO "ALL LABS" BUTTON) --- */}
+      {/* --- TOP DYNAMIC LAB STRIP --- */}
       {dynamicLabs.length > 0 && (
         <div style={{ background: '#ffffff', padding: '12px 20px', borderBottom: '1px solid #e2e8f0', boxShadow: '0 2px 6px rgba(0,0,0,0.03)' }}>
           <div style={{ maxWidth: '1280px', margin: '0 auto', display: 'flex', alignItems: 'center', gap: '14px', overflowX: 'auto', justifyContent: 'flex-start' }}>
@@ -257,7 +261,7 @@ const Home = () => {
                   }}
                 >
                   {labObj.logo && labObj.logo.trim().length > 5 ? (
-                    <img src={labObj.logo} alt={labObj.name} style={{ height: '26px', objectFit: 'contain' }} />
+                    <img src={labObj.logo} alt={labObj.name} style={{ height: '28px', objectFit: 'contain' }} />
                   ) : (
                     <span style={{ fontWeight: '800', color: '#00205b', fontSize: '13px' }}>🏥 {labObj.name}</span>
                   )}
@@ -268,11 +272,11 @@ const Home = () => {
         </div>
       )}
 
-      {/* --- HERO SECTION WITH FULL-WIDTH FLYER BANNER --- */}
+      {/* --- HERO SECTION WITH FLYER BANNER --- */}
       <section style={{ background: 'linear-gradient(180deg, #e8f1f9 0%, #f8fafc 100%)', padding: '20px 20px 35px' }}>
         <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
           
-          {/* FULL-WIDTH FLYER BANNER CAROUSEL */}
+          {/* FLYER BANNER CAROUSEL */}
           {flyerPackages.length > 0 ? (
             <div 
               style={{ 
@@ -301,8 +305,8 @@ const Home = () => {
                       <span style={{ background: '#e31837', color: 'white', padding: '4px 12px', borderRadius: '4px', fontSize: '11px', fontWeight: '800' }}>
                         FEATURED PACKAGE
                       </span>
-                      <div style={{ background: 'white', padding: '4px 12px', borderRadius: '6px' }}>
-                        {renderLabLogo(flyerPackages[currentSlide], '22px')}
+                      <div style={{ background: 'white', padding: '6px 12px', borderRadius: '6px' }}>
+                        {renderLabLogo(flyerPackages[currentSlide], '26px')}
                       </div>
                     </div>
                     <h2 style={{ fontSize: '2rem', margin: '10px 0', fontWeight: '800', lineHeight: '1.2' }}>
@@ -367,8 +371,8 @@ const Home = () => {
                           {getColValue(item, 'Type') || 'Test'}
                         </span>
                         <div style={{ fontWeight: '800', marginTop: '2px', color: '#00205b', fontSize: '13px' }}>{getColValue(item, 'Test Name')}</div>
-                        <div style={{ marginTop: '4px' }}>
-                          {renderLabLogo(item, '18px')}
+                        <div style={{ marginTop: '6px' }}>
+                          {renderLabLogo(item, '22px')}
                         </div>
                       </div>
                       <div style={{ textAlign: 'right' }}>
@@ -425,7 +429,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* --- DEMOGRAPHIC PACKAGES GRID --- */}
+      {/* --- TEST / PACKAGES GRID WITH FULL LAB LOGO HEADERS --- */}
       <section style={{ padding: '35px 20px 60px' }}>
         <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
           
@@ -462,9 +466,11 @@ const Home = () => {
               const fasting = getColValue(pkg, 'Fasting Status');
               return (
                 <div key={i} className="test-card-advanced">
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div style={{ height: '24px', display: 'flex', alignItems: 'center' }}>
-                      {renderLabLogo(pkg, '22px')}
+                  
+                  {/* CARD HEADER: Full Lab Logo on Left, Compare Checkbox on Right */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', minHeight: '36px', borderBottom: '1px solid #f1f5f9', paddingBottom: '10px', marginBottom: '12px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                      {renderLabLogo(pkg, '32px')}
                     </div>
                     <label className="compare-checkbox">
                       <input 
@@ -522,7 +528,7 @@ const Home = () => {
             </div>
             <p style={{ fontWeight: '800', color: '#0f172a', marginBottom: '6px', fontSize: '1rem' }}>{getColValue(selectedPkg, 'Test Name')}</p>
             <div style={{ marginBottom: '14px' }}>
-              {renderLabLogo(selectedPkg, '24px')}
+              {renderLabLogo(selectedPkg, '32px')}
             </div>
             
             <div style={{ backgroundColor: '#f8fafc', padding: '14px', borderRadius: '12px', fontSize: '13px', color: '#334155', maxHeight: '260px', overflowY: 'auto', lineHeight: '1.6', border: '1px solid #e2e8f0' }}>
@@ -556,7 +562,7 @@ const Home = () => {
         .test-card-advanced:hover { transform: translateY(-4px); box-shadow: 0 10px 20px rgba(0,32,91,0.08); border-color: #00205b; }
         .organ-card:hover { transform: translateY(-3px); border-color: #00205b !important; }
         .compare-checkbox { font-size: 11px; color: #64748b; display: flex; align-items: center; gap: 4px; cursor: pointer; font-weight: 600; }
-        .card-title { font-size: 1rem; font-weight: 800; color: #00205b; margin: 12px 0 6px; line-height: 1.3; height: 2.6em; overflow: hidden; }
+        .card-title { font-size: 1rem; font-weight: 800; color: #00205b; margin: 8px 0 6px; line-height: 1.3; height: 2.6em; overflow: hidden; }
         .fasting-info { font-size: 11px; color: #059669; font-weight: 700; margin: 0 0 10px; }
         .card-footer { margin-top: auto; padding-top: 12px; border-top: 1px solid #f1f5f9; }
         .mrp-text { font-size: 1.4rem; font-weight: 900; color: #e31837; }
