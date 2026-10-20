@@ -1,135 +1,75 @@
-import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { 
-  LayoutDashboard, 
-  UserPlus, 
-  FileText, 
-  Settings, 
-  LogOut, 
-  Menu, 
-  X,
-  Search,
-  Bell,
-  ChevronDown
-} from 'lucide-react';
+import React from 'react';
+import { Link } from 'react-router-dom';
 
-const Navbar = ({ user = { name: 'Admin', role: 'Pathology Lab' } }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const location = useLocation();
-
-  const navigation = [
-    { name: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
-    { name: 'Registration', href: '/admin/registration', icon: UserPlus },
-    { name: 'Orders/Billing', href: '/admin/orders', icon: FileText },
-    { name: 'Reports', href: '/admin/reports', icon: FileText },
-    { name: 'Settings', href: '/admin/settings', icon: Settings },
-  ];
+const Navbar = () => {
+  const phoneNumber = "9873271763";
 
   return (
-    <nav className="bg-white border-b border-gray-200 fixed w-full z-30 top-0 shadow-sm">
-      <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-20">
-          <div className="flex">
-            <div className="flex-shrink-0 flex items-center">
-              <Link to="/admin/dashboard" className="flex items-center gap-4 group transition-all">
-                <div className="bg-white p-1.5 rounded-xl shadow-md border border-gray-100 group-hover:scale-105 transition-transform duration-300">
-                  {/* Public folder wala logo.png use kiya gaya hai */}
-                  <img 
-                    src="/logo.png" 
-                    alt="TestYaan Logo" 
-                    className="h-12 w-auto object-contain" 
-                    style={{ minWidth: '130px' }}
-                    onError={(e) => { e.target.src = "https://via.placeholder.com/150x50?text=TestYaan"; }}
-                  />
-                </div>
-                <div className="hidden md:flex flex-col">
-                  <span className="text-2xl font-black tracking-tighter text-slate-800 leading-none">
-                    TEST<span className="text-red-600">YAAN</span>
-                  </span>
-                  <span className="text-[10px] uppercase tracking-[0.3em] font-bold text-gray-400 mt-1">
-                    Pathology & Diagnostics
-                  </span>
-                </div>
-                <span className="sr-only">TestYaan</span>
-              </Link>
-            </div>
-            
-            {/* Desktop Navigation */}
-            <div className="hidden lg:ml-10 lg:flex lg:space-x-4">
-              {navigation.map((item) => {
-                const Icon = item.icon;
-                const isActive = location.pathname === item.href;
-                return (
-                  <Link
-                    key={item.name}
-                    to={item.href}
-                    className={`inline-flex items-center px-1 pt-1 text-sm font-semibold border-b-2 transition-colors ${
-                      isActive 
-                        ? 'border-red-600 text-red-600' 
-                        : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-red-500'
-                    }`}
-                  >
-                    <Icon className="w-4 h-4 mr-2" />
-                    {item.name}
-                  </Link>
-                );
-              })}
-            </div>
+    <header style={{ width: '100%', fontFamily: 'Roboto, Arial, sans-serif' }}>
+      
+      {/* --- TOP ROYAL BLUE UTILITY BAR --- */}
+      <div style={{ background: '#0a3880', color: 'white', padding: '6px 20px', fontSize: '12px', fontWeight: '600' }}>
+        <div style={{ maxWidth: '1280px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+          <div>
+            ⚡ <span>Compare & Book NABL Accredited Diagnostic Labs in Delhi-NCR</span>
           </div>
-
-          {/* Right side: Search, Notifications, Profile */}
-          <div className="hidden sm:ml-6 sm:flex sm:items-center space-x-6">
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Search className="h-4 w-4 text-gray-400" />
-              </div>
-              <input
-                type="text"
-                placeholder="Search patient/order..."
-                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg leading-5 bg-gray-50 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-500 transition-all sm:text-sm"
-              />
-            </div>
-            
-            <button className="p-2 rounded-full text-gray-400 hover:bg-gray-100 hover:text-red-600 transition-colors relative">
-              <Bell className="h-6 w-6" />
-              <span className="absolute top-2 right-2 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-white"></span>
-            </button>
-
-            <div className="relative">
-              <button
-                onClick={() => setIsProfileOpen(!isProfileOpen)}
-                className="flex items-center p-1 bg-gray-50 rounded-full border border-gray-200 hover:border-red-300 transition-all focus:outline-none"
-              >
-                <div className="h-9 w-9 rounded-full bg-gradient-to-tr from-red-600 to-red-400 flex items-center justify-center text-white font-bold shadow-sm">
-                  {user.name[0]}
-                </div>
-                <div className="hidden md:block text-left ml-3 mr-1">
-                   <p className="text-xs font-bold text-gray-900 leading-none">{user.name}</p>
-                   <p className="text-[10px] text-gray-500 mt-1 uppercase tracking-wider">{user.role}</p>
-                </div>
-                <ChevronDown className="ml-1 h-4 w-4 text-gray-400" />
-              </button>
-            </div>
-            
-            <button className="flex items-center text-gray-500 hover:text-red-600 text-sm font-bold transition-colors">
-              <LogOut className="w-4 h-4 mr-1" />
-              Logout
-            </button>
-          </div>
-
-          {/* Mobile menu button */}
-          <div className="flex items-center lg:hidden">
-            <button
-              onClick={() => setIsOpen(!isOpen)}
-              className="inline-flex items-center justify-center p-2 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 focus:outline-none"
-            >
-              {isOpen ? <X className="block h-6 w-6" /> : <Menu className="block h-6 w-6" />}
-            </button>
+          <div style={{ display: 'flex', gap: '18px', alignItems: 'center' }}>
+            <a href={`tel:${phoneNumber}`} style={{ color: '#ffcc00', textDecoration: 'none', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              📞 Helpline: +91 {phoneNumber}
+            </a>
+            <a href={`https://wa.me/91${phoneNumber}?text=Hi%20TestYaan,%20I%20want%20to%20book%20a%20test`} target="_blank" rel="noopener noreferrer" style={{ color: '#25D366', textDecoration: 'none', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              💬 WhatsApp Booking
+            </a>
           </div>
         </div>
       </div>
-    </nav>
+
+      {/* --- MAIN NAVIGATION BAR --- */}
+      <div style={{ background: '#ffffff', borderBottom: '1px solid #e2e8f0', boxShadow: '0 2px 10px rgba(0,0,0,0.05)', padding: '12px 20px' }}>
+        <div style={{ maxWidth: '1280px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          
+          {/* BRAND LOGO */}
+          <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span style={{ fontSize: '28px' }}>🩸</span>
+            <div>
+              <span style={{ fontSize: '24px', fontWeight: '900', color: '#0a3880', letterSpacing: '-0.5px' }}>TEST</span>
+              <span style={{ fontSize: '24px', fontWeight: '900', color: '#e31837' }}>YAAN</span>
+              <div style={{ fontSize: '10px', color: '#64748b', fontWeight: '700', marginTop: '-4px', letterSpacing: '0.5px' }}>COMPARE & BOOK LABS</div>
+            </div>
+          </Link>
+
+          {/* NAV LINKS */}
+          <nav style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
+            <Link to="/" style={{ color: '#0a3880', textDecoration: 'none', fontWeight: '800', fontSize: '14px' }}>Home</Link>
+            <Link to="/lab-tests" style={{ color: '#334155', textDecoration: 'none', fontWeight: '700', fontSize: '14px' }}>Lab Tests</Link>
+            <Link to="/health-packages" style={{ color: '#334155', textDecoration: 'none', fontWeight: '700', fontSize: '14px' }}>Health Packages</Link>
+            <Link to="/contact" style={{ color: '#334155', textDecoration: 'none', fontWeight: '700', fontSize: '14px' }}>Contact Us</Link>
+          </nav>
+
+          {/* TOP RIGHT BOOK NOW BUTTON */}
+          <a 
+            href={`tel:${phoneNumber}`} 
+            style={{ 
+              background: '#e31837', 
+              color: 'white', 
+              padding: '10px 22px', 
+              borderRadius: '8px', 
+              textDecoration: 'none', 
+              fontWeight: '800', 
+              fontSize: '13px', 
+              boxShadow: '0 4px 12px rgba(227,24,55,0.25)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}
+          >
+            📞 Call & Book Now
+          </a>
+
+        </div>
+      </div>
+
+    </header>
   );
 };
 
