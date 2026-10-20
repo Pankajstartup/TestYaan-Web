@@ -5,35 +5,14 @@ import CompareModal from '../components/CompareModal';
 import SEO from '../components/SEO';
 import { Helmet } from 'react-helmet-async';
 
-// Helper function to render Lab Logos instead of text names everywhere
-const renderLabLogo = (labName, height = '22px') => {
-  const lab = labName ? labName.toLowerCase() : "";
-  if (lab.includes('thyrocare')) {
-    return <img src="https://www.thyrocare.com/assets/images/logo.png" alt="Thyrocare" style={{ height, objectFit: 'contain' }} />;
-  }
-  if (lab.includes('lal')) {
-    return <img src="https://www.lalpathlabs.com/images/logo.png" alt="Dr Lal PathLabs" style={{ height, objectFit: 'contain' }} />;
-  }
-  if (lab.includes('metropolis')) {
-    return <img src="https://www.metropolisindia.com/assets/images/logo.png" alt="Metropolis" style={{ height, objectFit: 'contain' }} />;
-  }
-  if (lab.includes('srl')) {
-    return <img src="https://www.srlworld.com/assets/images/logo.png" alt="SRL Diagnostics" style={{ height, objectFit: 'contain' }} />;
-  }
-  if (lab.includes('apollo')) {
-    return <img src="https://www.apollodiagnostics.in/assets/images/logo.png" alt="Apollo Diagnostics" style={{ height, objectFit: 'contain' }} />;
-  }
-  if (lab.includes('redcliffe')) {
-    return <img src="https://redcliffelabs.com/static/media/logo.3c7a3632.svg" alt="Redcliffe Labs" style={{ height, objectFit: 'contain', maxHeight: '25px' }} />;
-  }
-  return <span style={{ fontWeight: '800', color: '#00205b' }}>🏥 {labName}</span>;
-};
-
 const Home = () => {
   const [allData, setAllData] = useState([]);
   const [displayPackages, setDisplayPackages] = useState([]);
   const [flyerPackages, setFlyerPackages] = useState([]);
   const [currentSlide, setCurrentSlide] = useState(0);
+
+  // Dynamic Labs extracted ONLY from Sheet data
+  const [dynamicLabs, setDynamicLabs] = useState([]);
 
   const [selectedLab, setSelectedLab] = useState('All');
   const [activeCategory, setActiveCategory] = useState('All');
@@ -50,16 +29,6 @@ const Home = () => {
   const [compareList, setCompareList] = useState([]);
   const [showCompareOverlay, setShowCompareOverlay] = useState(false);
 
-  const labPartners = [
-    { key: "All", label: "All Labs" },
-    { key: "Thyrocare", label: "Thyrocare" },
-    { key: "Dr Lal PathLabs", label: "Dr Lal PathLabs" },
-    { key: "Metropolis", label: "Metropolis" },
-    { key: "SRL Diagnostics", label: "SRL Diagnostics" },
-    { key: "Apollo", label: "Apollo" },
-    { key: "Redcliffe Labs", label: "Redcliffe" }
-  ];
-
   const diseasesList = [
     { name: 'All', icon: '🩺' },
     { name: 'Heart', icon: '🫀' },
@@ -74,6 +43,7 @@ const Home = () => {
 
   const categoriesList = ['All', 'Male', 'Female', 'Senior Citizen', 'Adult', 'Child'];
 
+  // Case-Insensitive Column Value Extraction
   const getColValue = (item, keyName) => {
     if (!item) return '';
     const keys = Object.keys(item);
@@ -86,12 +56,42 @@ const Home = () => {
     return getColValue(item, 'RATE') || getColValue(item, 'price') || getColValue(item, 'rate') || getColValue(item, 'MRP') || 'N/A';
   };
 
+  // Render Lab Logo Dynamically
+  const renderLabLogo = (item, height = '24px') => {
+    const logoUrl = getColValue(item, 'Lab Logo') || getColValue(item, 'LabLogo');
+    const labName = getColValue(item, 'Lab Name');
+    
+    if (logoUrl && logoUrl.trim().length > 5) {
+      return <img src={logoUrl} alt={labName} style={{ height, objectFit: 'contain' }} />;
+    }
+    return <span style={{ fontWeight: '800', color: '#00205b', fontSize: '13px' }}>🏥 {labName}</span>;
+  };
+
   useEffect(() => {
     const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vShYhNLxqm5dPsxN42c-unJ1ByWLnU3DmduiBdPkafMj_3NOH_AZohRJtZLLDvW76jfd_uL0VlvNlVx/pub?output=csv";
     fetch(sheetUrl).then(res => res.text()).then(csv => {
       Papa.parse(csv, { header: true, complete: (res) => {
           const validData = res.data.filter(item => getColValue(item, 'Test Name'));
           setAllData(validData);
+
+          // Extract ONLY labs that actually exist in the Sheet rows
+          const labsMap = {};
+          validData.forEach(item => {
+            const lName = getColValue(item, 'Lab Name');
+            const lLogo = getColValue(item, 'Lab Logo') || getColValue(item, 'LabLogo');
+            if (lName && lName.trim().length > 0 && !labsMap[lName.trim()]) {
+              labsMap[lName.trim()] = lLogo;
+            }
+          });
+
+          const labsList = [];
+          Object.keys(labsMap).forEach(lab => {
+            labsList.push({ name: lab, logo: labsMap[lab] });
+          });
+          setDynamicLabs(labsList);
+
+          // Default selected lab to first available or 'All'
+          const initialLab = labsList.length > 0 ? labsList[0].name : 'All';
           filterData(validData, 'All', 'All', 'All');
       }});
     });
@@ -149,9 +149,10 @@ const Home = () => {
     return () => clearInterval(interval);
   }, [flyerPackages]);
 
-  const handleLabChange = (labKey) => {
-    setSelectedLab(labKey);
-    filterData(allData, labKey, activeCategory, activeDisease);
+  const handleLabChange = (labName) => {
+    const newLab = selectedLab === labName ? 'All' : labName;
+    setSelectedLab(newLab);
+    filterData(allData, newLab, activeCategory, activeDisease);
   };
 
   const handleCategoryChange = (cat) => {
@@ -230,55 +231,58 @@ const Home = () => {
         </script>
       </Helmet>
 
-      {/* --- LEFT-ALIGNED HORIZONTAL LAB LOGOS STRIP (NO TEXT HEADING) --- */}
-      <div style={{ background: '#ffffff', padding: '10px 20px', borderBottom: '1px solid #e2e8f0', boxShadow: '0 2px 6px rgba(0,0,0,0.03)' }}>
-        <div style={{ maxWidth: '1280px', margin: '0 auto', display: 'flex', alignItems: 'center', gap: '12px', overflowX: 'auto', justifyContent: 'flex-start' }}>
-          {labPartners.map((partner) => {
-            const isSelected = selectedLab === partner.key;
-            return (
-              <button
-                key={partner.key}
-                onClick={() => handleLabChange(partner.key)}
-                style={{
-                  background: isSelected ? '#e0f2fe' : '#ffffff',
-                  border: isSelected ? '2px solid #00205b' : '1px solid #cbd5e1',
-                  borderRadius: '25px',
-                  padding: '6px 18px',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  minHeight: '38px',
-                  whiteSpace: 'nowrap',
-                  boxShadow: isSelected ? '0 4px 10px rgba(0,32,91,0.1)' : 'none',
-                  transition: 'all 0.2s ease'
-                }}
-              >
-                {partner.key === 'All' ? (
-                  <span style={{ fontWeight: '800', color: '#00205b', fontSize: '13px' }}>🏥 All Labs</span>
-                ) : (
-                  renderLabLogo(partner.key, '22px')
-                )}
-              </button>
-            );
-          })}
+      {/* --- TOP DYNAMIC LAB STRIP (ONLY LABS FROM SHEET, NO "ALL LABS" BUTTON) --- */}
+      {dynamicLabs.length > 0 && (
+        <div style={{ background: '#ffffff', padding: '12px 20px', borderBottom: '1px solid #e2e8f0', boxShadow: '0 2px 6px rgba(0,0,0,0.03)' }}>
+          <div style={{ maxWidth: '1280px', margin: '0 auto', display: 'flex', alignItems: 'center', gap: '14px', overflowX: 'auto', justifyContent: 'flex-start' }}>
+            {dynamicLabs.map((labObj) => {
+              const isSelected = selectedLab === labObj.name;
+              return (
+                <button
+                  key={labObj.name}
+                  onClick={() => handleLabChange(labObj.name)}
+                  style={{
+                    background: isSelected ? '#f0f7ff' : '#ffffff',
+                    border: isSelected ? '2px solid #00205b' : '1px solid #cbd5e1',
+                    borderRadius: '30px',
+                    padding: '8px 22px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justify: 'center',
+                    minHeight: '42px',
+                    whiteSpace: 'nowrap',
+                    boxShadow: isSelected ? '0 4px 12px rgba(0,32,91,0.12)' : 'none',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  {labObj.logo && labObj.logo.trim().length > 5 ? (
+                    <img src={labObj.logo} alt={labObj.name} style={{ height: '26px', objectFit: 'contain' }} />
+                  ) : (
+                    <span style={{ fontWeight: '800', color: '#00205b', fontSize: '13px' }}>🏥 {labObj.name}</span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* --- HERO SECTION --- */}
-      <section style={{ background: 'linear-gradient(180deg, #e8f1f9 0%, #f8fafc 100%)', padding: '25px 20px 35px' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+      {/* --- HERO SECTION WITH FULL-WIDTH FLYER BANNER --- */}
+      <section style={{ background: 'linear-gradient(180deg, #e8f1f9 0%, #f8fafc 100%)', padding: '20px 20px 35px' }}>
+        <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
           
-          {/* FLYER BANNER CAROUSEL */}
+          {/* FULL-WIDTH FLYER BANNER CAROUSEL */}
           {flyerPackages.length > 0 ? (
             <div 
               style={{ 
                 position: 'relative', 
-                borderRadius: '16px', 
+                width: '100%',
+                borderRadius: '18px', 
                 overflow: 'hidden', 
-                boxShadow: '0 10px 25px rgba(0,32,91,0.08)', 
+                boxShadow: '0 12px 30px rgba(0,32,91,0.1)', 
                 cursor: 'pointer',
-                minHeight: '230px',
+                minHeight: '250px',
                 border: '1px solid #cbd5e1',
                 background: '#00205b'
               }}
@@ -288,38 +292,30 @@ const Home = () => {
                 <img 
                   src={getColValue(flyerPackages[currentSlide], 'FlyerImage')} 
                   alt={getColValue(flyerPackages[currentSlide], 'Test Name')} 
-                  style={{ width: '100%', height: 'auto', maxHeight: '380px', objectFit: 'cover', display: 'block' }}
+                  style={{ width: '100%', height: 'auto', maxHeight: '420px', objectFit: 'cover', display: 'block' }}
                 />
               ) : (
-                <div style={{ 
-                  padding: '30px 25px', 
-                  color: 'white', 
-                  display: 'flex', 
-                  justify: 'space-between', 
-                  alignItems: 'center', 
-                  flexWrap: 'wrap', 
-                  gap: '20px'
-                }}>
-                  <div style={{ maxWidth: '600px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
-                      <span style={{ background: '#e31837', color: 'white', padding: '4px 10px', borderRadius: '4px', fontSize: '11px', fontWeight: '800' }}>
+                <div style={{ padding: '35px 30px', color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px' }}>
+                  <div style={{ maxWidth: '700px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
+                      <span style={{ background: '#e31837', color: 'white', padding: '4px 12px', borderRadius: '4px', fontSize: '11px', fontWeight: '800' }}>
                         FEATURED PACKAGE
                       </span>
-                      <div style={{ background: 'white', padding: '3px 8px', borderRadius: '6px' }}>
-                        {renderLabLogo(getColValue(flyerPackages[currentSlide], 'Lab Name'), '18px')}
+                      <div style={{ background: 'white', padding: '4px 12px', borderRadius: '6px' }}>
+                        {renderLabLogo(flyerPackages[currentSlide], '22px')}
                       </div>
                     </div>
-                    <h2 style={{ fontSize: '1.8rem', margin: '8px 0', fontWeight: '800', lineHeight: '1.2' }}>
+                    <h2 style={{ fontSize: '2rem', margin: '10px 0', fontWeight: '800', lineHeight: '1.2' }}>
                       {getColValue(flyerPackages[currentSlide], 'Test Name')}
                     </h2>
-                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '15px', background: 'rgba(255,255,255,0.1)', padding: '8px 18px', borderRadius: '8px', marginTop: '10px' }}>
-                      <span style={{ fontSize: '1.5rem', fontWeight: '900', color: '#ffffff' }}>₹{getPrice(flyerPackages[currentSlide])}</span>
-                      <button style={{ background: '#e31837', color: 'white', border: 'none', padding: '8px 20px', borderRadius: '6px', fontWeight: '800', cursor: 'pointer', fontSize: '13px' }}>
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '18px', background: 'rgba(255,255,255,0.1)', padding: '10px 22px', borderRadius: '8px', marginTop: '12px' }}>
+                      <span style={{ fontSize: '1.7rem', fontWeight: '900', color: '#ffffff' }}>₹{getPrice(flyerPackages[currentSlide])}</span>
+                      <button style={{ background: '#e31837', color: 'white', border: 'none', padding: '10px 24px', borderRadius: '6px', fontWeight: '800', cursor: 'pointer', fontSize: '14px' }}>
                         Book Now »
                       </button>
                     </div>
                   </div>
-                  <div style={{ fontSize: '80px', opacity: 0.15 }}>🩺</div>
+                  <div style={{ fontSize: '90px', opacity: 0.15 }}>🩺</div>
                 </div>
               )}
             </div>
@@ -327,13 +323,13 @@ const Home = () => {
 
           {/* CAROUSEL DOTS */}
           {flyerPackages.length > 1 && (
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '12px' }}>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '14px' }}>
               {flyerPackages.map((_, idx) => (
                 <div 
                   key={idx} 
                   onClick={() => setCurrentSlide(idx)}
                   style={{ 
-                    width: currentSlide === idx ? '26px' : '8px', 
+                    width: currentSlide === idx ? '28px' : '8px', 
                     height: '6px', 
                     borderRadius: '4px', 
                     background: currentSlide === idx ? '#e31837' : '#cbd5e1', 
@@ -346,17 +342,17 @@ const Home = () => {
           )}
 
           {/* SEARCH BAR */}
-          <div style={{ position: 'relative', maxWidth: '750px', margin: '20px auto 0' }}>
+          <div style={{ position: 'relative', maxWidth: '800px', margin: '25px auto 0' }}>
             <div style={{ display: 'flex', background: 'white', borderRadius: '50px', padding: '4px 6px', boxShadow: '0 8px 20px rgba(0,32,91,0.08)', border: '2px solid #00205b', alignItems: 'center' }}>
-              <span style={{ paddingLeft: '16px', fontSize: '18px', color: '#00205b' }}>🔍</span>
+              <span style={{ paddingLeft: '18px', fontSize: '18px', color: '#00205b' }}>🔍</span>
               <input 
                 type="text" 
                 placeholder="Search for Tests, Health Packages or Labs (e.g. CBC, Lipid)..." 
-                style={{ flex: 1, border: 'none', padding: '12px 12px', outline: 'none', color: '#0f172a', fontSize: '14px', fontWeight: '600' }} 
+                style={{ flex: 1, border: 'none', padding: '12px 14px', outline: 'none', color: '#0f172a', fontSize: '14px', fontWeight: '600' }} 
                 value={searchTerm}
                 onChange={handleSearch}
               />
-              <button style={{ backgroundColor: '#e31837', color: 'white', border: 'none', borderRadius: '50px', padding: '12px 28px', fontWeight: '800', cursor: 'pointer', fontSize: '14px' }}>
+              <button style={{ backgroundColor: '#e31837', color: 'white', border: 'none', borderRadius: '50px', padding: '12px 30px', fontWeight: '800', cursor: 'pointer', fontSize: '14px' }}>
                 Search
               </button>
             </div>
@@ -372,7 +368,7 @@ const Home = () => {
                         </span>
                         <div style={{ fontWeight: '800', marginTop: '2px', color: '#00205b', fontSize: '13px' }}>{getColValue(item, 'Test Name')}</div>
                         <div style={{ marginTop: '4px' }}>
-                          {renderLabLogo(getColValue(item, 'Lab Name'), '16px')}
+                          {renderLabLogo(item, '18px')}
                         </div>
                       </div>
                       <div style={{ textAlign: 'right' }}>
@@ -463,13 +459,12 @@ const Home = () => {
           <div className="test-grid-system">
             {displayPackages.map((pkg, i) => {
               const testName = getColValue(pkg, 'Test Name');
-              const labName = getColValue(pkg, 'Lab Name');
               const fasting = getColValue(pkg, 'Fasting Status');
               return (
                 <div key={i} className="test-card-advanced">
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div style={{ height: '22px', display: 'flex', alignItems: 'center' }}>
-                      {renderLabLogo(labName, '20px')}
+                    <div style={{ height: '24px', display: 'flex', alignItems: 'center' }}>
+                      {renderLabLogo(pkg, '22px')}
                     </div>
                     <label className="compare-checkbox">
                       <input 
@@ -527,7 +522,7 @@ const Home = () => {
             </div>
             <p style={{ fontWeight: '800', color: '#0f172a', marginBottom: '6px', fontSize: '1rem' }}>{getColValue(selectedPkg, 'Test Name')}</p>
             <div style={{ marginBottom: '14px' }}>
-              {renderLabLogo(getColValue(selectedPkg, 'Lab Name'), '22px')}
+              {renderLabLogo(selectedPkg, '24px')}
             </div>
             
             <div style={{ backgroundColor: '#f8fafc', padding: '14px', borderRadius: '12px', fontSize: '13px', color: '#334155', maxHeight: '260px', overflowY: 'auto', lineHeight: '1.6', border: '1px solid #e2e8f0' }}>
